@@ -73,7 +73,8 @@ class PharmacyLocations:
         'Accept': 'application/json, text/javascript, */*; q=0.01',
         'Connection': 'keep-alive',
         'Content-Type': 'application/json; charset=UTF-8',
-        'SessionId': 'VmRpbngySFcyc3RVSFhQRzFxZVZVRTF6OCsxZ0ZJeUdJUjVJRkhheHhNc3A4T3hEU3ZuVmVlanN4QmMwdzBqZmJXMDNXc0RBWnZhbHFtNUNyVzBLemZVckNLVnVOQkdObXVNOURiVWk3MXBpWjlMcWdnUzB5UzVHR1dTWEFHeFRNaHVHNG43b1FFQjFidk1nN2JGc1E5RFI0MTN2b3Z6UmVvMk9PaENLM0lvPQ==',
+        'Origin': 'https://www.ramsaypharmacy.com.au',
+        'Referer': 'https://www.ramsaypharmacy.com.au/',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36 Edg/135.0.0.0',
     }
     
@@ -143,6 +144,43 @@ class PharmacyLocations:
     def __init__(self):
         self.session_manager = SessionManager()
         
+    async def get_ramsay_session_id(self):
+        """
+        Fetch the dynamic session ID from Ramsay Pharmacy's store finder page.
+        This is needed for the API to work correctly.
+        
+        Returns:
+            String containing the session ID
+        """
+        url = "https://www.ramsaypharmacy.com.au/Store-Finder"
+        headers = {
+            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36 Edg/135.0.0.0',
+        }
+        
+        response = await self.session_manager.get(
+            url=url,
+            headers=headers
+        )
+        
+        if response.status_code == 200:
+            html_content = response.text
+            
+            # Look for the session ID in the script tag
+            session_id_pattern = r"StoreLocator\.LoadInitialData\('([^']+)', ''\);"
+            match = re.search(session_id_pattern, html_content)
+            
+            if match:
+                session_id = match.group(1)
+                print(f"Successfully extracted Ramsay session ID: {session_id[:10]}...")
+                return session_id
+            else:
+                print("Could not find session ID in Ramsay Store Finder page")
+                return None
+        else:
+            print(f"Failed to fetch Ramsay Store Finder page: {response.status_code}")
+            return None
+
     async def fetch_locations(self, brand):
         """
         Fetch locations for a specific pharmacy brand.
@@ -223,18 +261,40 @@ class PharmacyLocations:
         Returns:
             List of Ramsay Pharmacy locations
         """
+        # First get the dynamic session ID
+        session_id = await self.get_ramsay_session_id()
+        
+        # If we couldn't get a session ID, use a default empty payload
+        payload = self.RAMSAY_PAYLOAD.copy()
+        
+        # If we have a session ID, add it to a special header
+        headers = self.RAMSAY_HEADERS.copy()
+        if session_id:
+            headers['SessionId'] = session_id
+            print(f"Using session ID for Ramsay API request")
+        else:
+            print("Warning: No session ID found for Ramsay API request")
+            
         response = await self.session_manager.post(
             url=self.RAMSAY_URL,
-            json=self.RAMSAY_PAYLOAD,
-            headers=self.RAMSAY_HEADERS
+            json=payload,
+            headers=headers
         )
         
         if response.status_code == 200:
             data = response.json()
-            if 'Data' in data and 'Results' in data['Data']:
+            
+            # Check if data is a direct array (based on sample response)
+            if isinstance(data, list):
+                print(f"Found {len(data)} Ramsay locations in API response (direct array)")
+                return data
+            # Check nested structure (older API format)
+            elif 'Data' in data and 'Results' in data['Data']:
+                print(f"Found {len(data['Data']['Results'])} Ramsay locations in API response (nested)")
                 return data['Data']['Results']
             else:
                 print("No locations found in Ramsay API response")
+                print(f"API response keys: {list(data.keys()) if isinstance(data, dict) else 'array'}")
                 return []
         else:
             raise Exception(f"Failed to fetch Ramsay Pharmacy locations: {response.status_code}")
