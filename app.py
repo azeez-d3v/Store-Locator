@@ -79,7 +79,7 @@ with tab_fetch:
     st.image("https://img.icons8.com/color/96/000000/pharmacy-shop.png", width=100)
     
     # Use checkboxes for brand selection
-    st.subheader("Select pharmacy brand to fetch")
+    st.subheader("Select pharmacy to fetch")
     
     # Add Select All and Clear Selection buttons in a row
     col1, col2 = st.columns(2)
@@ -497,7 +497,16 @@ with tab_analyze:
                                 "WESTERN AUSTRALIA": "WA",
                                 "TASMANIA": "TAS",
                                 "NORTHERN TERRITORY": "NT",
-                                "AUSTRALIAN CAPITAL TERRITORY": "ACT"
+                                "AUSTRALIAN CAPITAL TERRITORY": "ACT",
+                                # Additional variations that might appear
+                                "NSW": "NSW",
+                                "VIC": "VIC",
+                                "QLD": "QLD",
+                                "SA": "SA",
+                                "WA": "WA", 
+                                "TAS": "TAS",
+                                "NT": "NT",
+                                "ACT": "ACT"
                             }
                             
                             df_state["state"] = df_state["state"].replace(state_mapping)
@@ -676,7 +685,16 @@ with tab_analyze:
                         "WESTERN AUSTRALIA": "WA",
                         "TASMANIA": "TAS",
                         "NORTHERN TERRITORY": "NT",
-                        "AUSTRALIAN CAPITAL TERRITORY": "ACT"
+                        "AUSTRALIAN CAPITAL TERRITORY": "ACT",
+                        # Additional variations that might appear
+                        "NSW": "NSW",
+                        "VIC": "VIC",
+                        "QLD": "QLD",
+                        "SA": "SA",
+                        "WA": "WA", 
+                        "TAS": "TAS",
+                        "NT": "NT",
+                        "ACT": "ACT"
                     }
                     
                     brand_state_dfs = []
