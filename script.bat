@@ -13,7 +13,7 @@ if not exist ".venv\" (
     if exist requirements.txt (
         pip install -r requirements.txt
     ) else (
-        pip install streamlit
+        pip install streamlit beautifulsoup4 curl_cffi pandas plotly
     )
 ) else (
     echo Virtual environment found.
