@@ -80,14 +80,59 @@ with tab_fetch:
     
     # Use checkboxes for brand selection
     st.subheader("Select pharmacy brand to fetch")
-    fetch_dds = st.checkbox("Discount Drug Stores")
-    fetch_amcal = st.checkbox("Amcal")
-    fetch_blooms = st.checkbox("Blooms The Chemist")
-    fetch_ramsay = st.checkbox("Ramsay Pharmacy")
-    fetch_revive = st.checkbox("Revive Pharmacy")
-    fetch_optimal = st.checkbox("Optimal Pharmacy Plus")
-    fetch_community = st.checkbox("Community Care Chemist")
-    fetch_footes = st.checkbox("Footes Pharmacy")
+    
+    # Add Select All and Clear Selection buttons in a row
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("Select All"):
+            st.session_state["fetch_dds"] = True
+            st.session_state["fetch_amcal"] = True
+            st.session_state["fetch_blooms"] = True
+            st.session_state["fetch_ramsay"] = True
+            st.session_state["fetch_revive"] = True
+            st.session_state["fetch_optimal"] = True
+            st.session_state["fetch_community"] = True
+            st.session_state["fetch_footes"] = True
+            st.rerun()
+    
+    with col2:
+        if st.button("Clear Selection"):
+            st.session_state["fetch_dds"] = False
+            st.session_state["fetch_amcal"] = False
+            st.session_state["fetch_blooms"] = False
+            st.session_state["fetch_ramsay"] = False
+            st.session_state["fetch_revive"] = False
+            st.session_state["fetch_optimal"] = False
+            st.session_state["fetch_community"] = False
+            st.session_state["fetch_footes"] = False
+            st.rerun()
+    
+    # Initialize checkbox states in session state if they don't exist
+    if "fetch_dds" not in st.session_state:
+        st.session_state["fetch_dds"] = False
+    if "fetch_amcal" not in st.session_state:
+        st.session_state["fetch_amcal"] = False
+    if "fetch_blooms" not in st.session_state:
+        st.session_state["fetch_blooms"] = False
+    if "fetch_ramsay" not in st.session_state:
+        st.session_state["fetch_ramsay"] = False
+    if "fetch_revive" not in st.session_state:
+        st.session_state["fetch_revive"] = False
+    if "fetch_optimal" not in st.session_state:
+        st.session_state["fetch_optimal"] = False
+    if "fetch_community" not in st.session_state:
+        st.session_state["fetch_community"] = False
+    if "fetch_footes" not in st.session_state:
+        st.session_state["fetch_footes"] = False
+    
+    fetch_dds = st.checkbox("Discount Drug Stores", value=st.session_state["fetch_dds"], key="fetch_dds")
+    fetch_amcal = st.checkbox("Amcal", value=st.session_state["fetch_amcal"], key="fetch_amcal")
+    fetch_blooms = st.checkbox("Blooms The Chemist", value=st.session_state["fetch_blooms"], key="fetch_blooms")
+    fetch_ramsay = st.checkbox("Ramsay Pharmacy", value=st.session_state["fetch_ramsay"], key="fetch_ramsay")
+    fetch_revive = st.checkbox("Revive Pharmacy", value=st.session_state["fetch_revive"], key="fetch_revive")
+    fetch_optimal = st.checkbox("Optimal Pharmacy Plus", value=st.session_state["fetch_optimal"], key="fetch_optimal")
+    fetch_community = st.checkbox("Community Care Chemist", value=st.session_state["fetch_community"], key="fetch_community")
+    fetch_footes = st.checkbox("Footes Pharmacy", value=st.session_state["fetch_footes"], key="fetch_footes")
     
     if st.button("Fetch Data"):
         with st.spinner("Fetching data..."):
@@ -431,19 +476,57 @@ with tab_analyze:
                 
                 with state_tab:
                     if safe_column_check(df, "state"):
-                        state_counts = df["state"].value_counts().reset_index()
-                        state_counts.columns = ["State", "Count"]
+                        # Define valid Australian states
+                        valid_states = {"NSW", "VIC", "QLD", "SA", "WA", "TAS", "NT", "ACT"}
                         
-                        fig_states = px.bar(
-                            state_counts, 
-                            x="State", 
-                            y="Count",
-                            color="Count",
-                            text_auto=True,
-                            title=f"Pharmacy Distribution by State - {selected_file_name}"
-                        )
-                        fig_states.update_layout(height=500)
-                        st.plotly_chart(fig_states, use_container_width=True)
+                        # Clean state data to standardize formatting
+                        df_state = df.copy()
+                        if safe_column_check(df_state, "state"):
+                            # Convert state column to proper format - handle different data types
+                            # First convert all values to strings
+                            df_state["state"] = df_state["state"].astype(str)
+                            # Now we can safely use string methods
+                            df_state["state"] = df_state["state"].str.upper().str.strip()
+                            
+                            # Map common variations to standard abbreviations
+                            state_mapping = {
+                                "NEW SOUTH WALES": "NSW",
+                                "VICTORIA": "VIC",
+                                "QUEENSLAND": "QLD",
+                                "SOUTH AUSTRALIA": "SA",
+                                "WESTERN AUSTRALIA": "WA",
+                                "TASMANIA": "TAS",
+                                "NORTHERN TERRITORY": "NT",
+                                "AUSTRALIAN CAPITAL TERRITORY": "ACT"
+                            }
+                            
+                            df_state["state"] = df_state["state"].replace(state_mapping)
+                            
+                            # Filter for valid Australian states
+                            valid_state_data = df_state[df_state["state"].isin(valid_states)]
+                            if len(valid_state_data) > 0:
+                                state_counts = valid_state_data["state"].value_counts().reset_index()
+                                state_counts.columns = ["State", "Count"]
+                                
+                                # Sort states in a logical order
+                                state_order = ["NSW", "VIC", "QLD", "SA", "WA", "TAS", "NT", "ACT"]
+                                state_counts["State_Order"] = state_counts["State"].apply(lambda x: state_order.index(x) if x in state_order else 999)
+                                state_counts = state_counts.sort_values("State_Order").drop("State_Order", axis=1)
+                                
+                                fig_states = px.bar(
+                                    state_counts,
+                                    x="State", 
+                                    y="Count",
+                                    color="Count",
+                                    text_auto=True,
+                                    title=f"Pharmacy Distribution by State - {selected_file_name}"
+                                )
+                                fig_states.update_layout(height=500)
+                                st.plotly_chart(fig_states, use_container_width=True)
+                            else:
+                                st.warning("No valid Australian state data found in this dataset")
+                        else:
+                            st.warning("State data not available in this dataset")
                     else:
                         st.warning("State data not available in this dataset")
                 
@@ -515,131 +598,243 @@ with tab_analyze:
             
             # Tab: Advanced Analysis
             with advanced_tab:
-                # Check if multiple pharmacy files are available for comparison
-                dds_file = OUTPUT_DIR / "dds_pharmacies.csv"
-                amcal_file = OUTPUT_DIR / "amcal_pharmacies.csv"
-                blooms_file = OUTPUT_DIR / "blooms_pharmacies.csv"
+                # Get all available CSV files for comparison
+                all_csv_files = get_csv_files()
+                all_brands = {f.stem: str(f) for f in all_csv_files}
                 
-                # Create a list of available brand files
-                available_brands = []
-                brand_dfs = {}
+                st.subheader("Multi-Brand Comparison")
                 
-                if dds_file.exists():
-                    available_brands.append(("DDS", dds_file))
-                    brand_dfs["DDS"] = load_data(dds_file)
+                # Allow user to select up to 4 datasets to compare
+                st.write("Select up to 4 datasets to compare:")
                 
-                if amcal_file.exists():
-                    available_brands.append(("Amcal", amcal_file))
-                    brand_dfs["Amcal"] = load_data(amcal_file)
+                # Create a 2x2 grid for brand selection checkboxes
+                col1, col2 = st.columns(2)
+                selected_brands = {}
                 
-                if blooms_file.exists():
-                    available_brands.append(("Blooms", blooms_file))
-                    brand_dfs["Blooms"] = load_data(blooms_file)
-                
-                if len(available_brands) >= 2:
-                    st.subheader("Brand Comparison")
+                # Use session state to keep track of selected brands
+                if "selected_brands_for_comparison" not in st.session_state:
+                    st.session_state.selected_brands_for_comparison = {}
                     
-                    # Display metrics for each brand
-                    cols = st.columns(len(available_brands))
+                # Create checkboxes for brand selection in the 2x2 grid
+                brand_names = list(all_brands.keys())
+                
+                for i, brand in enumerate(brand_names):
+                    # Place in appropriate column
+                    with col1 if i % 2 == 0 else col2:
+                        if brand in st.session_state.selected_brands_for_comparison:
+                            default = st.session_state.selected_brands_for_comparison[brand]
+                        else:
+                            default = False
+                            
+                        is_selected = st.checkbox(brand, value=default, key=f"compare_{brand}")
+                        if is_selected:
+                            selected_brands[brand] = all_brands[brand]
+                            st.session_state.selected_brands_for_comparison[brand] = True
+                        else:
+                            if brand in st.session_state.selected_brands_for_comparison:
+                                st.session_state.selected_brands_for_comparison[brand] = False
+                
+                # Clear selection button
+                if st.button("Clear Comparison Selection"):
+                    st.session_state.selected_brands_for_comparison = {brand: False for brand in brand_names}
+                    st.rerun()
+                
+                # Display error if more than 4 brands are selected
+                if len(selected_brands) > 4:
+                    st.error("Please select at most 4 brands for comparison.")
+                    selected_brands = dict(list(selected_brands.items())[:4])
+                
+                if len(selected_brands) >= 2:
+                    st.subheader(f"Comparing {len(selected_brands)} Brands")
                     
-                    for i, (brand_name, _) in enumerate(available_brands):
+                    # Load selected brand dataframes
+                    brand_dfs = {}
+                    for brand_name, file_path in selected_brands.items():
+                        brand_dfs[brand_name] = load_data(file_path)
+                    
+                    # Display metrics for each brand in a row
+                    cols = st.columns(len(selected_brands))
+                    
+                    for i, (brand_name, _) in enumerate(selected_brands.items()):
                         with cols[i]:
                             brand_df = brand_dfs[brand_name]
                             st.metric(f"{brand_name} Locations", len(brand_df))
+                            
+                            # Add a small data quality score based on completeness
+                            if not brand_df.empty:
+                                completeness_pct = brand_df.notna().sum().sum() / (len(brand_df) * len(brand_df.columns)) * 100
+                                st.metric("Data Quality", f"{completeness_pct:.1f}%")
                     
-                    # State distribution comparison
+                    # Standardize state data for all brands
+                    st.subheader("State Distribution Comparison")
+                    valid_states = {"NSW", "VIC", "QLD", "SA", "WA", "TAS", "NT", "ACT"}
+                    state_mapping = {
+                        "NEW SOUTH WALES": "NSW",
+                        "VICTORIA": "VIC", 
+                        "QUEENSLAND": "QLD",
+                        "SOUTH AUSTRALIA": "SA",
+                        "WESTERN AUSTRALIA": "WA",
+                        "TASMANIA": "TAS",
+                        "NORTHERN TERRITORY": "NT",
+                        "AUSTRALIAN CAPITAL TERRITORY": "ACT"
+                    }
+                    
                     brand_state_dfs = []
-                    all_brands_have_state = True
                     
                     for brand_name, brand_df in brand_dfs.items():
                         if safe_column_check(brand_df, "state"):
-                            states = brand_df["state"].value_counts().reset_index()
-                            states.columns = ["State", "Count"]
-                            states["Brand"] = brand_name
-                            brand_state_dfs.append(states)
+                            # Clean and standardize state data
+                            brand_df_copy = brand_df.copy()
+                            if isinstance(brand_df_copy["state"], pd.Series):
+                                brand_df_copy["state"] = brand_df_copy["state"].str.upper().str.strip()
+                                brand_df_copy["state"] = brand_df_copy["state"].replace(state_mapping)
+                                
+                                # Filter for valid Australian states
+                                valid_state_data = brand_df_copy[brand_df_copy["state"].isin(valid_states)]
+                                
+                                if not valid_state_data.empty:
+                                    states = valid_state_data["state"].value_counts().reset_index()
+                                    states.columns = ["State", "Count"]
+                                    states["Brand"] = brand_name
+                                    brand_state_dfs.append(states)
+                            else:
+                                st.warning(f"State data in {brand_name} is not in the expected format.")
                         else:
-                            all_brands_have_state = False
                             st.warning(f"State data not available for {brand_name}")
                     
-                    if all_brands_have_state and brand_state_dfs:
+                    if brand_state_dfs:
                         combined_states = pd.concat(brand_state_dfs)
                         
+                        # Sort states in standard order
+                        state_order = ["NSW", "VIC", "QLD", "SA", "WA", "TAS", "NT", "ACT"]
+                        combined_states["State_Order"] = combined_states["State"].apply(
+                            lambda x: state_order.index(x) if x in state_order else 999
+                        )
+                        combined_states = combined_states.sort_values("State_Order")
+                        
+                        # Create the comparison chart
                         fig_comparison = px.bar(
                             combined_states, 
                             x="State", 
                             y="Count", 
                             color="Brand",
                             barmode="group",
-                            title="State Distribution Comparison"
+                            category_orders={"State": state_order},
+                            title="Pharmacy Distribution by State - Brand Comparison"
                         )
                         fig_comparison.update_layout(height=500)
                         st.plotly_chart(fig_comparison, use_container_width=True)
                         
-                    # Services comparison (if available)
-                    services_available = all(
-                        safe_column_check(brand_df, "services") for brand_df in brand_dfs.values()
-                    )
+                        # Add a percentage view option
+                        if st.checkbox("Show as percentage of brand total"):
+                            # Calculate percentages
+                            percentage_data = []
+                            for brand in combined_states["Brand"].unique():
+                                brand_data = combined_states[combined_states["Brand"] == brand].copy()
+                                total = brand_data["Count"].sum()
+                                brand_data["Percentage"] = (brand_data["Count"] / total * 100) if total > 0 else 0
+                                percentage_data.append(brand_data)
+                            
+                            percentage_df = pd.concat(percentage_data)
+                            
+                            # Create percentage chart
+                            fig_percentage = px.bar(
+                                percentage_df,
+                                x="State",
+                                y="Percentage",
+                                color="Brand",
+                                barmode="group",
+                                category_orders={"State": state_order},
+                                title="Pharmacy Distribution by State (%) - Brand Comparison"
+                            )
+                            fig_percentage.update_layout(height=500)
+                            fig_percentage.update_traces(texttemplate='%{y:.1f}%', textposition='outside')
+                            st.plotly_chart(fig_percentage, use_container_width=True)
                     
-                    if services_available:
-                        st.subheader("Services Comparison")
+                    # Compare other interesting metrics if available
+                    metrics_to_compare = []
+                    
+                    # Check if we have email data across brands
+                    if all(safe_column_check(df, "email") for df in brand_dfs.values()):
+                        metrics_to_compare.append("Email Availability")
+                    
+                    # Check if we have website data across brands
+                    if all(safe_column_check(df, "website") for df in brand_dfs.values()):
+                        metrics_to_compare.append("Website Availability")
+                    
+                    # Check if we have trading_hours data across brands
+                    if all(safe_column_check(df, "trading_hours") for df in brand_dfs.values()):
+                        metrics_to_compare.append("Trading Hours Availability")
+                    
+                    if metrics_to_compare:
+                        st.subheader("Additional Metrics Comparison")
                         
-                        all_services = {}
-                        for brand_name, brand_df in brand_dfs.items():
-                            if safe_column_check(brand_df, "services"):
-                                service_counts = {}
-                                # Count services across all locations
-                                for _, row in brand_df.iterrows():
-                                    services = row.get("services", [])
-                                    if isinstance(services, str):
-                                        try:
-                                            # Try to convert string representation of list to actual list
-                                            services = eval(services)
-                                        except:
-                                            services = [s.strip() for s in services.split(',') if s.strip()]
+                        comparison_data = []
+                        for brand_name, df in brand_dfs.items():
+                            brand_row = {"Brand": brand_name}
+                            
+                            # Calculate availability percentages for each metric
+                            if "Email Availability" in metrics_to_compare:
+                                email_pct = df["email"].notna().mean() * 100 if "email" in df else 0
+                                brand_row["Email Availability"] = email_pct
+                                
+                            if "Website Availability" in metrics_to_compare:
+                                website_pct = df["website"].notna().mean() * 100 if "website" in df else 0
+                                brand_row["Website Availability"] = website_pct
+                                
+                            if "Trading Hours Availability" in metrics_to_compare:
+                                # Check if trading_hours field has actual content
+                                has_hours = 0
+                                total = len(df)
+                                
+                                for _, row in df.iterrows():
+                                    try:
+                                        trading_hours_data = row.get("trading_hours", None)
+                                        if pd.notna(trading_hours_data):
+                                            # Handle different formats
+                                            if isinstance(trading_hours_data, str):
+                                                if trading_hours_data.strip() not in ["", "{}", "null", "nan"]:
+                                                    has_hours += 1
+                                            elif isinstance(trading_hours_data, dict) and trading_hours_data:
+                                                has_hours += 1
+                                    except:
+                                        pass
                                         
-                                    if isinstance(services, list):
-                                        for service in services:
-                                            service = service.strip().lower()
-                                            if service:
-                                                service_counts[service] = service_counts.get(service, 0) + 1
-                                
-                                all_services[brand_name] = service_counts
+                                hours_pct = (has_hours / total * 100) if total > 0 else 0
+                                brand_row["Trading Hours Availability"] = hours_pct
+                            
+                            comparison_data.append(brand_row)
                         
-                        # Create a unified dataframe of services
-                        if all_services:
-                            service_df_data = []
+                        # Create comparison dataframe
+                        if comparison_data:
+                            comp_df = pd.DataFrame(comparison_data)
                             
-                            # Get top 10 services for each brand
-                            for brand, services in all_services.items():
-                                top_services = sorted(services.items(), key=lambda x: x[1], reverse=True)[:10]
-                                for service, count in top_services:
-                                    service_df_data.append({
-                                        "Brand": brand,
-                                        "Service": service.title(),
-                                        "Count": count,
-                                        "Percentage": (count / len(brand_dfs[brand])) * 100
-                                    })
+                            # Melt the dataframe for easier plotting
+                            melted_df = pd.melt(
+                                comp_df, 
+                                id_vars=["Brand"], 
+                                var_name="Metric", 
+                                value_name="Percentage"
+                            )
                             
-                            if service_df_data:
-                                service_df = pd.DataFrame(service_df_data)
-                                
-                                fig_services = px.bar(
-                                    service_df,
-                                    x="Service",
-                                    y="Percentage",
-                                    color="Brand",
-                                    barmode="group",
-                                    title="Top Services by Brand (% of Locations)",
-                                    labels={"Percentage": "% of Brand Locations"}
-                                )
-                                fig_services.update_layout(height=500, xaxis={'categoryorder': 'total descending'})
-                                st.plotly_chart(fig_services, use_container_width=True)
-                                
-                                # Display the raw data table
-                                with st.expander("View Services Data"):
-                                    st.dataframe(service_df)
+                            # Create comparison chart
+                            fig_metrics = px.bar(
+                                melted_df,
+                                x="Brand",
+                                y="Percentage",
+                                color="Metric",
+                                barmode="group",
+                                title="Data Availability Comparison (%)"
+                            )
+                            fig_metrics.update_layout(height=500)
+                            fig_metrics.update_traces(texttemplate='%{y:.1f}%', textposition='outside')
+                            st.plotly_chart(fig_metrics, use_container_width=True)
+                            
+                            # Display the raw data
+                            with st.expander("View Comparison Data"):
+                                st.dataframe(comp_df)
                 else:
-                    st.info("To compare brands, please fetch data for at least two pharmacy brands.")
+                    st.info("Please select at least 2 brands to compare (maximum 4).")
 
 # Footer
 st.markdown("---")
