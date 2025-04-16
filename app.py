@@ -108,7 +108,7 @@ with tab_fetch:
                     
                     if len(selected_brands) > 1:
                         # Fetch multiple brands
-                        await pharmacy_api.fetch_and_save_all()
+                        await pharmacy_api.fetch_and_save_all(selected_brands)
                         st.success(f"Successfully fetched data for {', '.join(b.upper() for b in selected_brands)}!")
                     elif len(selected_brands) == 1:
                         # Fetch a single brand
