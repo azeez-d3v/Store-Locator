@@ -646,229 +646,6 @@ class PharmacyLocations:
         else:
             raise Exception(f"Failed to fetch Footes Pharmacy locations: {response.status_code}")
     
-    async def fetch_footes_location_details(self, detail_url):
-        """
-        Fetch detailed information for a specific Footes Pharmacy from its detail page.
-        
-        Args:
-            detail_url: URL to the store's detail page
-            
-        Returns:
-            Dictionary containing detailed pharmacy information
-        """
-        # Helper function to decode obfuscated email addresses
-        def decodeEmail(e):
-            de = ""
-            k = int(e[:2], 16)
-
-            for i in range(2, len(e)-1, 2):
-                de += chr(int(e[i:i+2], 16)^k)
-
-            return de
-            
-        if not detail_url:
-            return {}
-            
-        response = await self.session_manager.get(
-            url=detail_url,
-            headers=self.FOOTES_HEADERS
-        )
-        
-        if response.status_code != 200:
-            print(f"Failed to fetch Footes pharmacy details from {detail_url}: {response.status_code}")
-            return {}
-            
-        html_content = response.text
-        soup = BeautifulSoup(html_content, 'html.parser')
-        
-        # Dictionary to store detailed information
-        details = {}
-        
-        try:
-            # Extract address from contact details section
-            address_element = soup.select_one('.elementor-element-d9bbb9b .elementor-heading-title')
-            if address_element:
-                # Handle address with <br> tags
-                address_text = address_element.get_text('\n').strip()
-                details['address'] = address_text.replace('\n', ', ')
-                
-                # Extract state and postcode from the address
-                # Australian state pattern
-                state_pattern = r'\b(NSW|VIC|QLD|SA|WA|TAS|NT|ACT)\b'
-                state_match = re.search(state_pattern, address_text)
-                if state_match:
-                    details['state'] = state_match.group(0)
-                
-                # Australian postcode pattern (4 digits)
-                postcode_pattern = r'\b(\d{4})\b'
-                postcode_match = re.search(postcode_pattern, address_text)
-                if postcode_match:
-                    details['postcode'] = postcode_match.group(0)
-                    
-                # Extract suburb (typically before state and postcode)
-                # In address like "82 High Street, Boonah QLD 4310"
-                # We want to extract "Boonah" as the suburb
-                lines = address_text.split('\n')
-                if len(lines) >= 2:
-                    second_line = lines[1]
-                    suburb_parts = second_line.split()
-                    if len(suburb_parts) >= 3:  # Assuming format like "Suburb STATE POSTCODE"
-                        details['suburb'] = suburb_parts[0]
-                        
-                # Store the street address (first line typically)
-                if lines:
-                    details['street_address'] = lines[0].strip()
-            
-            # Extract phone number
-            phone_element = soup.select_one('.store-phone a')
-            if phone_element:
-                details['phone'] = phone_element.text.strip()
-            
-            # Extract fax number
-            fax_element = soup.select_one('.elementor-element-2008741')
-            if fax_element:
-                fax_text = fax_element.text.strip()
-                if fax_text.startswith('Fx:'):
-                    details['fax'] = fax_text.replace('Fx:', '').strip()
-            
-            # Find email using the decoder function
-            # First check for encoded emails in the HTML
-            encoded_email_pattern = r'data-cfemail="([a-f0-9]+)"'
-            email_matches = re.findall(encoded_email_pattern, html_content)
-            
-            if email_matches:
-                # Found encoded email, decode it
-                details['email'] = decodeEmail(email_matches[0])
-            else:
-                # If no encoded email, try the regular extraction methods
-                email_div = soup.select_one('.elementor-element.store-email')
-                if email_div:
-                    # Find the anchor tag with href=mailto inside this div
-                    email_link = email_div.select_one('a[href^="mailto:"]')
-                    if email_link:
-                        # Extract the text directly from the a tag
-                        details['email'] = email_link.text.strip()
-                        
-                        # If the text extraction fails, try from the href
-                        if not details['email']:
-                            href = email_link.get('href', '')
-                            if href and href.startswith('mailto:'):
-                                details['email'] = href[7:]  # Skip 'mailto:' prefix
-                
-                # If we still don't have an email, try a more direct approach
-                if 'email' not in details or not details['email']:
-                    # Try to find the email container directly
-                    email_container = soup.select_one('.elementor-element-ce44c5f')
-                    if email_container:
-                        email_link = email_container.select_one('a')
-                        if email_link:
-                            # Check if this is a CloudFlare protected email
-                            cf_email = email_link.select_one('.__cf_email__')
-                            if cf_email and cf_email.has_attr('data-cfemail'):
-                                # Decode the email using the decodeEmail function
-                                encoded_email = cf_email['data-cfemail']
-                                details['email'] = decodeEmail(encoded_email)
-                            else:
-                                # Regular email extraction
-                                details['email'] = email_link.text.strip()
-                                
-                                # Double-check by extracting from href if needed
-                                if not details['email'] or '[email protected]' in details['email']:
-                                    href = email_link.get('href', '')
-                                    if href and href.startswith('mailto:'):
-                                        # Extract raw email from the href
-                                        raw_email = href[7:]  # Skip 'mailto:' prefix
-                                        if '@' in raw_email:
-                                            details['email'] = raw_email
-                
-                # Final fallback - extract from raw HTML using regex
-                if 'email' not in details or not details['email'] or '[email protected]' in details['email']:
-                    # Extract all mailto links from the HTML
-                    email_matches = re.findall(r'href="mailto:([^"]+)"', html_content)
-                    if email_matches:
-                        details['email'] = email_matches[0]
-            
-            # Extract trading hours
-            trading_hours = {}
-            
-            # Find the containers for day names and hours
-            days_container = soup.select_one('.elementor-element-fb1522c')
-            hours_container = soup.select_one('.elementor-element-b96bcb7')
-            
-            if days_container and hours_container:
-                # Extract all day elements
-                day_elements = days_container.select('.elementor-widget-text-editor')
-                hour_elements = hours_container.select('.elementor-widget-text-editor')
-                
-                # Process each day and its hours
-                for i, (day_element, hour_element) in enumerate(zip(day_elements, hour_elements)):
-                    day_text = day_element.text.strip()
-                    hours_text = hour_element.text.strip()
-                    
-                    # For "Monday – Friday" type entries
-                    if '–' in day_text or '-' in day_text:
-                        day_range = day_text.replace('–', '-').split('-')
-                        if len(day_range) == 2:
-                            start_day = day_range[0].strip()
-                            end_day = day_range[1].strip()
-                            
-                            # Map day names to standardized format
-                            day_mapping = {
-                                'Monday': 'Monday',
-                                'Tuesday': 'Tuesday', 
-                                'Wednesday': 'Wednesday',
-                                'Thursday': 'Thursday',
-                                'Friday': 'Friday',
-                                'Saturday': 'Saturday',
-                                'Sunday': 'Sunday',
-                                'Mon': 'Monday',
-                                'Tue': 'Tuesday',
-                                'Wed': 'Wednesday',
-                                'Thu': 'Thursday',
-                                'Fri': 'Friday',
-                                'Sat': 'Saturday',
-                                'Sun': 'Sunday'
-                            }
-                            
-                            # Get the full day names
-                            days_of_week = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-                            start_idx = days_of_week.index(day_mapping.get(start_day, start_day))
-                            end_idx = days_of_week.index(day_mapping.get(end_day, end_day))
-                            
-                            # Apply hours to all days in the range
-                            for day_idx in range(start_idx, end_idx + 1):
-                                day = days_of_week[day_idx]
-                                if hours_text.lower() == 'closed':
-                                    trading_hours[day] = {'open': 'Closed', 'closed': 'Closed'}
-                                elif '–' in hours_text or '-' in hours_text:
-                                    hours_parts = hours_text.replace('–', '-').split('-')
-                                    if len(hours_parts) == 2:
-                                        trading_hours[day] = {
-                                            'open': hours_parts[0].strip(),
-                                            'closed': hours_parts[1].strip()
-                                        }
-                    else:
-                        # Single day entry
-                        if day_text.lower() in ['saturday', 'sunday', 'sat', 'sun']:
-                            day = 'Saturday' if day_text.lower() in ['saturday', 'sat'] else 'Sunday'
-                            
-                            if hours_text.lower() == 'closed':
-                                trading_hours[day] = {'open': 'Closed', 'closed': 'Closed'}
-                            elif '–' in hours_text or '-' in hours_text:
-                                hours_parts = hours_text.replace('–', '-').split('-')
-                                if len(hours_parts) == 2:
-                                    trading_hours[day] = {
-                                        'open': hours_parts[0].strip(),
-                                        'closed': hours_parts[1].strip()
-                                    }
-            
-            details['trading_hours'] = trading_hours
-            
-        except Exception as e:
-            print(f"Error extracting Footes pharmacy details from {detail_url}: {e}")
-            
-        return details
-    
     async def fetch_pharmacy_details(self, brand, location_id):
         """
         Fetch detailed information for a specific pharmacy.
@@ -911,6 +688,380 @@ class PharmacyLocations:
         else:
             raise Exception(f"Failed to fetch pharmacy details: {response.status_code}")
             
+    def extract_pharmacy_details(self, pharmacy_data, brand=""):
+        """
+        Extract specific fields from pharmacy location details response.
+        
+        Args:
+            pharmacy_data: The raw pharmacy data from the API
+            brand: The brand of the pharmacy (to handle different response formats)
+            
+        Returns:
+            Dictionary containing only the requested fields in a standardized order
+        """
+        result = {}
+        
+        if brand == "blooms":
+            # Handle Blooms' different data structure
+            # Convert the trading hours to the same format as other pharmacies
+            trading_hours = {}
+            for day in ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']:
+                if day in pharmacy_data and pharmacy_data[day]:
+                    hours = pharmacy_data[day].strip()
+                    if hours.upper() != "CLOSED":
+                        try:
+                            open_close = hours.split("-")
+                            if len(open_close) == 2:
+                                trading_hours[day.capitalize()] = {
+                                    "open": open_close[0].strip(),
+                                    "closed": open_close[1].strip()
+                                }
+                        except Exception:
+                            # Fall back to storing the raw string if parsing fails
+                            trading_hours[day.capitalize()] = {"raw": hours}
+            
+            # Extract state and postcode from the address
+            state = ""
+            postcode = ""
+            suburb = ""
+            address = pharmacy_data.get('streetaddress', '')
+            
+            # Typical format: Street address, Suburb, STATE POSTCODE, Country
+            address_parts = address.split(',')
+            if len(address_parts) >= 3:
+                # Try to extract state and postcode from the second last part (before country)
+                state_part = address_parts[-2].strip() if len(address_parts) > 2 else ""
+                state_postcode = state_part.split()
+                if len(state_postcode) >= 2:
+                    # Assume format: NSW 2000
+                    state = state_postcode[0]
+                    postcode = state_postcode[1]
+                
+                # Try to extract suburb from the part before state/postcode
+                if len(address_parts) > 3:
+                    suburb = address_parts[-3].strip()
+            
+            # Get coordinates from loc_lat and loc_long fields
+            latitude = pharmacy_data.get('loc_lat')
+            longitude = pharmacy_data.get('loc_long')
+            
+            # Using fixed column order
+            result = {
+                'name': pharmacy_data.get('name'),
+                'address': address,
+                'email': pharmacy_data.get('email'),
+                'fax': None,  # Blooms doesn't provide fax numbers in the API
+                'latitude': latitude,
+                'longitude': longitude,
+                'phone': pharmacy_data.get('phone'),
+                'postcode': postcode,
+                'state': state,
+                'street_address': address,
+                'suburb': suburb,
+                'trading_hours': trading_hours,
+                'website': pharmacy_data.get('website')
+            }
+            
+        elif brand == "ramsay":
+            # Handle Ramsay's different data structure
+            # Extract address, state, and postcode
+            address = pharmacy_data.get('Address', '')
+            address = address.replace('<br>', ', ')  # Replace HTML line breaks with commas
+            address_parts = address.split(',')
+            
+            # Try to extract state and postcode
+            state = None
+            postcode = None
+            suburb = None
+            
+            # Look for state and postcode in address (typically at the end)
+            for part in reversed(address_parts):
+                part = part.strip()
+                if ',' in part:
+                    subparts = part.split(',')
+                    for subpart in subparts:
+                        subpart = subpart.strip()
+                        # Common Australian state abbreviations
+                        if any(s in subpart for s in ['NSW', 'VIC', 'QLD', 'SA', 'WA', 'TAS', 'NT', 'ACT']):
+                            state_postcode = subpart.split()
+                            if len(state_postcode) >= 2:
+                                state = state_postcode[0]
+                                postcode = state_postcode[1]
+                            break
+                elif 'NSW' in part or 'VIC' in part or 'QLD' in part or 'SA' in part or 'WA' in part or 'TAS' in part or 'NT' in part or 'ACT' in part:
+                    state_postcode = part.split()
+                    if len(state_postcode) >= 2:
+                        state = state_postcode[0]
+                        postcode = state_postcode[1]
+                    break
+            
+            # Try to extract suburb (usually before state and postcode)
+            for i, part in enumerate(address_parts):
+                part = part.strip()
+                if state and part.endswith(state):
+                    if i > 0:
+                        suburb = address_parts[i - 1].strip()
+                    break
+            
+            # Parse operating hours
+            trading_hours = {}
+            if pharmacy_data.get('OpereatingHourDescription'):
+                hours_desc = pharmacy_data.get('OpereatingHourDescription').replace('<br/>', '\n')
+                for line in hours_desc.split('\n'):
+                    if ':' in line:
+                        day_hours = line.strip().split(':')
+                        if len(day_hours) >= 2:
+                            day = day_hours[0].strip()
+                            hours = day_hours[1].strip()
+                            
+                            if 'Closed' in hours:
+                                # Handle closed days
+                                trading_hours[day] = {
+                                    "open": "Closed",
+                                    "closed": "Closed"
+                                }
+                            else:
+                                # Try to parse open/close times
+                                try:
+                                    open_close = hours.split('-')
+                                    if len(open_close) == 2:
+                                        trading_hours[day] = {
+                                            "open": open_close[0].strip(),
+                                            "closed": open_close[1].strip()
+                                        }
+                                except Exception:
+                                    # Fall back to storing the raw string
+                                    trading_hours[day] = {"raw": hours}
+            
+            # Using fixed column order
+            result = {
+                'name': pharmacy_data.get('PharmacyName'),
+                'address': address,
+                'email': None,  # Ramsay doesn't provide email in API
+                'fax': pharmacy_data.get('FaxNumber'),
+                'latitude': pharmacy_data.get('Latitude'),
+                'longitude': pharmacy_data.get('Longitude'),
+                'phone': pharmacy_data.get('PhoneNumber'),
+                'postcode': postcode,
+                'state': state,
+                'street_address': address,
+                'suburb': suburb,
+                'trading_hours': trading_hours,
+                'website': None  # Ramsay doesn't provide website in API
+            }
+            
+            # Keep additional fields outside the standard columns
+            if 'reference_id' not in result:
+                result['reference_id'] = pharmacy_data.get('ReferenceId')
+            if 'pharmacy_id' not in result:
+                result['pharmacy_id'] = pharmacy_data.get('PharmacyId')
+            if 'where_to_find' not in result:
+                result['where_to_find'] = pharmacy_data.get('WhereToFind')
+                
+        elif brand in ["revive", "optimal"]:
+            # Handle Revive and Optimal's identical data structure
+            # Extract coordinates from the place object
+            latitude = None
+            longitude = None
+            if 'place' in pharmacy_data and 'coordinates' in pharmacy_data['place']:
+                coordinates = pharmacy_data['place']['coordinates']
+                latitude = coordinates.get('lat')
+                longitude = coordinates.get('lng')
+            
+            # Extract address information
+            address = pharmacy_data.get('address', '')
+            # Typical format: "42 Herbert St Allora QLD 4362"
+            address_parts = address.split()
+            
+            # Try to extract state and postcode
+            state = None
+            postcode = None
+            suburb = None
+            
+            # Look for state abbreviations (usually second-to-last element)
+            state_abbreviations = ['NSW', 'VIC', 'QLD', 'SA', 'WA', 'TAS', 'NT', 'ACT']
+            for i, part in enumerate(address_parts):
+                if part in state_abbreviations and i < len(address_parts) - 1:
+                    state = part
+                    postcode = address_parts[i + 1]
+                    # Suburb is usually right before the state
+                    if i > 0:
+                        # Collect all parts between street address and state as suburb
+                        suburb_parts = []
+                        # Find where the street number/name ends - typically after a St, Rd, Dr, etc.
+                        street_indicators = ['St', 'Rd', 'Dr', 'Ave', 'Ln', 'Cres', 'Pl', 'Ct', 'Way', 'Blvd', 'Street', 'Road', 'Drive']
+                        street_end_idx = -1
+                        for j, addr_part in enumerate(address_parts[:i]):
+                            if addr_part in street_indicators:
+                                street_end_idx = j
+                                break
+                        
+                        if street_end_idx >= 0:
+                            suburb_parts = address_parts[street_end_idx + 1:i]
+                            if suburb_parts:
+                                suburb = ' '.join(suburb_parts)
+                    break
+            
+            # Parse trading hours from the daily open/hours fields
+            trading_hours = {}
+            days = {
+                'Monday': ('dayMondayOpen', 'dayMondayHours'),
+                'Tuesday': ('dayTuesdayOpen', 'dayTuesdayHours'),
+                'Wednesday': ('dayWednesdayOpen', 'dayWednesdayHours'),
+                'Thursday': ('dayThursdayOpen', 'dayThursdayHours'),
+                'Friday': ('dayFridayOpen', 'dayFridayHours'),
+                'Saturday': ('daySaturdayOpen', 'daySaturdayHours'),
+                'Sunday': ('daySundayOpen', 'daySundayHours')
+            }
+            
+            for day, (open_key, hours_key) in days.items():
+                # Check if pharmacy has hours for this day
+                # Note: For Revive, False means open; for Optimal, True means open
+                if brand == "revive":
+                    is_open = not pharmacy_data.get(open_key, False)
+                else:  # optimal
+                    is_open = pharmacy_data.get(open_key, False)
+                    
+                if is_open and hours_key in pharmacy_data and pharmacy_data[hours_key]:
+                    hours_data = pharmacy_data[hours_key]
+                    if hours_data and isinstance(hours_data, list) and len(hours_data) > 0:
+                        time_range = hours_data[0].get('timeRange', [])
+                        if len(time_range) == 2:
+                            trading_hours[day] = {
+                                'open': time_range[0],
+                                'closed': time_range[1]
+                            }
+                else:
+                    trading_hours[day] = {'open': 'Closed', 'closed': 'Closed'}
+            
+            # Using fixed column order
+            result = {
+                'name': pharmacy_data.get('name'),
+                'address': address,
+                'email': pharmacy_data.get('email'),
+                'fax': None,  # These brands don't provide fax numbers
+                'latitude': latitude,
+                'longitude': longitude,
+                'phone': pharmacy_data.get('phone'),
+                'postcode': postcode,
+                'state': state,
+                'street_address': address,
+                'suburb': suburb,
+                'trading_hours': trading_hours,
+                'website': pharmacy_data.get('website')
+            }
+            
+        elif brand == "community":
+            # Handle Community Care Chemist's unique data structure
+            address = pharmacy_data.get('address', '')
+            
+            # Try to extract state and postcode from address if not already parsed
+            state = pharmacy_data.get('state')
+            postcode = pharmacy_data.get('postcode')
+            suburb = None
+            
+            # Try to find suburb in address if not already extracted
+            if address and state:
+                # Simplistic extraction of suburb - assumes format like "X Street, Suburb STATE POSTCODE"
+                parts = address.split(',')
+                if len(parts) > 1:
+                    suburb_part = parts[-1].strip() if len(parts) == 2 else parts[-2].strip()
+                    # Remove the state and postcode from the suburb part
+                    suburb_part = re.sub(r'\b(NSW|VIC|QLD|SA|WA|TAS|NT|ACT)\b', '', suburb_part)
+                    suburb_part = re.sub(r'\b\d{4}\b', '', suburb_part)
+                    suburb = suburb_part.strip()
+            
+            # Using fixed column order
+            result = {
+                'name': pharmacy_data.get('name'),
+                'address': address,
+                'email': pharmacy_data.get('email'),
+                'fax': pharmacy_data.get('fax'),
+                'latitude': None,  # Community Care Chemist doesn't provide coordinates
+                'longitude': None, # Community Care Chemist doesn't provide coordinates
+                'phone': pharmacy_data.get('phone'),
+                'postcode': postcode,
+                'state': state,
+                'street_address': address,
+                'suburb': suburb,
+                'trading_hours': pharmacy_data.get('trading_hours', {}),
+                'website': "https://www.communitycarechemist.com.au/"  # Default website
+            }
+            
+        else:
+            # Original extraction logic for DDS and Amcal
+            location_details = pharmacy_data.get('location_details', {})
+            
+            # Extract trading hours directly from the top-level field
+            trading_hours = pharmacy_data.get('trading_hours', {})
+            
+            # Using fixed column order
+            result = {
+                'name': location_details.get('locationname'),
+                'address': location_details.get('address'),
+                'email': location_details.get('email'),
+                'fax': location_details.get('fax_number'),
+                'latitude': location_details.get('latitude'),
+                'longitude': location_details.get('longitude'),
+                'phone': location_details.get('phone'),
+                'postcode': location_details.get('postcode'),
+                'state': location_details.get('state'),
+                'street_address': location_details.get('streetaddress'),
+                'suburb': location_details.get('suburb'),
+                'trading_hours': trading_hours,
+                'website': location_details.get('website')
+            }
+            
+        # Remove any None values to keep the CSV clean
+        cleaned_result = {}
+        for key, value in result.items():
+            if value is not None:
+                cleaned_result[key] = value
+                
+        return cleaned_result
+    
+    async def fetch_dds_locations(self):
+        """Fetch Discount Drug Stores locations"""
+        return await self.fetch_locations("dds")
+        
+    async def fetch_amcal_locations(self):
+        """Fetch Amcal Pharmacy locations"""
+        return await self.fetch_locations("amcal")
+        
+    async def fetch_blooms_locations_list(self):
+        """Fetch Blooms The Chemist locations"""
+        return await self.fetch_locations("blooms")
+        
+    async def fetch_ramsay_locations_list(self):
+        """Fetch Ramsay Pharmacy locations"""
+        return await self.fetch_locations("ramsay")
+        
+    async def fetch_revive_locations_list(self):
+        """Fetch Revive Pharmacy locations"""
+        return await self.fetch_locations("revive")
+    
+    async def fetch_optimal_locations_list(self):
+        """Fetch Optimal Pharmacy Plus locations"""
+        return await self.fetch_locations("optimal")
+    
+    async def fetch_community_locations_list(self):
+        """Fetch Community Care Chemist locations"""
+        return await self.fetch_locations("community")
+    
+    async def fetch_footes_locations_list(self):
+        """Fetch Footes Pharmacy locations"""
+        return await self.fetch_locations("footes")
+        
+    async def fetch_dds_pharmacy_details(self, location_id):
+        """Fetch details for a specific Discount Drug Store"""
+        data = await self.fetch_pharmacy_details("dds", location_id)
+        return self.extract_pharmacy_details(data)
+        
+    async def fetch_amcal_pharmacy_details(self, location_id):
+        """Fetch details for a specific Amcal Pharmacy"""
+        data = await self.fetch_pharmacy_details("amcal", location_id)
+        return self.extract_pharmacy_details(data)
+        
     async def fetch_all_locations_details(self, brand):
         """
         Fetch details for all locations of a specific brand and return as a list.
@@ -1023,46 +1174,22 @@ class PharmacyLocations:
             print(f"Completed processing details for {len(all_details)} {brand.upper()} locations.")
             return all_details
         elif brand == "footes":
-            # For Footes Pharmacy, fetch details from individual store pages
+            # For Footes Pharmacy, all details are included in the locations endpoint
             print(f"Fetching all {brand.upper()} locations...")
             locations = await self.fetch_footes_locations()
             if not locations:
                 print(f"No {brand.upper()} locations found.")
                 return []
                 
-            print(f"Found {len(locations)} {brand.upper()} locations. Fetching details from individual pages...")
+            print(f"Found {len(locations)} {brand.upper()} locations. Processing details...")
             all_details = []
             
             for location in locations:
                 try:
-                    # Get basic information from the main listing
-                    base_info = {
-                        'name': location.get('name'),
-                        'phone': location.get('phone'),
-                        'website': location.get('detail_url')
-                    }
-                    
-                    # Fetch detailed information from the store's individual page
-                    detail_url = location.get('detail_url')
-                    if detail_url:
-                        print(f"Fetching details for {location.get('name')} from {detail_url}")
-                        detailed_info = await self.fetch_footes_location_details(detail_url)
-                        
-                        # Merge basic info with detailed info, with detailed info taking precedence
-                        merged_info = {**base_info, **detailed_info}
-                        all_details.append(merged_info)
-                    else:
-                        # If we don't have a detail URL, just use the basic info
-                        print(f"No detail URL for {location.get('name')}, using basic info only")
-                        all_details.append(base_info)
+                    extracted_details = self.extract_pharmacy_details(location, brand="footes")
+                    all_details.append(extracted_details)
                 except Exception as e:
-                    print(f"Error processing Footes Pharmacy location {location.get('name')}: {e}")
-                    # Still add the basic info even if detailed fetch fails
-                    all_details.append({
-                        'name': location.get('name'),
-                        'phone': location.get('phone'),
-                        'website': location.get('detail_url')
-                    })
+                    print(f"Error processing Footes Pharmacy location {location.get('id')}: {e}")
                     
             print(f"Completed processing details for {len(all_details)} {brand.upper()} locations.")
             return all_details
