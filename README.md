@@ -1,0 +1,148 @@
+# 🏥 Pharmacy Store Locator Analytics Dashboard
+
+A comprehensive tool for fetching, analyzing, and visualizing pharmacy location data across multiple pharmacy brands in Australia.
+
+## 📋 Overview
+
+The Pharmacy Store Locator is a Streamlit-based web application that allows users to:
+
+1. Fetch pharmacy location data from multiple pharmacy brands
+2. Analyze geographic distribution, trading hours, and service offerings
+3. Compare data across different pharmacy chains
+4. Visualize pharmacy data through interactive maps, charts, and statistics
+
+## 🚀 Features
+
+### Data Collection
+
+- **Multi-brand support**: Fetches data from 8 pharmacy brands:
+  - Discount Drug Stores (DDS)
+  - Amcal
+  - Blooms The Chemist
+  - Ramsay Pharmacy
+  - Revive Pharmacy
+  - Optimal Pharmacy Plus
+  - Community Care Chemist
+  - Footes Pharmacy
+- **Asynchronous data fetching**: Efficiently retrieves data using modern async/await patterns
+- **Structured storage**: Saves all fetched data as CSV files in the output directory
+- **Fetch history tracking**: Logs all data retrieval operations with timestamps and success status
+
+### Data Analysis
+
+- **Interactive data exploration**: Browse and search pharmacy location data
+- **Geographic visualization**:
+  - View pharmacy distribution by state
+  - Interactive map display showing exact pharmacy locations
+  - Hover tooltips with store information
+- **Trading hours analysis**:
+  - Visual representation of opening hours
+  - Detailed weekly schedule view
+  - Opening hours comparison across days
+- **Data completeness analysis**: Visualize data quality and completeness across fields
+- **Brand comparison**: Compare metrics across different pharmacy chains
+
+### Advanced Features
+
+- **Service offering analysis**: Compare available services across pharmacy brands
+- **Robust error handling**: Gracefully handles various data formats and missing information
+- **Responsive UI**: Well-organized tabbed interface with meaningful visualizations
+
+## 🔧 Installation
+
+### Prerequisites
+
+- Python 3.9+
+- pip (Python package installer)
+
+### Setup Instructions
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/yourusername/pharmacy-store-locator.git
+   cd pharmacy-store-locator
+   ```
+
+2. Install the required packages:
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. Run the application:
+
+   ```bash
+   streamlit run app.py
+   ```
+
+## 📊 Usage Guide
+
+### Fetching Pharmacy Data
+
+1. Navigate to the "Data Fetching" tab
+2. Select one or more pharmacy brands using the checkboxes
+3. Click "Fetch Data" and wait for the process to complete
+4. The system will display a success message with the number of locations fetched
+
+### Analyzing Data
+
+1. Go to the "Data Analysis" tab
+2. Select a pharmacy brand dataset from the dropdown menu
+3. Explore the various analysis tabs:
+   - **Data Overview**: View basic statistics and a complete dataset table
+   - **Trading Hours**: Analyze opening hours and weekly schedule patterns
+   - **Geographic Distribution**: View state distribution and map visualization
+   - **Data Completeness**: Check data quality across different fields
+   - **Advanced Analysis**: Compare data across multiple pharmacy brands
+
+### Viewing Fetch History
+
+1. Navigate to the "Fetch History" tab
+2. Review past fetch operations with timestamps, brand names, record counts, and success status
+
+## 📁 Project Structure
+
+```
+app.py                  # Main Streamlit application
+requirements.txt        # Python dependencies
+logs/
+  app_logs.json         # Log file tracking fetch operations
+output/
+  *_pharmacies.csv      # Fetched pharmacy data files
+services/
+  pharmacy.py           # Pharmacy location data fetching implementations
+  session_manager.py    # HTTP session management utilities
+```
+
+## 📝 Technical Details
+
+### Components
+
+- **Streamlit**: Powers the web interface and visualizations
+- **Pandas**: Handles data manipulation and analysis
+- **Plotly**: Creates interactive visualizations and maps
+- **BeautifulSoup**: Parses HTML content from pharmacy websites
+- **Asyncio**: Enables asynchronous data fetching
+
+### Data Model
+
+Each pharmacy record typically contains:
+
+- Name and contact information
+- Geographic coordinates and address
+- Trading hours
+- Available services
+- Website and email (when available)
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+---
+
+© 2025 Pharmacy Store Locator Analytics Dashboard
