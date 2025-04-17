@@ -74,3 +74,4 @@ coverage.xml
 *.cover
 .hypothesis/
 
+test_all_brands.py

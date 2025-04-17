@@ -1,0 +1,286 @@
+import asyncio
+import sys
+import os
+import csv
+from pathlib import Path
+
+# Append parent directory to path for imports
+parent_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(parent_dir)
+
+try:
+    from services.session_manager import SessionManager
+except ImportError:
+    # Direct import if the related module is not found
+    from session_manager import SessionManager
+
+class PharmacyLocations:
+    """
+    Generic class to fetch pharmacy locations from different brands
+    """
+    # Base URLs
+    BASE_URL = "https://app.medmate.com.au/connect/api/get_locations"
+    DETAIL_URL = "https://app.medmate.com.au/connect/api/get_pharmacy"
+    BLOOMS_URL = "https://api.storepoint.co/v2/15f056510a1d3a/locations"
+    RAMSAY_URL = "https://ramsayportalapi-prod.azurewebsites.net/api/pharmacyclient/pharmacies"
+    REVIVE_URL = "https://core.service.elfsight.com/p/boot/?page=https%3A%2F%2Frevivepharmacy.com.au%2Fstore-finder%2F&w=52ff3b25-4412-410c-bd3d-ea57b2814fac"
+    OPTIMAL_URL = "https://core.service.elfsight.com/p/boot/?page=https%3A%2F%2Foptimalpharmacyplus.com.au%2Flocations%2F&w=d70b40db-e8b3-43bc-a63b-b3cce68941bf"
+    COMMUNITY_URL = "https://www.communitycarechemist.com.au/"
+    FOOTES_URL = "https://footespharmacies.com/stores/"
+    FOOTES_SITEMAP_URL = "https://footespharmacies.com/stores-sitemap.xml"
+    
+    # Brand configurations
+    BRAND_CONFIGS = {
+        "dds": {
+            "businessid": "2",
+            "session_id": "",
+            "source": "DDSPharmacyWebsite"
+        },
+        "amcal": {
+            "businessid": "4",
+            "session_id": "",
+            "source": "AmcalPharmacyWebsite"
+        }
+    }
+    
+    # Common headers used across API calls
+    COMMON_HEADERS = {
+        'Accept': 'application/json, text/plain, */*',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Cache-Control': 'no-cache',
+        'Host': 'app.medmate.com.au',
+        'Connection': 'keep-alive',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36 Edg/135.0.0.0',
+        'X-Requested-With': 'XMLHttpRequest',
+    }
+    
+    def __init__(self):
+        self.session_manager = SessionManager()
+        # Import brand-specific handlers dynamically to avoid circular imports
+        from services.pharmacy.brands import amcal, dds, blooms, ramsay, revive, optimal, community, footes
+        self.brand_handlers = {
+            "amcal": amcal.AmcalHandler(self),
+            "dds": dds.DDSHandler(self),
+            "blooms": blooms.BloomsHandler(self),
+            "ramsay": ramsay.RamsayHandler(self),
+            "revive": revive.ReviveHandler(self),
+            "optimal": optimal.OptimalHandler(self),
+            "community": community.CommunityHandler(self),
+            "footes": footes.FootesHandler(self)
+        }
+
+    async def fetch_locations(self, brand):
+        """
+        Fetch locations for a specific pharmacy brand.
+        
+        Args:
+            brand: String identifier for the brand (e.g., "dds", "amcal", "blooms", "ramsay", "revive", "optimal", "community")
+            
+        Returns:
+            Processed location data
+        """
+        if brand in self.brand_handlers:
+            return await self.brand_handlers[brand].fetch_locations()
+            
+        raise ValueError(f"Unknown pharmacy brand: {brand}")
+    
+    async def fetch_pharmacy_details(self, brand, location_id):
+        """
+        Fetch detailed information for a specific pharmacy.
+        
+        Args:
+            brand: String identifier for the brand (e.g., "dds", "amcal", "blooms", "ramsay", "revive", "optimal", "community")
+            location_id: The ID of the location to get details for
+            
+        Returns:
+            Detailed pharmacy data
+        """
+        if brand in self.brand_handlers:
+            return await self.brand_handlers[brand].fetch_pharmacy_details(location_id)
+            
+        raise ValueError(f"Unknown pharmacy brand: {brand}")
+    
+    async def fetch_all_locations_details(self, brand):
+        """
+        Fetch details for all locations of a specific brand and return as a list.
+        Uses concurrent requests for better performance.
+        
+        Args:
+            brand: String identifier for the brand (e.g., "dds", "amcal", "blooms", "ramsay", "revive", "optimal", "community")
+            
+        Returns:
+            List of dictionaries containing pharmacy details
+        """
+        if brand in self.brand_handlers:
+            return await self.brand_handlers[brand].fetch_all_locations_details()
+            
+        raise ValueError(f"Unknown pharmacy brand: {brand}")
+        
+    def save_to_csv(self, data, filename):
+        """
+        Save a list of dictionaries to a CSV file.
+        
+        Args:
+            data: List of dictionaries with pharmacy details
+            filename: Name of the CSV file to create
+            
+        Returns:
+            bool: True if save successful, False otherwise
+        """
+        if not data:
+            print(f"No data to save to {filename}")
+            return False
+            
+        # Ensure the output directory exists
+        output_dir = Path("output")
+        output_dir.mkdir(exist_ok=True)
+        
+        filepath = output_dir / filename
+        
+        # Define the exact field order we want
+        fixed_fieldnames = [
+            'name', 'address', 'email', 'fax', 'latitude', 'longitude', 'phone', 
+            'postcode', 'state', 'street_address', 'suburb', 'trading_hours', 'website'
+        ]
+        
+        try:
+            # Filter data to only include the specified fields in one pass
+            filtered_data = [{field: item.get(field, None) for field in fixed_fieldnames} 
+                            for item in data]
+            
+            print(f"Saving {len(filtered_data)} records to {filepath}...")
+            
+            with open(filepath, 'w', newline='', encoding='utf-8') as csvfile:
+                writer = csv.DictWriter(csvfile, fieldnames=fixed_fieldnames)
+                writer.writeheader()
+                writer.writerows(filtered_data)
+                
+            print(f"Data successfully saved to {filepath}")
+            return True
+        except Exception as e:
+            print(f"Error saving data to {filepath}: {e}")
+            return False
+        
+    async def fetch_and_save_all(self, selected_brands=None):
+        """
+        Fetch all locations for all brands concurrently and save to CSV files.
+        
+        Args:
+            selected_brands: List of brands to fetch. If None, fetch all brands.
+            
+        Returns:
+            dict: A summary of results with counts of successful and failed operations
+        """
+        # Get list of brands to process
+        if selected_brands is None:
+            # If no brands specified, use all brands
+            brands = list(self.brand_handlers.keys())
+        else:
+            # Only use the brands that were selected
+            brands = [brand for brand in selected_brands if brand in self.brand_handlers]
+        
+        # Track results for reporting
+        results_summary = {
+            "total_brands": len(brands),
+            "successful_brands": 0,
+            "failed_brands": 0,
+            "total_locations": 0,
+            "details": {}
+        }
+        
+        # Create tasks for each brand
+        tasks = {brand: self.fetch_all_locations_details(brand) for brand in brands}
+        
+        # Execute all brand tasks concurrently
+        fetch_results = await asyncio.gather(*tasks.values(), return_exceptions=True)
+        
+        # Process results and save to CSV
+        for brand, result in zip(tasks.keys(), fetch_results):
+            brand_summary = {
+                "status": "success",
+                "locations": 0,
+                "error": None
+            }
+            
+            try:
+                if isinstance(result, Exception):
+                    print(f"Error processing {brand.upper()} pharmacies: {result}")
+                    brand_summary["status"] = "failed"
+                    brand_summary["error"] = str(result)
+                    results_summary["failed_brands"] += 1
+                elif result:
+                    # Save data to CSV and track success
+                    save_success = self.save_to_csv(result, f"{brand}_pharmacies.csv")
+                    if save_success:
+                        brand_summary["locations"] = len(result)
+                        results_summary["total_locations"] += len(result)
+                        results_summary["successful_brands"] += 1
+                    else:
+                        brand_summary["status"] = "failed"
+                        brand_summary["error"] = "Failed to save CSV file"
+                        results_summary["failed_brands"] += 1
+                else:
+                    print(f"No data found for {brand.upper()} pharmacies")
+                    brand_summary["status"] = "empty"
+                    brand_summary["error"] = "No data found"
+                    # Not counting as failure, just zero locations
+                    results_summary["successful_brands"] += 1
+            except Exception as e:
+                error_msg = f"Error saving {brand.upper()} pharmacies data: {e}"
+                print(error_msg)
+                brand_summary["status"] = "failed"
+                brand_summary["error"] = error_msg
+                results_summary["failed_brands"] += 1
+            
+            # Add brand details to summary
+            results_summary["details"][brand] = brand_summary
+        
+        # Print summary report
+        print(f"\nFetch and Save Summary:")
+        print(f"- Brands processed: {results_summary['total_brands']}")
+        print(f"- Successful: {results_summary['successful_brands']}")
+        print(f"- Failed: {results_summary['failed_brands']}")
+        print(f"- Total locations: {results_summary['total_locations']}")
+        
+        return results_summary
+
+    # Convenience methods for backward compatibility
+    async def fetch_dds_locations(self):
+        """Fetch Discount Drug Stores locations"""
+        return await self.fetch_locations("dds")
+        
+    async def fetch_amcal_locations(self):
+        """Fetch Amcal Pharmacy locations"""
+        return await self.fetch_locations("amcal")
+        
+    async def fetch_blooms_locations_list(self):
+        """Fetch Blooms The Chemist locations"""
+        return await self.fetch_locations("blooms")
+        
+    async def fetch_ramsay_locations_list(self):
+        """Fetch Ramsay Pharmacy locations"""
+        return await self.fetch_locations("ramsay")
+        
+    async def fetch_revive_locations_list(self):
+        """Fetch Revive Pharmacy locations"""
+        return await self.fetch_locations("revive")
+    
+    async def fetch_optimal_locations_list(self):
+        """Fetch Optimal Pharmacy Plus locations"""
+        return await self.fetch_locations("optimal")
+    
+    async def fetch_community_locations_list(self):
+        """Fetch Community Care Chemist locations"""
+        return await self.fetch_locations("community")
+    
+    async def fetch_footes_locations_list(self):
+        """Fetch Footes Pharmacy locations"""
+        return await self.fetch_locations("footes")
+        
+    async def fetch_dds_pharmacy_details(self, location_id):
+        """Fetch details for a specific Discount Drug Store"""
+        return await self.fetch_pharmacy_details("dds", location_id)
+        
+    async def fetch_amcal_pharmacy_details(self, location_id):
+        """Fetch details for a specific Amcal Pharmacy"""
+        return await self.fetch_pharmacy_details("amcal", location_id)
