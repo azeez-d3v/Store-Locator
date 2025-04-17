@@ -767,7 +767,8 @@ class PharmacyLocations:
             # Extract trading hours - new structure with days and hours in separate columns
             trading_hours = {}
             
-            # Days are in one column, hours in another
+            # Days are in one column, hours in another 
+            
             day_elements = soup.select('.elementor-element-fb1522c .elementor-widget-text-editor')
             hour_elements = soup.select('.elementor-element-b96bcb7 .elementor-widget-text-editor')
             
@@ -1535,10 +1536,13 @@ class PharmacyLocations:
         Args:
             data: List of dictionaries with pharmacy details
             filename: Name of the CSV file to create
+            
+        Returns:
+            bool: True if save successful, False otherwise
         """
         if not data:
             print(f"No data to save to {filename}")
-            return
+            return False
             
         # Ensure the output directory exists
         output_dir = Path("output")
@@ -1552,22 +1556,23 @@ class PharmacyLocations:
             'postcode', 'state', 'street_address', 'suburb', 'trading_hours', 'website'
         ]
         
-        # Filter data to only include the specified fields
-        filtered_data = []
-        for item in data:
-            filtered_item = {}
-            for field in fixed_fieldnames:
-                filtered_item[field] = item.get(field, None)
-            filtered_data.append(filtered_item)
-        
-        print(f"Saving {len(filtered_data)} records to {filepath}...")
-        
-        with open(filepath, 'w', newline='', encoding='utf-8') as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=fixed_fieldnames)
-            writer.writeheader()
-            writer.writerows(filtered_data)
+        try:
+            # Filter data to only include the specified fields in one pass
+            filtered_data = [{field: item.get(field, None) for field in fixed_fieldnames} 
+                            for item in data]
             
-        print(f"Data successfully saved to {filepath}")
+            print(f"Saving {len(filtered_data)} records to {filepath}...")
+            
+            with open(filepath, 'w', newline='', encoding='utf-8') as csvfile:
+                writer = csv.DictWriter(csvfile, fieldnames=fixed_fieldnames)
+                writer.writeheader()
+                writer.writerows(filtered_data)
+                
+            print(f"Data successfully saved to {filepath}")
+            return True
+        except Exception as e:
+            print(f"Error saving data to {filepath}: {e}")
+            return False
         
     async def fetch_and_save_all(self, selected_brands=None):
         """
@@ -1575,6 +1580,9 @@ class PharmacyLocations:
         
         Args:
             selected_brands: List of brands to fetch. If None, fetch all brands.
+            
+        Returns:
+            dict: A summary of results with counts of successful and failed operations
         """
         # Get list of brands to process
         if selected_brands is None:
@@ -1583,20 +1591,68 @@ class PharmacyLocations:
         else:
             # Only use the brands that were selected
             brands = selected_brands
-            
+        
+        # Track results for reporting
+        results_summary = {
+            "total_brands": len(brands),
+            "successful_brands": 0,
+            "failed_brands": 0,
+            "total_locations": 0,
+            "details": {}
+        }
+        
+        # Create tasks for each brand
         tasks = {brand: self.fetch_all_locations_details(brand) for brand in brands}
         
         # Execute all brand tasks concurrently
-        results = await asyncio.gather(*tasks.values(), return_exceptions=True)
+        fetch_results = await asyncio.gather(*tasks.values(), return_exceptions=True)
         
         # Process results and save to CSV
-        for brand, result in zip(tasks.keys(), results):
+        for brand, result in zip(tasks.keys(), fetch_results):
+            brand_summary = {
+                "status": "success",
+                "locations": 0,
+                "error": None
+            }
+            
             try:
                 if isinstance(result, Exception):
-                    print(f"Error processing {brand} pharmacies: {result}")
+                    print(f"Error processing {brand.upper()} pharmacies: {result}")
+                    brand_summary["status"] = "failed"
+                    brand_summary["error"] = str(result)
+                    results_summary["failed_brands"] += 1
                 elif result:
-                    self.save_to_csv(result, f"{brand}_pharmacies.csv")
+                    # Save data to CSV and track success
+                    save_success = self.save_to_csv(result, f"{brand}_pharmacies.csv")
+                    if save_success:
+                        brand_summary["locations"] = len(result)
+                        results_summary["total_locations"] += len(result)
+                        results_summary["successful_brands"] += 1
+                    else:
+                        brand_summary["status"] = "failed"
+                        brand_summary["error"] = "Failed to save CSV file"
+                        results_summary["failed_brands"] += 1
                 else:
-                    print(f"No data found for {brand} pharmacies")
+                    print(f"No data found for {brand.upper()} pharmacies")
+                    brand_summary["status"] = "empty"
+                    brand_summary["error"] = "No data found"
+                    # Not counting as failure, just zero locations
+                    results_summary["successful_brands"] += 1
             except Exception as e:
-                print(f"Error saving {brand} pharmacies data: {e}")
+                error_msg = f"Error saving {brand.upper()} pharmacies data: {e}"
+                print(error_msg)
+                brand_summary["status"] = "failed"
+                brand_summary["error"] = error_msg
+                results_summary["failed_brands"] += 1
+            
+            # Add brand details to summary
+            results_summary["details"][brand] = brand_summary
+        
+        # Print summary report
+        print(f"\nFetch and Save Summary:")
+        print(f"- Brands processed: {results_summary['total_brands']}")
+        print(f"- Successful: {results_summary['successful_brands']}")
+        print(f"- Failed: {results_summary['failed_brands']}")
+        print(f"- Total locations: {results_summary['total_locations']}")
+        
+        return results_summary

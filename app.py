@@ -561,14 +561,14 @@ with tab_analyze:
                                 
                             hover_name = "name" if safe_column_check(map_df, "name") else None
                             
-                            fig_map = px.scatter_mapbox(
+                            fig_map = px.scatter_map(
                                 map_df,
                                 lat="latitude",
                                 lon="longitude",
                                 hover_name=hover_name,
                                 hover_data=hover_data,
                                 zoom=3,
-                                mapbox_style="open-street-map",
+                                map_style="open-street-map",
                                 title=f"Pharmacy Locations - {selected_file_name}"
                             )
                             fig_map.update_layout(height=600)
