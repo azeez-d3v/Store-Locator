@@ -9,11 +9,14 @@ if not exist ".venv\" (
     python -m venv .venv
     echo Installing required packages...
     call .venv\Scripts\activate.bat
-    pip install --upgrade pip
+    echo Upgrading pip to the latest version...
+    python -m pip install --upgrade pip
     if exist requirements.txt (
+        echo Installing dependencies from requirements.txt...
         pip install -r requirements.txt
     ) else (
-        pip install streamlit beautifulsoup4 curl_cffi pandas plotly
+        echo Installing default packages...
+        pip install streamlit beautifulsoup4 curl_cffi pandas plotly lxml
     )
 ) else (
     echo Virtual environment found.
@@ -25,4 +28,5 @@ call .venv\Scripts\activate.bat
 REM Run Streamlit app
 echo Running Streamlit app: %PYTHON_SCRIPT%
 streamlit run %PYTHON_SCRIPT% %*
+
 REM deactivate
