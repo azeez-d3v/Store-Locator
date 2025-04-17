@@ -203,7 +203,8 @@ class ChoiceHandler(BasePharmacyHandler):
         """
         time_str = time_str.strip()
         
-        # Extract components
+        # Extract components using regex
+        # This regex captures the hour, minute, and AM/PM parts
         time_match = re.search(r'(\d+):(\d+)\s*([AP]M)', time_str, re.IGNORECASE)
         if not time_match:
             return time_str

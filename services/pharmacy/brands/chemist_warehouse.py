@@ -30,15 +30,12 @@ class ChemistWarehouseHandler(BasePharmacyHandler):
         Returns:
             List of Chemist Warehouse locations
         """
-        self.url = 'https://www.chemistwarehouse.com.au/webapi/store/store-locator?BusinessGroupId=2&SearchByState=7&SortByDistance=false'  
-
+        
         # Make API call to get location data
         response = await self.session_manager.get(
-            url=self.url,
+            url=self.pharmacy_locations.CHEMIST_WAREHOUSE_URL,
             headers=self.headers
         )
-
-        print(response.text)
         
         if response.status_code == 200:
             # The API returns a list directly
