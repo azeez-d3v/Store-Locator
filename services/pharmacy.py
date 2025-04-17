@@ -752,17 +752,32 @@ class PharmacyLocations:
             # Extract fax number - using the class name or finding text that contains "Fx:"
             fax_element = soup.select_one('.elementor-element-2008741, [data-id="2008741"]')
             if fax_element:
-                fax_text = fax_element.text.strip()
+                fax_text = fax_element.get_text(strip=True)
+                print(fax_text)
                 if "Fx:" in fax_text:
                     location['fax'] = fax_text.replace("Fx:", "").strip()
                 else:
                     location['fax'] = fax_text
             
-            # Extract email from store-email element
-            email_element = soup.select_one('.store-email a')
+            # Extract email from store-email element - handling Cloudflare email protection
+            email_element = soup.select_one('.store-email a, a.store-email, a[href^="/cdn-cgi/l/email-protection"]')
             if email_element:
-                email = email_element.text.strip()
-                location['email'] = email
+                # Check if email is protected by Cloudflare
+                cf_email_span = email_element.select_one('span.__cf_email__')
+                if cf_email_span and cf_email_span.has_attr('data-cfemail'):
+                    # Get the encoded email
+                    encoded_email = cf_email_span.get('data-cfemail')
+                    # Decode the email using the provided function
+                    try:
+                        email = self.decode_cloudflare_email(encoded_email)
+                        print(email)
+                        location['email'] = email
+                    except Exception as e:
+                        print(f"Error decoding Cloudflare email: {e}")
+                else:
+                    # Regular email extraction
+                    email = email_element.text.strip()
+                    location['email'] = email
             
             # Extract trading hours - new structure with days and hours in separate columns
             trading_hours = {}
@@ -853,16 +868,23 @@ class PharmacyLocations:
                     if phone_links:
                         location['phone'] = phone_links[0].text.strip()
                 
-                # Try to find email by looking for mailto: links if not found yet
+                # Try to find email by looking for all potential CloudFlare protected emails
                 if not location.get('email'):
-                    email_links = soup.select('a[href^="mailto:"]')
-                    if email_links:
-                        location['email'] = email_links[0].text.strip()
+                    all_cf_emails = soup.select('span.__cf_email__')
+                    for cf_email in all_cf_emails:
+                        if cf_email.has_attr('data-cfemail'):
+                            try:
+                                encoded_email = cf_email.get('data-cfemail')
+                                email = self.decode_cloudflare_email(encoded_email)
+                                location['email'] = email
+                                break
+                            except Exception as e:
+                                print(f"Error decoding additional CloudFlare email: {e}")
                         
                 # Try to find fax in any text containing "Fx:" if not found yet
                 if not location.get('fax'):
                     for element in soup.select('.elementor-text-editor'):
-                        text = element.text.strip()
+                        text = element.get_text(strip=True)
                         if 'Fx:' in text:
                             location['fax'] = text.replace('Fx:', '').strip()
                             break
@@ -887,6 +909,24 @@ class PharmacyLocations:
         except Exception as e:
             print(f"Error fetching details for Footes store {location.get('name')}: {e}")
             return location
+            
+    def decode_cloudflare_email(self, encoded_email):
+        """
+        Decode Cloudflare-protected email addresses.
+        
+        Args:
+            encoded_email: Hex-encoded email string from data-cfemail attribute
+            
+        Returns:
+            Decoded email address
+        """
+        decoded_email = ""
+        k = int(encoded_email[:2], 16)
+        
+        for i in range(2, len(encoded_email)-1, 2):
+            decoded_email += chr(int(encoded_email[i:i+2], 16) ^ k)
+            
+        return decoded_email
     
     async def fetch_pharmacy_details(self, brand, location_id):
         """
@@ -1253,12 +1293,12 @@ class PharmacyLocations:
             # Parse trading hours
             trading_hours = pharmacy_data.get('trading_hours', {})
             
-            # Using fixed column order
+            # Using fixed column order - now properly include email and fax
             result = {
                 'name': pharmacy_data.get('name'),
                 'address': address,
-                'email': None,  # Footes typically doesn't list email on the website
-                'fax': None,    # Footes typically doesn't list fax on the website
+                'email': pharmacy_data.get('email'),  # Use actual email from parsed data
+                'fax': pharmacy_data.get('fax'),      # Use actual fax from parsed data  
                 'latitude': None,  # No coordinates in the data
                 'longitude': None, # No coordinates in the data
                 'phone': pharmacy_data.get('phone'),
