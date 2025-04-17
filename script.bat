@@ -1,4 +1,5 @@
 @echo off
+cls
 REM Batch script to run Python file with virtual environment and package check
 
 set PYTHON_SCRIPT=app.py
@@ -23,7 +24,7 @@ if exist requirements.txt (
     echo Installing default packages...
     pip install streamlit beautifulsoup4 curl_cffi pandas plotly lxml
 )
-
+cls
 REM Run Streamlit app
 echo Running Streamlit app: %PYTHON_SCRIPT%
 streamlit run %PYTHON_SCRIPT% %*
