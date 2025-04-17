@@ -3,9 +3,13 @@ import sys
 import os
 import csv
 import json
+import warnings
 from pathlib import Path
 import re
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, XMLParsedAsHTMLWarning
+
+# Filter out the XML parsed as HTML warning
+warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
 
 # append parent directory to path for imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -28,6 +32,7 @@ class PharmacyLocations:
     OPTIMAL_URL = "https://core.service.elfsight.com/p/boot/?page=https%3A%2F%2Foptimalpharmacyplus.com.au%2Flocations%2F&w=d70b40db-e8b3-43bc-a63b-b3cce68941bf"
     COMMUNITY_URL = "https://www.communitycarechemist.com.au/"
     FOOTES_URL = "https://footespharmacies.com/stores/"
+    FOOTES_SITEMAP_URL = "https://footespharmacies.com/stores-sitemap.xml"
     
     BRAND_CONFIGS = {
         "dds": {
@@ -563,88 +568,324 @@ class PharmacyLocations:
     
     async def fetch_footes_locations(self):
         """
-        Fetch all Footes Pharmacy locations from the main store page.
+        Fetch all Footes Pharmacy locations using the sitemap XML.
         
         Returns:
             List of Footes Pharmacy locations with basic information
         """
+        # First fetch the sitemap XML to get all store URLs
         response = await self.session_manager.get(
-            url=self.FOOTES_URL,
+            url=self.FOOTES_SITEMAP_URL,
             headers=self.FOOTES_HEADERS
         )
         
         if response.status_code == 200:
-            html_content = response.text
-            soup = BeautifulSoup(html_content, 'html.parser')
+            xml_content = response.text
             
-            # Find all pharmacy location articles in the loop container
-            store_items = soup.select('.elementor-loop-container .e-loop-item')
+            # Parse as XML with correct features
+            soup = BeautifulSoup(xml_content, 'xml' if 'xml' in 'lxml' else 'html.parser')
             
-            if store_items:
+            # Find all store URLs in the XML sitemap format
+            store_links = []
+            url_elements = soup.find_all('url')
+            
+            if url_elements:
+                for url_elem in url_elements:
+                    loc_elem = url_elem.find('loc')
+                    if loc_elem:
+                        store_url = loc_elem.text
+                        if store_url and '/stores/' in store_url and not store_url.endswith('/stores/'):
+                            store_links.append(store_url)
+                
+                if not store_links:
+                    print("No store links found in sitemap")
+                    return []
+                
+                print(f"Found {len(store_links)} store links in sitemap")
+                
+                # Process each store URL to extract basic information
                 locations = []
-                for store in store_items:
+                for store_url in store_links:
                     try:
-                        # Extract pharmacy details from the HTML structure
-                        pharmacy_data = {}
+                        # Extract store name from URL
+                        store_name = store_url.rstrip('/').split('/')[-1].replace('-', ' ').title()
                         
-                        # Get the store URL for detailed info
-                        store_url = None
-                        store_link = store.select_one('a.elementor-element')
-                        if store_link:
-                            store_url = store_link.get('href')
-                            
-                        # Extract name
-                        name_element = store.select_one('.elementor-heading-title')
-                        if name_element:
-                            pharmacy_data['name'] = name_element.text.strip()
-                        
-                        # Extract phone
-                        phone_element = store.select_one('.elementor-element-c6b3bcc')
-                        if phone_element:
-                            phone = phone_element.text.strip()
-                            pharmacy_data['phone'] = phone
-                        
-                        # Store URL for fetching additional details
-                        if store_url:
-                            pharmacy_data['detail_url'] = store_url
-                        
-                        # Generate a unique ID
-                        if 'name' in pharmacy_data:
-                            pharmacy_data['id'] = f"footes_{pharmacy_data['name'].lower().replace(' ', '_').replace('-', '_')}"
+                        pharmacy_data = {
+                            'name': f"Footes Pharmacy {store_name}",
+                            'detail_url': store_url,
+                            'id': f"footes_{store_name.lower().replace(' ', '_')}"
+                        }
                         
                         locations.append(pharmacy_data)
                     except Exception as e:
-                        print(f"Error processing Footes Pharmacy location: {e}")
+                        print(f"Error processing Footes Pharmacy location URL {store_url}: {e}")
                 
                 if locations:
-                    return locations
+                    # Now fetch additional details for each location
+                    return await self.enrich_footes_locations(locations)
                 else:
-                    print("No pharmacy data could be extracted from the found store items")
-                    print(f"Found {len(store_items)} store items but couldn't extract data")
-                    
-                    # Print the HTML of the first item for debugging
-                    if store_items:
-                        print(f"First store HTML sample: {str(store_items[0])[:200]}...")
-                    
-                    raise Exception("No pharmacy data could be extracted from Footes Pharmacy page")
+                    print("No pharmacy data could be extracted from the sitemap links")
+                    raise Exception("No pharmacy data could be extracted from Footes Pharmacy sitemap")
             else:
-                # Try alternative selector if the first one doesn't work
-                store_items = soup.select('div[data-elementor-type="loop-item"]')
-                if store_items:
-                    print(f"Found {len(store_items)} stores with alternative selector")
-                    # Process these stores similarly...
-                    # Implementation similar to above
-                else:
-                    print("No store items found with any selector")
+                # Try alternative approach by directly parsing the XML with regex if parsing fails
+                print("No URL elements found in sitemap XML, trying regex approach")
+                url_pattern = r'<loc>(https://footespharmacies\.com/stores/[^/]+/)</loc>'
+                matches = re.findall(url_pattern, xml_content)
+                
+                if matches:
+                    print(f"Found {len(matches)} store links with regex")
+                    store_links = matches
                     
-                    # Try to find the main content div
-                    main_content = soup.select('.elementor-loop-container')
-                    if main_content:
-                        print(f"Found main content container with {len(main_content[0].find_all())} child elements")
+                    # Process each store URL just as above
+                    locations = []
+                    for store_url in store_links:
+                        try:
+                            store_name = store_url.rstrip('/').split('/')[-1].replace('-', ' ').title()
+                            
+                            pharmacy_data = {
+                                'name': f"Footes Pharmacy {store_name}",
+                                'detail_url': store_url,
+                                'id': f"footes_{store_name.lower().replace(' ', '_')}"
+                            }
+                            
+                            locations.append(pharmacy_data)
+                        except Exception as e:
+                            print(f"Error processing Footes Pharmacy location URL {store_url}: {e}")
                     
-                    raise Exception("No pharmacy locations found in Footes Pharmacy page")
+                    if locations:
+                        return await self.enrich_footes_locations(locations)
+                
+                print("No store links found in sitemap with any method")
+                print(f"Sitemap XML preview: {xml_content[:300]}...")
+                raise Exception("No pharmacy locations found in Footes Pharmacy sitemap")
         else:
-            raise Exception(f"Failed to fetch Footes Pharmacy locations: {response.status_code}")
+            raise Exception(f"Failed to fetch Footes Pharmacy sitemap: {response.status_code}")
+    
+    async def enrich_footes_locations(self, locations):
+        """
+        Fetch additional details for Footes Pharmacy locations.
+        
+        Args:
+            locations: List of location dictionaries with store URLs
+            
+        Returns:
+            List of locations with additional details
+        """
+        enriched_locations = []
+        
+        # Process 5 locations at a time to avoid overwhelming the server
+        batch_size = 5
+        for i in range(0, len(locations), batch_size):
+            batch = locations[i:i+batch_size]
+            print(f"Processing Footes locations batch {i//batch_size + 1}/{(len(locations) + batch_size - 1)//batch_size}")
+            
+            # Create tasks for fetching details
+            tasks = []
+            for location in batch:
+                task = self.fetch_footes_store_details(location)
+                tasks.append(task)
+            
+            # Run tasks concurrently
+            results = await asyncio.gather(*tasks, return_exceptions=True)
+            
+            # Process results
+            for result in results:
+                if isinstance(result, Exception):
+                    print(f"Error fetching Footes store details: {result}")
+                elif result:
+                    enriched_locations.append(result)
+        
+        print(f"Successfully processed {len(enriched_locations)} out of {len(locations)} Footes locations")
+        return enriched_locations
+    
+    async def fetch_footes_store_details(self, location):
+        """
+        Fetch details for a specific Footes Pharmacy location.
+        
+        Args:
+            location: Dictionary containing basic location information including detail_url
+            
+        Returns:
+            Dictionary with enriched location data
+        """
+        try:
+            store_url = location.get('detail_url')
+            if not store_url:
+                return location
+            
+            response = await self.session_manager.get(
+                url=store_url,
+                headers=self.FOOTES_HEADERS
+            )
+            
+            if response.status_code != 200:
+                print(f"Failed to fetch details for {location.get('name')}: {response.status_code}")
+                return location
+            
+            html_content = response.text
+            soup = BeautifulSoup(html_content, 'html.parser')
+            
+            # Extract address from heading element
+            address_element = soup.select_one('.elementor-element-d9bbb9b .elementor-heading-title, [data-id="d9bbb9b"] .elementor-heading-title')
+            if address_element:
+                address = address_element.text.strip()
+                location['address'] = address
+                
+                # Try to extract state and postcode from address
+                state_pattern = r'\b(NSW|VIC|QLD|SA|WA|TAS|NT|ACT)\b'
+                state_match = re.search(state_pattern, address)
+                if state_match:
+                    location['state'] = state_match.group(0)
+                
+                # Australian postcode pattern (4 digits)
+                postcode_pattern = r'\b(\d{4})\b'
+                postcode_match = re.search(postcode_pattern, address)
+                if postcode_match:
+                    location['postcode'] = postcode_match.group(0)
+            
+            # Extract phone number from store-phone element
+            phone_element = soup.select_one('.store-phone a')
+            if phone_element:
+                phone = phone_element.text.strip()
+                location['phone'] = phone
+            
+            # Extract fax number - using the class name or finding text that contains "Fx:"
+            fax_element = soup.select_one('.elementor-element-2008741, [data-id="2008741"]')
+            if fax_element:
+                fax_text = fax_element.text.strip()
+                if "Fx:" in fax_text:
+                    location['fax'] = fax_text.replace("Fx:", "").strip()
+                else:
+                    location['fax'] = fax_text
+            
+            # Extract email from store-email element
+            email_element = soup.select_one('.store-email a')
+            if email_element:
+                email = email_element.text.strip()
+                location['email'] = email
+            
+            # Extract trading hours - new structure with days and hours in separate columns
+            trading_hours = {}
+            
+            # Days are in one column, hours in another
+            day_elements = soup.select('.elementor-element-fb1522c .elementor-widget-text-editor')
+            hour_elements = soup.select('.elementor-element-b96bcb7 .elementor-widget-text-editor')
+            
+            # Map each day to its hours
+            for i in range(min(len(day_elements), len(hour_elements))):
+                day_text = day_elements[i].text.strip()
+                hour_text = hour_elements[i].text.strip()
+                
+                # Handle "Monday – Friday" format
+                if '–' in day_text or '-' in day_text:
+                    day_range = re.split(r'–|-', day_text)
+                    if len(day_range) == 2:
+                        start_day = day_range[0].strip().lower()
+                        end_day = day_range[1].strip().lower()
+                        
+                        # Map day names to standardized format
+                        day_mapping = {
+                            'monday': 'Monday',
+                            'tuesday': 'Tuesday', 
+                            'wednesday': 'Wednesday',
+                            'thursday': 'Thursday',
+                            'friday': 'Friday',
+                            'saturday': 'Saturday',
+                            'sunday': 'Sunday'
+                        }
+                        
+                        # Determine which days are in the range
+                        days_in_order = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
+                        start_idx = next((i for i, d in enumerate(days_in_order) if start_day in d), -1)
+                        end_idx = next((i for i, d in enumerate(days_in_order) if end_day in d), -1)
+                        
+                        if start_idx != -1 and end_idx != -1:
+                            for day_idx in range(start_idx, end_idx + 1):
+                                day_name = day_mapping[days_in_order[day_idx]]
+                                
+                                # Parse hours
+                                if 'closed' in hour_text.lower():
+                                    trading_hours[day_name] = {'open': 'Closed', 'closed': 'Closed'}
+                                else:
+                                    # Extract opening and closing times
+                                    hour_parts = re.split(r'–|-', hour_text)
+                                    if len(hour_parts) == 2:
+                                        open_time = hour_parts[0].strip()
+                                        close_time = hour_parts[1].strip()
+                                        trading_hours[day_name] = {'open': open_time, 'closed': close_time}
+                else:
+                    # Single day
+                    day_name = None
+                    for key, value in {'monday': 'Monday', 'tuesday': 'Tuesday', 'wednesday': 'Wednesday', 
+                                      'thursday': 'Thursday', 'friday': 'Friday', 'saturday': 'Saturday', 
+                                      'sunday': 'Sunday'}.items():
+                        if key in day_text.lower():
+                            day_name = value
+                            break
+                    
+                    if day_name:
+                        # Parse hours
+                        if 'closed' in hour_text.lower():
+                            trading_hours[day_name] = {'open': 'Closed', 'closed': 'Closed'}
+                        else:
+                            # Extract opening and closing times
+                            hour_parts = re.split(r'–|-', hour_text)
+                            if len(hour_parts) == 2:
+                                open_time = hour_parts[0].strip()
+                                close_time = hour_parts[1].strip()
+                                trading_hours[day_name] = {'open': open_time, 'closed': close_time}
+            
+            # If we found trading hours, add them to the location
+            if trading_hours:
+                location['trading_hours'] = trading_hours
+                
+            # Add website
+            location['website'] = 'https://footespharmacies.com/'
+            
+            # If we still don't have basic fields, search more broadly
+            if not location.get('phone') or not location.get('address') or not location.get('email') or not location.get('fax'):
+                # Try more general selectors for missing information
+                
+                # Try to find phone by looking for tel: links if not found yet
+                if not location.get('phone'):
+                    phone_links = soup.select('a[href^="tel:"]')
+                    if phone_links:
+                        location['phone'] = phone_links[0].text.strip()
+                
+                # Try to find email by looking for mailto: links if not found yet
+                if not location.get('email'):
+                    email_links = soup.select('a[href^="mailto:"]')
+                    if email_links:
+                        location['email'] = email_links[0].text.strip()
+                        
+                # Try to find fax in any text containing "Fx:" if not found yet
+                if not location.get('fax'):
+                    for element in soup.select('.elementor-text-editor'):
+                        text = element.text.strip()
+                        if 'Fx:' in text:
+                            location['fax'] = text.replace('Fx:', '').strip()
+                            break
+                
+                # Try to find address in any heading if not found yet
+                if not location.get('address'):
+                    for element in soup.select('.elementor-heading-title'):
+                        text = element.text.strip()
+                        # Check for address pattern (look for postcode)
+                        if re.search(r'\b\d{4}\b', text):
+                            location['address'] = text
+                            # Extract state and postcode
+                            state_match = re.search(r'\b(NSW|VIC|QLD|SA|WA|TAS|NT|ACT)\b', text)
+                            if state_match:
+                                location['state'] = state_match.group(0)
+                            postcode_match = re.search(r'\b(\d{4})\b', text)
+                            if postcode_match:
+                                location['postcode'] = postcode_match.group(0)
+                            break
+            
+            return location
+        except Exception as e:
+            print(f"Error fetching details for Footes store {location.get('name')}: {e}")
+            return location
     
     async def fetch_pharmacy_details(self, brand, location_id):
         """
@@ -986,6 +1227,46 @@ class PharmacyLocations:
                 'suburb': suburb,
                 'trading_hours': pharmacy_data.get('trading_hours', {}),
                 'website': "https://www.communitycarechemist.com.au/"  # Default website
+            }
+            
+        elif brand == "footes":
+            # Handle Footes Pharmacy's structure
+            # Extract address, state, and postcode
+            address = pharmacy_data.get('address', '')
+            state = pharmacy_data.get('state', '')
+            postcode = pharmacy_data.get('postcode', '')
+            
+            # Try to extract suburb from address
+            suburb = None
+            if address:
+                # Try to parse out the suburb from the address
+                # First remove state and postcode if present
+                address_without_state = re.sub(r'\b(NSW|VIC|QLD|SA|WA|TAS|NT|ACT)\b', '', address)
+                address_without_postcode = re.sub(r'\b\d{4}\b', '', address_without_state)
+                
+                # Check if there's a comma in the address that might separate street and suburb
+                address_parts = address_without_postcode.split(',')
+                if len(address_parts) > 1:
+                    suburb = address_parts[-1].strip()
+            
+            # Parse trading hours
+            trading_hours = pharmacy_data.get('trading_hours', {})
+            
+            # Using fixed column order
+            result = {
+                'name': pharmacy_data.get('name'),
+                'address': address,
+                'email': None,  # Footes typically doesn't list email on the website
+                'fax': None,    # Footes typically doesn't list fax on the website
+                'latitude': None,  # No coordinates in the data
+                'longitude': None, # No coordinates in the data
+                'phone': pharmacy_data.get('phone'),
+                'postcode': postcode,
+                'state': state,
+                'street_address': address,
+                'suburb': suburb,
+                'trading_hours': trading_hours,
+                'website': pharmacy_data.get('website', 'https://footespharmacies.com/')
             }
             
         else:
