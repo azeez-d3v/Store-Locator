@@ -93,6 +93,12 @@ with tab_fetch:
             st.session_state["fetch_optimal"] = True
             st.session_state["fetch_community"] = True
             st.session_state["fetch_footes"] = True
+            st.session_state["fetch_alive"] = True
+            st.session_state["fetch_ydc"] = True
+            st.session_state["fetch_chemist_warehouse"] = True
+            st.session_state["fetch_pharmasave"] = True
+            st.session_state["fetch_nova"] = True
+            st.session_state["fetch_choice"] = True
             st.rerun()
     
     with col2:
@@ -105,6 +111,12 @@ with tab_fetch:
             st.session_state["fetch_optimal"] = False
             st.session_state["fetch_community"] = False
             st.session_state["fetch_footes"] = False
+            st.session_state["fetch_alive"] = False
+            st.session_state["fetch_ydc"] = False
+            st.session_state["fetch_chemist_warehouse"] = False
+            st.session_state["fetch_pharmasave"] = False
+            st.session_state["fetch_nova"] = False
+            st.session_state["fetch_choice"] = False
             st.rerun()
     
     # Initialize checkbox states in session state if they don't exist
@@ -124,6 +136,18 @@ with tab_fetch:
         st.session_state["fetch_community"] = False
     if "fetch_footes" not in st.session_state:
         st.session_state["fetch_footes"] = False
+    if "fetch_alive" not in st.session_state:
+        st.session_state["fetch_alive"] = False
+    if "fetch_ydc" not in st.session_state:
+        st.session_state["fetch_ydc"] = False
+    if "fetch_chemist_warehouse" not in st.session_state:
+        st.session_state["fetch_chemist_warehouse"] = False
+    if "fetch_pharmasave" not in st.session_state:
+        st.session_state["fetch_pharmasave"] = False
+    if "fetch_nova" not in st.session_state:
+        st.session_state["fetch_nova"] = False
+    if "fetch_choice" not in st.session_state:
+        st.session_state["fetch_choice"] = False
     
     fetch_dds = st.checkbox("Discount Drug Stores", value=st.session_state["fetch_dds"], key="fetch_dds")
     fetch_amcal = st.checkbox("Amcal", value=st.session_state["fetch_amcal"], key="fetch_amcal")
@@ -133,6 +157,12 @@ with tab_fetch:
     fetch_optimal = st.checkbox("Optimal Pharmacy Plus", value=st.session_state["fetch_optimal"], key="fetch_optimal")
     fetch_community = st.checkbox("Community Care Chemist", value=st.session_state["fetch_community"], key="fetch_community")
     fetch_footes = st.checkbox("Footes Pharmacy", value=st.session_state["fetch_footes"], key="fetch_footes")
+    fetch_alive = st.checkbox("Alive Pharmacy", value=st.session_state["fetch_alive"], key="fetch_alive")
+    fetch_ydc = st.checkbox("Your Discount Chemist", value=st.session_state["fetch_ydc"], key="fetch_ydc")
+    fetch_chemist_warehouse = st.checkbox("Chemist Warehouse", value=st.session_state["fetch_chemist_warehouse"], key="fetch_chemist_warehouse")
+    fetch_pharmasave = st.checkbox("Pharmasave", value=st.session_state["fetch_pharmasave"], key="fetch_pharmasave")
+    fetch_nova = st.checkbox("Nova Pharmacy", value=st.session_state["fetch_nova"], key="fetch_nova")
+    fetch_choice = st.checkbox("Choice Pharmacy", value=st.session_state["fetch_choice"], key="fetch_choice")
     
     if st.button("Fetch Data"):
         with st.spinner("Fetching data..."):
@@ -150,6 +180,12 @@ with tab_fetch:
                     if fetch_optimal: selected_brands.append("optimal")
                     if fetch_community: selected_brands.append("community")
                     if fetch_footes: selected_brands.append("footes")
+                    if fetch_alive: selected_brands.append("alive")
+                    if fetch_ydc: selected_brands.append("ydc")
+                    if fetch_chemist_warehouse: selected_brands.append("chemist_warehouse")
+                    if fetch_pharmasave: selected_brands.append("pharmasave")
+                    if fetch_nova: selected_brands.append("nova")
+                    if fetch_choice: selected_brands.append("choice")
                     
                     if len(selected_brands) > 1:
                         # Fetch multiple brands
@@ -170,7 +206,7 @@ with tab_fetch:
                         st.warning("Please select at least one brand to fetch")
                         
                 # Run the async function
-                if fetch_dds or fetch_amcal or fetch_blooms or fetch_ramsay or fetch_revive or fetch_optimal or fetch_community or fetch_footes:
+                if fetch_dds or fetch_amcal or fetch_blooms or fetch_ramsay or fetch_revive or fetch_optimal or fetch_community or fetch_footes or fetch_alive or fetch_ydc or fetch_chemist_warehouse or fetch_pharmasave or fetch_nova or fetch_choice:
                     asyncio.run(fetch_data())
             except Exception as e:
                 brand = []
@@ -182,6 +218,12 @@ with tab_fetch:
                 if fetch_optimal: brand.append("optimal")
                 if fetch_community: brand.append("community")
                 if fetch_footes: brand.append("footes")
+                if fetch_alive: brand.append("alive")
+                if fetch_ydc: brand.append("ydc")
+                if fetch_chemist_warehouse: brand.append("chemist_warehouse")
+                if fetch_pharmasave: brand.append("pharmasave")
+                if fetch_nova: brand.append("nova")
+                if fetch_choice: brand.append("choice")
                 for b in brand:
                     add_fetch_log(b, 0, False)
                 st.error(f"Error fetching data: {str(e)}")

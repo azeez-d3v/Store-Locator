@@ -28,6 +28,12 @@ class PharmacyLocations:
     COMMUNITY_URL = "https://www.communitycarechemist.com.au/"
     FOOTES_URL = "https://footespharmacies.com/stores/"
     FOOTES_SITEMAP_URL = "https://footespharmacies.com/stores-sitemap.xml"
+    ALIVE_URL = "https://stockist.co/api/v1/u6442/locations/all"
+    YDC_URL = "https://bc-wh.myintegrator.com.au/api/store/d75m9rit2s/location-list"
+    CHEMIST_WAREHOUSE_URL = "https://www.chemistwarehouse.com.au/webapi/store/store-locator?BusinessGroupId=2&SearchByState=&SortByDistance=false"
+    PHARMASAVE_URL = "https://www.pharmasave.com.au/wp-admin/admin-ajax.php?action=store_search&lat=&lng=&max_results=100&search_radius=100&autoload=1"
+    NOVA_URL = "https://www.novapharmacy.com.au/wp-admin/admin-ajax.php?action=store_search&lat=-&lng=&max_results=100&search_radius=100&autoload=1"
+    CHOICE_URL = "https://www.choicepharmacy.com.au/wp-admin/admin-ajax.php?action=store_search&lat=&lng=&max_results=100&search_radius=100&autoload=1"
     
     # Brand configurations
     BRAND_CONFIGS = {
@@ -57,7 +63,7 @@ class PharmacyLocations:
     def __init__(self):
         self.session_manager = SessionManager()
         # Import brand-specific handlers dynamically to avoid circular imports
-        from services.pharmacy.brands import amcal, dds, blooms, ramsay, revive, optimal, community, footes
+        from services.pharmacy.brands import amcal, dds, blooms, ramsay, revive, optimal, community, footes, alive, ydc, chemist_warehouse, pharmasave, nova, choice
         self.brand_handlers = {
             "amcal": amcal.AmcalHandler(self),
             "dds": dds.DDSHandler(self),
@@ -66,7 +72,13 @@ class PharmacyLocations:
             "revive": revive.ReviveHandler(self),
             "optimal": optimal.OptimalHandler(self),
             "community": community.CommunityHandler(self),
-            "footes": footes.FootesHandler(self)
+            "footes": footes.FootesHandler(self),
+            "alive": alive.AliveHandler(self),
+            "ydc": ydc.YdcHandler(self),
+            "chemist_warehouse": chemist_warehouse.ChemistWarehouseHandler(self),
+            "pharmasave": pharmasave.PharmasaveHandler(self),
+            "nova": nova.NovaHandler(self),
+            "choice": choice.ChoiceHandler(self)
         }
 
     async def fetch_locations(self, brand):

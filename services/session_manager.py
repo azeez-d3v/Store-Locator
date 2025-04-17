@@ -32,7 +32,7 @@ class SessionManager:
         Returns:
             List of response objects
         """
-        async with AsyncSession() as session:
+        async with AsyncSession(impersonate="chrome131") as session:
             tasks = []
             for req in requests:
                 url = req['url']
@@ -59,8 +59,7 @@ class SessionManager:
                 
             return await asyncio.gather(*tasks, return_exceptions=True)
     
-    async def get(self, url: str, 
-                 headers: Optional[Dict[str, str]] = None) -> Any:
+    async def get(self, url: str, headers: Optional[Dict[str, str]] = None) -> Any:
         """
         Make a GET request.
         
@@ -71,8 +70,9 @@ class SessionManager:
         Returns:
             Response object
         """
-        async with AsyncSession() as session:
+        async with AsyncSession(impersonate="chrome131") as session:
             combined_headers = {**self.default_headers}
+            
             if headers:
                 combined_headers.update(headers)
             return await session.get(url, headers=combined_headers)
@@ -93,7 +93,7 @@ class SessionManager:
         Returns:
             Response object
         """
-        async with AsyncSession() as session:
+        async with AsyncSession(impersonate="chrome131") as session:
             combined_headers = {**self.default_headers}
             if headers:
                 combined_headers.update(headers)
