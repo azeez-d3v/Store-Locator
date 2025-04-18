@@ -19,17 +19,6 @@ class FriendlyCareHandler(BasePharmacyHandler):
             'origin': 'https://www.friendlycare.com.au'
         }
         self.logger = logging.getLogger(__name__)
-        # Store the provided store links
-        self.store_links = [
-            "https://www.friendlycare.com.au/headoffice",
-            "https://www.friendlycare.com.au/ayr",
-            "https://www.friendlycare.com.au/booval",
-            "https://www.friendlycare.com.au/burleigh",
-            "https://www.friendlycare.com.au/ipswichcbd",
-            "https://www.friendlycare.com.au/jacobswell",
-            "https://www.friendlycare.com.au/nundah",
-            "https://www.friendlycare.com.au/sandgate"
-        ]
         
     async def fetch_locations(self):
         """
@@ -39,7 +28,7 @@ class FriendlyCareHandler(BasePharmacyHandler):
             List of FriendlyCare locations
         """
         locations = []
-        for i, url in enumerate(self.store_links):
+        for i, url in enumerate(self.pharmacy_locations.FRIENDLY_CARE_URLS):
             store_id = url.split('/')[-1]
             locations.append({
                 'id': i + 1,

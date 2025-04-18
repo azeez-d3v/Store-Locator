@@ -2,6 +2,7 @@ import re
 import logging
 from bs4 import BeautifulSoup
 from ..base_handler import BasePharmacyHandler
+from ..utils import decode_cloudflare_email, extract_state_postcode
 
 class BendigoUfsHandler(BasePharmacyHandler):
     """Handler for Bendigo UFS Pharmacies"""
@@ -124,20 +125,32 @@ class BendigoUfsHandler(BasePharmacyHandler):
                     if contact_p:
                         contact_text = contact_p.text.strip()
                         
-                        # Extract phone
-                        phone_match = re.search(r'Tel:?\s*(.+?)(?:\s*<br>|\s*\n|$)', str(contact_p))
+                        # Extract phone - use a more precise pattern to only capture the phone number
+                        phone_match = re.search(r'Tel:?\s*([\d\s]+)(?:<br|<\/|$)', str(contact_p))
                         if phone_match:
                             pharmacy_data['phone'] = phone_match.group(1).strip()
                         
-                        # Extract fax
-                        fax_match = re.search(r'Fax:?\s*(.+?)(?:\s*<br>|\s*\n|$)', str(contact_p))
+                        # Extract fax - use a more precise pattern to only capture the fax number
+                        fax_match = re.search(r'Fax:?\s*([\d\s]+)(?:<br|<\/|$)', str(contact_p))
                         if fax_match:
                             pharmacy_data['fax'] = fax_match.group(1).strip()
                         
-                        # Extract email
-                        email_tag = contact_p.find('a', href=lambda h: h and h.startswith('mailto:'))
-                        if email_tag:
-                            pharmacy_data['email'] = email_tag.text.strip()
+                        # Extract email - check for Cloudflare-protected email
+                        cf_email_span = contact_p.select_one('span.__cf_email__')
+                        if cf_email_span and cf_email_span.has_attr('data-cfemail'):
+                            try:
+                                # Get the encoded email
+                                encoded_email = cf_email_span.get('data-cfemail')
+                                # Decode the email using the utility function
+                                email = decode_cloudflare_email(encoded_email)
+                                pharmacy_data['email'] = email
+                            except Exception as e:
+                                logging.error(f"Error decoding Cloudflare email: {e}")
+                        else:
+                            # Regular email extraction as fallback
+                            email_tag = contact_p.find('a', href=lambda h: h and h.startswith('mailto:'))
+                            if email_tag:
+                                pharmacy_data['email'] = email_tag.text.strip()
                 
                 # Check for trading hours section
                 hours_header = container.find('h3', string=lambda t: t and 'trading hours' in t.lower())
@@ -234,7 +247,6 @@ class BendigoUfsHandler(BasePharmacyHandler):
             
             # Extract state and postcode from address if available
             if 'address' in pharmacy_data:
-                from ..utils import extract_state_postcode
                 state, postcode = extract_state_postcode(pharmacy_data['address'])
                 if state:
                     pharmacy_data['state'] = state

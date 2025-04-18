@@ -11,7 +11,6 @@ class GoodPriceHandler(BasePharmacyHandler):
     def __init__(self, pharmacy_locations):
         super().__init__(pharmacy_locations)
         self.brand_name = "good_price"
-        self.main_url = "https://www.goodpricepharmacy.com.au/amlocator/index/ajax/"
         self.headers = {
             'accept': 'application/json, text/javascript, */*; q=0.01',
             'accept-language': 'en-US,en;q=0.9',
@@ -33,7 +32,7 @@ class GoodPriceHandler(BasePharmacyHandler):
             # Make request to the locations endpoint
             # The API seems to return all locations at once in the 'block' key of the response
             response = await self.session_manager.post(
-                url=self.main_url,
+                url=self.pharmacy_locations.GOOD_PRICE_URL,
                 headers=self.headers,
                 data={
                     'filter': '',
@@ -122,7 +121,7 @@ class GoodPriceHandler(BasePharmacyHandler):
         try:
             # Make request to the locations endpoint to get all data
             response = await self.session_manager.post(
-                url=self.main_url,
+                url=self.pharmacy_locations.GOOD_PRICE_URL,
                 headers=self.headers,
                 data={
                     'filter': '',
@@ -175,7 +174,7 @@ class GoodPriceHandler(BasePharmacyHandler):
         try:
             # Make request to the locations endpoint
             response = await self.session_manager.post(
-                url=self.main_url,
+                url=self.pharmacy_locations.GOOD_PRICE_URL,
                 headers=self.headers,
                 data={
                     'filter': '',

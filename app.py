@@ -100,7 +100,11 @@ with tab_fetch:
         "fullife": "Fullife Pharmacy",
         "good_price": "Good Price Pharmacy",
         "healthy_pharmacy": "Healthy Pharmacy",
-        "healthy_world": "Healthy World Pharmacy"
+        "healthy_world": "Healthy World Pharmacy",
+        "pennas": "Pennas Pharmacy",
+        "wizard": "Wizard Pharmacy",
+        "chemist_hub": "Chemist Hub",
+        "superchem": "SuperChem Pharmacy"
     }
     
     # Initialize session state for selected pharmacies if not exists

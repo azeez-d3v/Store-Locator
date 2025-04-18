@@ -19,19 +19,7 @@ class ChemistKingHandler(BasePharmacyHandler):
             'origin': 'https://www.chemistking.com.au'
         }
         self.logger = logging.getLogger(__name__)
-        # Store the provided store links
-        self.store_links = [
-            "https://www.chemistking.com.au/colonellightgardens",
-            "https://www.chemistking.com.au/frewville",
-            "https://www.chemistking.com.au/hectorville",
-            "https://www.chemistking.com.au/klemzig",
-            "https://www.chemistking.com.au/morphettvale",
-            "https://www.chemistking.com.au/mountgambier",
-            "https://www.chemistking.com.au/murraybridge",
-            "https://www.chemistking.com.au/springbank",
-            "https://www.chemistking.com.au/welland"
-        ]
-        
+
     async def fetch_locations(self):
         """
         Use the provided store links instead of making an API call
@@ -40,7 +28,7 @@ class ChemistKingHandler(BasePharmacyHandler):
             List of Chemist King locations
         """
         locations = []
-        for i, url in enumerate(self.store_links):
+        for i, url in enumerate(self.pharmacy_locations.CHEMIST_KING_URLS):
             store_id = url.split('/')[-1]
             locations.append({
                 'id': i + 1,

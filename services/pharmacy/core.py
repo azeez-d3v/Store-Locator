@@ -35,9 +35,53 @@ class PharmacyLocations:
     NOVA_URL = "https://www.novapharmacy.com.au/wp-admin/admin-ajax.php?action=store_search&lat=-&lng=&max_results=100&search_radius=100&autoload=1"
     CHOICE_URL = "https://www.choicepharmacy.com.au/wp-admin/admin-ajax.php?action=store_search&lat=&lng=&max_results=100&search_radius=100&autoload=1"
     BENDIGO_UFS_SITEMAP_URL = "https://www.bendigoufs.com.au/page-sitemap.xml"
-    CHEMIST_KING_URL = "https://www.chemistking.com.au/store-locator/api/stores"
+    CHEMIST_KING_URLS = [
+            "https://www.chemistking.com.au/colonellightgardens",
+            "https://www.chemistking.com.au/frewville",
+            "https://www.chemistking.com.au/hectorville",
+            "https://www.chemistking.com.au/klemzig",
+            "https://www.chemistking.com.au/morphettvale",
+            "https://www.chemistking.com.au/mountgambier",
+            "https://www.chemistking.com.au/murraybridge",
+            "https://www.chemistking.com.au/springbank",
+            "https://www.chemistking.com.au/welland"
+        ]
     HEALTHY_PHARMACY_SITEMAP_URL = "https://www.healthylife.com.au/sitemap/stores.xml"
+    PENNAS_URLS = [
+            "https://www.pennaspharmacy.com.au/locations/pennas-discount-pharmacy-edensor-park",
+            "https://www.pennaspharmacy.com.au/locations/pennas-discount-pharmacy-prestons",
+            "https://www.pennaspharmacy.com.au/locations/pennas-discount-pharmacy-cecil-hills",
+            "https://www.pennaspharmacy.com.au/locations/pennas-discount-pharmacy-green-valley",
+            "https://www.pennaspharmacy.com.au/locations/pennas-discount-pharmacy-liverpool"
+        ]
+    FRIENDLY_CARE_URLS = [
+            "https://www.friendlycare.com.au/headoffice",
+            "https://www.friendlycare.com.au/ayr",
+            "https://www.friendlycare.com.au/booval",
+            "https://www.friendlycare.com.au/burleigh",
+            "https://www.friendlycare.com.au/ipswichcbd",
+            "https://www.friendlycare.com.au/jacobswell",
+            "https://www.friendlycare.com.au/nundah",
+            "https://www.friendlycare.com.au/sandgate"
+        ]
     
+    FULLIFE_URL = "https://www.fullife.com.au/locations"
+    GOOD_PRICE_URL = "https://www.goodpricepharmacy.com.au/amlocator/index/ajax/"
+    HEALTHY_LIFE_SITEMAP_URL = "https://www.healthylife.com.au/sitemap/stores.xml"
+    HEALTHY_LIFE_BASE_URL = "https://www.healthylife.com.au"
+    HEALTHY_WORLD_URL = "https://healthyworldpharmacy.com.au/pages/locations"
+    WIZARD_URL = "https://www.wizardpharmacy.com.au/store-finder"
+    SUPERCHEM_API_URL = "https://www.superchem.com.au/_system/action/group-store-finder/all-locations"
+    CHEMIST_HUB_URLS =  [
+            "https://www.chemisthub.au/store-locator/chemist-hub-rockdale",
+            "https://www.chemisthub.au/store-locator/chemist-hub-sanctuary-point",
+            "https://www.chemisthub.au/store-locator/chemist-hub-valentine",
+            "https://www.chemisthub.au/store-locator/panania-pharmacy",
+            "https://www.chemisthub.au/store-locator/chemist-hub-ingleburn-medical-centre-pharmacy",
+            "https://www.chemisthub.au/store-locator/chemist-hub-panania",
+            "https://www.chemisthub.au/store-locator/chemist-hub-kareela-community-pharmacy",
+            "https://www.chemisthub.au/store-locator/chemist-hub-wallsend"
+        ]
     # Brand configurations
     BRAND_CONFIGS = {
         "dds": {
@@ -66,7 +110,7 @@ class PharmacyLocations:
     def __init__(self):
         self.session_manager = SessionManager()
         # Import brand-specific handlers dynamically to avoid circular imports
-        from services.pharmacy.brands import amcal, dds, blooms, ramsay, revive, optimal, community, footes, alive, ydc, chemist_warehouse, pharmasave, nova, choice, bendigo_ufs, chemist_king, friendly_care, fullife, good_price, healthy_pharmacy, healthy_world
+        from services.pharmacy.brands import amcal, dds, blooms, ramsay, revive, optimal, community, footes, alive, ydc, chemist_warehouse, pharmasave, nova, choice, bendigo_ufs, chemist_king, friendly_care, fullife, good_price, healthy_pharmacy, healthy_world, pennas, wizard, chemist_hub, superchem
         self.brand_handlers = {
             "amcal": amcal.AmcalHandler(self),
             "dds": dds.DDSHandler(self),
@@ -88,7 +132,11 @@ class PharmacyLocations:
             "fullife": fullife.FullifeHandler(self),
             "good_price": good_price.GoodPriceHandler(self),
             "healthy_pharmacy": healthy_pharmacy.HealthyPharmacyHandler(self),
-            "healthy_world": healthy_world.HealthyWorldPharmacyHandler(self)
+            "healthy_world": healthy_world.HealthyWorldPharmacyHandler(self),
+            "pennas": pennas.PennasPharmacyHandler(self),
+            "wizard": wizard.WizardPharmacyHandler(self),
+            "chemist_hub": chemist_hub.ChemistHubHandler(self),
+            "superchem": superchem.SuperChemHandler(self)
         }
 
     async def fetch_locations(self, brand):

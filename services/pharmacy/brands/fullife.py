@@ -10,7 +10,7 @@ class FullifeHandler(BasePharmacyHandler):
     def __init__(self, pharmacy_locations):
         super().__init__(pharmacy_locations)
         self.brand_name = "fullife"
-        self.main_url = "https://www.fullife.com.au/locations"
+
         self.headers = {
             'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
             'accept-language': 'en-US,en;q=0.9',
@@ -29,7 +29,7 @@ class FullifeHandler(BasePharmacyHandler):
         try:
             # Make request to the locations page
             response = await self.session_manager.get(
-                url=self.main_url,
+                url=self.pharmacy_locations.FULLIFE_URL,
                 headers=self.headers
             )
             

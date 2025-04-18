@@ -172,41 +172,66 @@ class RamsayHandler(BasePharmacyHandler):
         # Extract address, state, and postcode
         address = pharmacy_data.get('Address', '')
         address = address.replace('<br>', ', ')  # Replace HTML line breaks with commas
-        address_parts = address.split(',')
         
-        # Try to extract state and postcode
+        # Extract state and postcode directly from the Address field
+        # Typical format: "..., Suburb, STATE, POSTCODE"
         state = None
         postcode = None
         suburb = None
         
-        # Look for state and postcode in address (typically at the end)
-        for part in reversed(address_parts):
-            part = part.strip()
-            if ',' in part:
-                subparts = part.split(',')
-                for subpart in subparts:
-                    subpart = subpart.strip()
-                    # Common Australian state abbreviations
-                    if any(s in subpart for s in ['NSW', 'VIC', 'QLD', 'SA', 'WA', 'TAS', 'NT', 'ACT']):
-                        state_postcode = subpart.split()
-                        if len(state_postcode) >= 2:
-                            state = state_postcode[0]
-                            postcode = state_postcode[1]
-                        break
-            elif 'NSW' in part or 'VIC' in part or 'QLD' in part or 'SA' in part or 'WA' in part or 'TAS' in part or 'NT' in part or 'ACT' in part:
-                state_postcode = part.split()
-                if len(state_postcode) >= 2:
-                    state = state_postcode[0]
-                    postcode = state_postcode[1]
-                break
+        # Look for state and postcode in the address string
+        # In Ramsay data, they're typically at the end in format "STATE, POSTCODE"
+        address_parts = address.split(',')
+        cleaned_parts = [part.strip() for part in address_parts]
         
-        # Try to extract suburb (usually before state and postcode)
-        for i, part in enumerate(address_parts):
-            part = part.strip()
-            if state and part.endswith(state):
-                if i > 0:
-                    suburb = address_parts[i - 1].strip()
-                break
+        # First try to extract from the raw fields if available
+        if pharmacy_data.get('PostCode'):
+            postcode = pharmacy_data.get('PostCode')
+        if pharmacy_data.get('State'):
+            state = pharmacy_data.get('State')
+        if pharmacy_data.get('Suburb'):
+            suburb = pharmacy_data.get('Suburb')
+            
+        # If not found, try to extract from address
+        if not state or not postcode:
+            # Australian state abbreviations
+            aus_states = ['NSW', 'VIC', 'QLD', 'SA', 'WA', 'TAS', 'NT', 'ACT']
+            
+            # Check each part for state information
+            for i, part in enumerate(cleaned_parts):
+                # Look for parts containing state abbreviations
+                for st in aus_states:
+                    if st in part:
+                        state = st
+                        # Check if postcode is in the same part (common format)
+                        postcode_match = re.search(r'\b\d{4}\b', part)
+                        if postcode_match:
+                            postcode = postcode_match.group(0)
+                        
+                        # If postcode wasn't in same part, check the next part
+                        elif i+1 < len(cleaned_parts):
+                            next_part = cleaned_parts[i+1]
+                            postcode_match = re.search(r'\b\d{4}\b', next_part)
+                            if postcode_match:
+                                postcode = postcode_match.group(0)
+                                
+                        # Try to get suburb from part before state
+                        if i > 0 and not suburb:
+                            suburb = cleaned_parts[i-1]
+                        
+                        break
+                
+                # If we already found state, no need to continue
+                if state:
+                    break
+                
+                # If part contains 4 digits, likely a postcode
+                postcode_match = re.search(r'\b\d{4}\b', part)
+                if postcode_match and not postcode:
+                    postcode = postcode_match.group(0)
+                    # Try to get suburb from part before postcode
+                    if i > 0 and not suburb:
+                        suburb = cleaned_parts[i-1]
         
         # Parse operating hours
         trading_hours = {}

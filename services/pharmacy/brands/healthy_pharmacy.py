@@ -12,8 +12,7 @@ class HealthyPharmacyHandler(BasePharmacyHandler):
     def __init__(self, pharmacy_locations):
         super().__init__(pharmacy_locations)
         self.brand_name = "healthy_pharmacy"
-        self.sitemap_url = "https://www.healthylife.com.au/sitemap/stores.xml"
-        self.base_url = "https://www.healthylife.com.au"
+
         self.headers = {
             'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
             'accept-language': 'en-US,en;q=0.9',
@@ -31,7 +30,7 @@ class HealthyPharmacyHandler(BasePharmacyHandler):
         try:
             # Make request to the sitemap XML
             response = await self.session_manager.get(
-                url=self.sitemap_url,
+                url=self.pharmacy_locations.HEALTHY_LIFE_SITEMAP_URL,
                 headers=self.headers
             )
             
@@ -48,7 +47,7 @@ class HealthyPharmacyHandler(BasePharmacyHandler):
                 urls = []
                 for url_tag in soup.find_all('loc'):
                     url = url_tag.text.strip()
-                    print(url)  # Debugging line to see the URLs being processed
+                    self.logger.debug(f"Processing URL: {url}")
                     # Skip the main store listing page
                     if url != "https://www.healthylife.com.au/stores":
                         urls.append(url)

@@ -11,7 +11,7 @@ class HealthyWorldPharmacyHandler(BasePharmacyHandler):
     def __init__(self, pharmacy_locations):
         super().__init__(pharmacy_locations)
         self.brand_name = "healthy_world"
-        self.base_url = "https://healthyworldpharmacy.com.au/pages/locations"
+        self.base_url = self.pharmacy_locations.HEALTHY_WORLD_URL
         self.headers = {
             'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
             'accept-language': 'en-US,en;q=0.9',
