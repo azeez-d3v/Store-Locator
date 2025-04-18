@@ -32,6 +32,9 @@ class PharmacyLocations:
     YDC_URL = "https://bc-wh.myintegrator.com.au/api/store/d75m9rit2s/location-list"
     CHEMIST_WAREHOUSE_URL = "https://www.chemistwarehouse.com.au/webapi/store/store-locator?BusinessGroupId=2&SearchByState=&SortByDistance=false"
     CHEMIST_WAREHOUSE_NZ_URL = "https://www.chemistwarehouse.co.nz/webapi/store/store-locator?BusinessGroupId=4&SearchByState=&SortByDistance=false"
+    ANTIDOTE_NZ_URL = "https://www.antidotepharmacy.co.nz/"
+    UNICHEM_NZ_LOCATIONS_URL = "https://www.closeby.co/embed/60e75b93df98a16d97499b8b8512e14f/locations?bounding_box&cachable=true&isInitialLoad=true"
+    BARGAIN_CHEMIST_NZ_URL = "https://www.bargainchemist.co.nz/pages/find-a-store"
     PHARMASAVE_URL = "https://www.pharmasave.com.au/wp-admin/admin-ajax.php?action=store_search&lat=&lng=&max_results=100&search_radius=100&autoload=1"
     NOVA_URL = "https://www.novapharmacy.com.au/wp-admin/admin-ajax.php?action=store_search&lat=-&lng=&max_results=100&search_radius=100&autoload=1"
     CHOICE_URL = "https://www.choicepharmacy.com.au/wp-admin/admin-ajax.php?action=store_search&lat=&lng=&max_results=100&search_radius=100&autoload=1"
@@ -83,6 +86,15 @@ class PharmacyLocations:
             "https://www.chemisthub.au/store-locator/chemist-hub-kareela-community-pharmacy",
             "https://www.chemisthub.au/store-locator/chemist-hub-wallsend"
         ]
+    COMPLETE_CARE_URLS = [
+        "https://completecarepharmacies.com.au/locations/bairnsdale/",
+        "https://completecarepharmacies.com.au/locations/bellambi/",
+        "https://completecarepharmacies.com.au/locations/kurri-kurri/",
+        "https://completecarepharmacies.com.au/locations/landsborough/",
+        "https://completecarepharmacies.com.au/locations/penguin/",
+        "https://completecarepharmacies.com.au/locations/rosny/",
+        "https://completecarepharmacies.com.au/locations/south-hobart/"
+    ]
     # Brand configurations
     BRAND_CONFIGS = {
         "dds": {
@@ -111,9 +123,9 @@ class PharmacyLocations:
     def __init__(self):
         self.session_manager = SessionManager()
         # Import brand-specific handlers dynamically to avoid circular imports
-        from services.pharmacy.brands import amcal, dds, blooms, ramsay, revive, optimal, community, footes, alive, ydc, chemist_warehouse, pharmasave, nova, choice, bendigo_ufs, chemist_king, friendly_care, fullife, good_price, healthy_pharmacy, healthy_world, pennas, wizard, chemist_hub, superchem
+        from services.pharmacy.brands import amcal, dds, blooms, ramsay, revive, optimal, community, footes, alive, ydc, chemist_warehouse, pharmasave, nova, choice, bendigo_ufs, chemist_king, friendly_care, fullife, good_price, healthy_pharmacy, healthy_world, pennas, wizard, chemist_hub, superchem, complete_care
         # Import NZ handlers
-        from services.pharmacy.brands.nz import chemist_warehouse_nz
+        from services.pharmacy.brands.nz import chemist_warehouse_nz, antidote, unichem, bargain_chemist
         
         self.brand_handlers = {
             "amcal": amcal.AmcalHandler(self),
@@ -141,8 +153,12 @@ class PharmacyLocations:
             "wizard": wizard.WizardPharmacyHandler(self),
             "chemist_hub": chemist_hub.ChemistHubHandler(self),
             "superchem": superchem.SuperChemHandler(self),
+            "complete_care": complete_care.CompleteCareHandler(self),
             # New Zealand handlers
-            "chemist_warehouse_nz": chemist_warehouse_nz.ChemistWarehouseNZHandler(self)
+            "chemist_warehouse_nz": chemist_warehouse_nz.ChemistWarehouseNZHandler(self),
+            "antidote_nz": antidote.AntidotePharmacyNZHandler(self),
+            "unichem_nz": unichem.UnichemNZHandler(self),
+            "bargain_chemist_nz": bargain_chemist.BargainChemistNZHandler(self)
         }
 
     async def fetch_locations(self, brand):

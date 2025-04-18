@@ -1,6 +1,6 @@
 # 🏥 Pharmacy Store Locator Analytics Dashboard
 
-A comprehensive tool for fetching, analyzing, and visualizing pharmacy location data across multiple pharmacy brands in Australia.
+A comprehensive tool for fetching, analyzing, and visualizing pharmacy location data across multiple pharmacy brands in Australia and New Zealand.
 
 ## 📋 Overview
 
@@ -15,32 +15,40 @@ The Pharmacy Store Locator is a Streamlit-based web application that allows user
 
 ### Data Collection
 
-- **Multi-brand support**: Fetches data from 25 pharmacy brands:
-  - Discount Drug Stores (DDS)
-  - Amcal
-  - Blooms The Chemist
-  - Ramsay Pharmacy
-  - Revive Pharmacy
-  - Optimal Pharmacy Plus
-  - Community Care Chemist
-  - Footes Pharmacy
-  - Alive Pharmacy
-  - Your Discount Chemist (YDC)
-  - Chemist Warehouse
-  - Pharmasave
-  - Nova Pharmacy
-  - Choice Pharmacy
-  - Bendigo UFS
-  - Chemist King
-  - Friendly Care Pharmacy
-  - Fullife Pharmacy
-  - Good Price Pharmacy
-  - Healthy Pharmacy
-  - Healthy World Pharmacy
-  - Pennas Pharmacy
-  - Wizard Pharmacy
-  - Chemist Hub
-  - SuperChem
+- **Multi-brand support**: Fetches data from 25+ pharmacy brands:
+  - **Australia**:
+    - Discount Drug Stores (DDS)
+    - Amcal
+    - Blooms The Chemist
+    - Ramsay Pharmacy
+    - Revive Pharmacy
+    - Optimal Pharmacy Plus
+    - Community Care Chemist
+    - Footes Pharmacy
+    - Alive Pharmacy
+    - Your Discount Chemist (YDC)
+    - Chemist Warehouse
+    - Pharmasave
+    - Nova Pharmacy
+    - Choice Pharmacy
+    - Bendigo UFS
+    - Chemist King
+    - Friendly Care Pharmacy
+    - Fullife Pharmacy
+    - Good Price Pharmacy
+    - Healthy Pharmacy
+    - Healthy World Pharmacy
+    - Pennas Pharmacy
+    - Wizard Pharmacy
+    - Chemist Hub
+    - SuperChem
+    - Complete Care Pharmacy
+  - **New Zealand**:
+    - Antidote Pharmacy
+    - Bargain Chemist
+    - Chemist Warehouse NZ
+    - Complete Care NZ
+    - Unichem
 - **Asynchronous data fetching**: Efficiently retrieves data using modern async/await patterns
 - **Structured storage**: Saves all fetched data as CSV files in the output directory
 - **Fetch history tracking**: Logs all data retrieval operations with timestamps and success status
@@ -165,13 +173,27 @@ The Pharmacy Store Locator is a Streamlit-based web application that allows user
 ```
 app.py                  # Main Streamlit application
 requirements.txt        # Python dependencies
+run.bat                 # Script to run the application
+setup.bat               # Script to set up the environment
 logs/
   app_logs.json         # Log file tracking fetch operations
 output/
-  *_pharmacies.csv      # Fetched pharmacy data files
+  *_pharmacies.csv      # Fetched pharmacy data files (AU and NZ)
 services/
-  pharmacy.py           # Pharmacy location data fetching implementations
+  pharmacy.py           # Main pharmacy handler
   session_manager.py    # HTTP session management utilities
+  pharmacy/
+    __init__.py         
+    base_handler.py     # Base class for pharmacy handlers
+    core.py             # Core functionality for pharmacy data fetching
+    utils.py            # Utility functions for data processing
+    brands/
+      __init__.py
+      alive.py          # Individual brand implementations
+      amcal.py
+      # ... other AU brand implementations
+      nz/
+        # New Zealand brand implementations
 ```
 
 ## 📝 Technical Details
@@ -183,6 +205,7 @@ services/
 - **Plotly**: Creates interactive visualizations and maps
 - **BeautifulSoup**: Parses HTML content from pharmacy websites
 - **Asyncio**: Enables asynchronous data fetching
+- **Python 3.9+**: Modern Python features for better code organization
 
 ### Data Model
 

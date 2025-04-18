@@ -1,4 +1,4 @@
-# Import all brand handlers for easy access
+# Import all AU brand handlers
 from .alive import AliveHandler
 from .amcal import AmcalHandler
 from .bendigo_ufs import BendigoUfsHandler

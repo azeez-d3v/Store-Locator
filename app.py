@@ -104,11 +104,15 @@ with tab_fetch:
         "pennas": "Pennas Pharmacy",
         "wizard": "Wizard Pharmacy",
         "chemist_hub": "Chemist Hub",
-        "superchem": "SuperChem Pharmacy"
+        "superchem": "SuperChem Pharmacy",
+        "complete_care": "Complete Care Pharmacy"
     }
 
     nz_pharmacy_brands = {
-        "chemist_warehouse_nz": "Chemist Warehouse NZ"
+        "chemist_warehouse_nz": "Chemist Warehouse NZ",
+        "antidote_nz": "Antidote Pharmacy NZ",
+        "unichem_nz": "Unichem NZ",
+        "bargain_chemist_nz": "Bargain Chemist NZ"
     }
 
     # Combine all brands for backward compatibility
