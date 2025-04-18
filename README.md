@@ -15,7 +15,7 @@ The Pharmacy Store Locator is a Streamlit-based web application that allows user
 
 ### Data Collection
 
-- **Multi-brand support**: Fetches data from 8 pharmacy brands:
+- **Multi-brand support**: Fetches data from 25 pharmacy brands:
   - Discount Drug Stores (DDS)
   - Amcal
   - Blooms The Chemist
@@ -24,6 +24,23 @@ The Pharmacy Store Locator is a Streamlit-based web application that allows user
   - Optimal Pharmacy Plus
   - Community Care Chemist
   - Footes Pharmacy
+  - Alive Pharmacy
+  - Your Discount Chemist (YDC)
+  - Chemist Warehouse
+  - Pharmasave
+  - Nova Pharmacy
+  - Choice Pharmacy
+  - Bendigo UFS
+  - Chemist King
+  - Friendly Care Pharmacy
+  - Fullife Pharmacy
+  - Good Price Pharmacy
+  - Healthy Pharmacy
+  - Healthy World Pharmacy
+  - Pennas Pharmacy
+  - Wizard Pharmacy
+  - Chemist Hub
+  - SuperChem
 - **Asynchronous data fetching**: Efficiently retrieves data using modern async/await patterns
 - **Structured storage**: Saves all fetched data as CSV files in the output directory
 - **Fetch history tracking**: Logs all data retrieval operations with timestamps and success status
@@ -53,9 +70,11 @@ The Pharmacy Store Locator is a Streamlit-based web application that allows user
 ### Prerequisites
 
 - Python 3.9+
-- pip (Python package installer)
+- Windows Operating System
 
 ### Setup Instructions
+
+#### Easy Setup (Windows)
 
 1. Clone the repository:
 
@@ -64,13 +83,53 @@ The Pharmacy Store Locator is a Streamlit-based web application that allows user
    cd pharmacy-store-locator
    ```
 
-2. Install the required packages:
+2. Run the setup batch file:
+
+   ```
+   setup.bat
+   ```
+
+   This will:
+   - Create a virtual environment (.venv folder)
+   - Upgrade pip to the latest version
+   - Install all required dependencies from requirements.txt
+
+3. Run the application:
+
+   ```
+   run.bat
+   ```
+
+   This will:
+   - Activate the virtual environment
+   - Verify all required packages are installed
+   - Launch the Streamlit application
+
+> **Note**: This setup process uses Python's built-in `venv` module and is not configured for Conda environments. If you're using Conda, you'll need to manually create a Conda environment and install the required packages using `conda install` or `pip install -r requirements.txt` within your Conda environment.
+
+#### Manual Setup (Alternative)
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/azeez-d3v/Store-Locator.git
+   cd Store-Locator
+   ```
+
+2. Create and activate a virtual environment:
+
+   ```bash
+   python -m venv .venv
+   .venv\Scripts\activate
+   ```
+
+3. Install the required packages:
 
    ```bash
    pip install -r requirements.txt
    ```
 
-3. Run the application:
+4. Run the application:
 
    ```bash
    streamlit run app.py
@@ -131,7 +190,7 @@ Each pharmacy record typically contains:
 
 - Name and contact information
 - Geographic coordinates and address
-- Trading hours
+- Trading hours (when available)
 - Available services
 - Website and email (when available)
 
