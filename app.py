@@ -78,114 +78,73 @@ with tab_fetch:
     st.header("Pharmacy Store Locator")
     st.image("https://img.icons8.com/color/96/000000/pharmacy-shop.png", width=100)
     
-    # Use checkboxes for brand selection
-    st.subheader("Select pharmacy to fetch")
+    # Define all available pharmacy brands
+    all_pharmacy_brands = {
+        "dds": "Discount Drug Stores",
+        "amcal": "Amcal",
+        "blooms": "Blooms The Chemist",
+        "ramsay": "Ramsay Pharmacy",
+        "revive": "Revive Pharmacy",
+        "optimal": "Optimal Pharmacy Plus",
+        "community": "Community Care Chemist",
+        "footes": "Footes Pharmacy",
+        "alive": "Alive Pharmacy",
+        "ydc": "Your Discount Chemist",
+        "chemist_warehouse": "Chemist Warehouse",
+        "pharmasave": "Pharmasave",
+        "nova": "Nova Pharmacy",
+        "choice": "Choice Pharmacy",
+        "bendigo_ufs": "Bendigo UFS",
+        "chemist_king": "Chemist King",
+        "friendly_care": "FriendlyCare Pharmacy"
+    }
+    
+    # Initialize session state for selected pharmacies if not exists
+    if "selected_pharmacies" not in st.session_state:
+        st.session_state["selected_pharmacies"] = []
+    
+    # Create a callback function to update session state
+    def update_selection():
+        # This function updates session state immediately when selection changes
+        pass # Placeholder function to avoid errors
     
     # Add Select All and Clear Selection buttons in a row
     col1, col2 = st.columns(2)
     with col1:
-        if st.button("Select All"):
-            st.session_state["fetch_dds"] = True
-            st.session_state["fetch_amcal"] = True
-            st.session_state["fetch_blooms"] = True
-            st.session_state["fetch_ramsay"] = True
-            st.session_state["fetch_revive"] = True
-            st.session_state["fetch_optimal"] = True
-            st.session_state["fetch_community"] = True
-            st.session_state["fetch_footes"] = True
-            st.session_state["fetch_alive"] = True
-            st.session_state["fetch_ydc"] = True
-            st.session_state["fetch_chemist_warehouse"] = True
-            st.session_state["fetch_pharmasave"] = True
-            st.session_state["fetch_nova"] = True
-            st.session_state["fetch_choice"] = True
+        if st.button("Select All", key="select_all"):
+            st.session_state["selected_pharmacies"] = list(all_pharmacy_brands.keys())
             st.rerun()
     
     with col2:
-        if st.button("Clear Selection"):
-            st.session_state["fetch_dds"] = False
-            st.session_state["fetch_amcal"] = False
-            st.session_state["fetch_blooms"] = False
-            st.session_state["fetch_ramsay"] = False
-            st.session_state["fetch_revive"] = False
-            st.session_state["fetch_optimal"] = False
-            st.session_state["fetch_community"] = False
-            st.session_state["fetch_footes"] = False
-            st.session_state["fetch_alive"] = False
-            st.session_state["fetch_ydc"] = False
-            st.session_state["fetch_chemist_warehouse"] = False
-            st.session_state["fetch_pharmasave"] = False
-            st.session_state["fetch_nova"] = False
-            st.session_state["fetch_choice"] = False
+        if st.button("Clear Selection", key="clear_selection"):
+            st.session_state["selected_pharmacies"] = []
             st.rerun()
     
-    # Initialize checkbox states in session state if they don't exist
-    if "fetch_dds" not in st.session_state:
-        st.session_state["fetch_dds"] = False
-    if "fetch_amcal" not in st.session_state:
-        st.session_state["fetch_amcal"] = False
-    if "fetch_blooms" not in st.session_state:
-        st.session_state["fetch_blooms"] = False
-    if "fetch_ramsay" not in st.session_state:
-        st.session_state["fetch_ramsay"] = False
-    if "fetch_revive" not in st.session_state:
-        st.session_state["fetch_revive"] = False
-    if "fetch_optimal" not in st.session_state:
-        st.session_state["fetch_optimal"] = False
-    if "fetch_community" not in st.session_state:
-        st.session_state["fetch_community"] = False
-    if "fetch_footes" not in st.session_state:
-        st.session_state["fetch_footes"] = False
-    if "fetch_alive" not in st.session_state:
-        st.session_state["fetch_alive"] = False
-    if "fetch_ydc" not in st.session_state:
-        st.session_state["fetch_ydc"] = False
-    if "fetch_chemist_warehouse" not in st.session_state:
-        st.session_state["fetch_chemist_warehouse"] = False
-    if "fetch_pharmasave" not in st.session_state:
-        st.session_state["fetch_pharmasave"] = False
-    if "fetch_nova" not in st.session_state:
-        st.session_state["fetch_nova"] = False
-    if "fetch_choice" not in st.session_state:
-        st.session_state["fetch_choice"] = False
+    # Use multiselect for pharmacy selection with key linked to session state
+    st.subheader("Select pharmacies to fetch")
     
-    fetch_dds = st.checkbox("Discount Drug Stores", value=st.session_state["fetch_dds"], key="fetch_dds")
-    fetch_amcal = st.checkbox("Amcal", value=st.session_state["fetch_amcal"], key="fetch_amcal")
-    fetch_blooms = st.checkbox("Blooms The Chemist", value=st.session_state["fetch_blooms"], key="fetch_blooms")
-    fetch_ramsay = st.checkbox("Ramsay Pharmacy", value=st.session_state["fetch_ramsay"], key="fetch_ramsay")
-    fetch_revive = st.checkbox("Revive Pharmacy", value=st.session_state["fetch_revive"], key="fetch_revive")
-    fetch_optimal = st.checkbox("Optimal Pharmacy Plus", value=st.session_state["fetch_optimal"], key="fetch_optimal")
-    fetch_community = st.checkbox("Community Care Chemist", value=st.session_state["fetch_community"], key="fetch_community")
-    fetch_footes = st.checkbox("Footes Pharmacy", value=st.session_state["fetch_footes"], key="fetch_footes")
-    fetch_alive = st.checkbox("Alive Pharmacy", value=st.session_state["fetch_alive"], key="fetch_alive")
-    fetch_ydc = st.checkbox("Your Discount Chemist", value=st.session_state["fetch_ydc"], key="fetch_ydc")
-    fetch_chemist_warehouse = st.checkbox("Chemist Warehouse", value=st.session_state["fetch_chemist_warehouse"], key="fetch_chemist_warehouse")
-    fetch_pharmasave = st.checkbox("Pharmasave", value=st.session_state["fetch_pharmasave"], key="fetch_pharmasave")
-    fetch_nova = st.checkbox("Nova Pharmacy", value=st.session_state["fetch_nova"], key="fetch_nova")
-    fetch_choice = st.checkbox("Choice Pharmacy", value=st.session_state["fetch_choice"], key="fetch_choice")
+    # The key approach: directly use the session state in the multiselect
+    # This creates a two-way binding between multiselect and session state
+    selected_pharmacies = st.multiselect(
+        "Choose one or more pharmacy brands",
+        options=list(all_pharmacy_brands.keys()),
+        format_func=lambda x: all_pharmacy_brands[x],
+        default=st.session_state["selected_pharmacies"],
+        on_change=update_selection,
+        key="selected_pharmacies"
+    )
     
-    if st.button("Fetch Data"):
+
+    
+    if st.button("Fetch Data", key="fetch_button"):
         with st.spinner("Fetching data..."):
             try:
                 # Run the fetch operation asynchronously
                 pharmacy_api = PharmacyLocations()
                 
                 async def fetch_data():
-                    selected_brands = []
-                    if fetch_dds: selected_brands.append("dds")
-                    if fetch_amcal: selected_brands.append("amcal")
-                    if fetch_blooms: selected_brands.append("blooms")
-                    if fetch_ramsay: selected_brands.append("ramsay") 
-                    if fetch_revive: selected_brands.append("revive")
-                    if fetch_optimal: selected_brands.append("optimal")
-                    if fetch_community: selected_brands.append("community")
-                    if fetch_footes: selected_brands.append("footes")
-                    if fetch_alive: selected_brands.append("alive")
-                    if fetch_ydc: selected_brands.append("ydc")
-                    if fetch_chemist_warehouse: selected_brands.append("chemist_warehouse")
-                    if fetch_pharmasave: selected_brands.append("pharmasave")
-                    if fetch_nova: selected_brands.append("nova")
-                    if fetch_choice: selected_brands.append("choice")
+                    # Always use session_state directly to ensure latest selection
+                    selected_brands = st.session_state["selected_pharmacies"]
                     
                     if len(selected_brands) > 1:
                         # Fetch multiple brands
@@ -206,26 +165,13 @@ with tab_fetch:
                         st.warning("Please select at least one brand to fetch")
                         
                 # Run the async function
-                if fetch_dds or fetch_amcal or fetch_blooms or fetch_ramsay or fetch_revive or fetch_optimal or fetch_community or fetch_footes or fetch_alive or fetch_ydc or fetch_chemist_warehouse or fetch_pharmasave or fetch_nova or fetch_choice:
+                if st.session_state["selected_pharmacies"]:
                     asyncio.run(fetch_data())
+                else:
+                    st.warning("Please select at least one brand to fetch")
             except Exception as e:
-                brand = []
-                if fetch_dds: brand.append("dds")
-                if fetch_amcal: brand.append("amcal")
-                if fetch_blooms: brand.append("blooms")
-                if fetch_ramsay: brand.append("ramsay")
-                if fetch_revive: brand.append("revive")
-                if fetch_optimal: brand.append("optimal")
-                if fetch_community: brand.append("community")
-                if fetch_footes: brand.append("footes")
-                if fetch_alive: brand.append("alive")
-                if fetch_ydc: brand.append("ydc")
-                if fetch_chemist_warehouse: brand.append("chemist_warehouse")
-                if fetch_pharmasave: brand.append("pharmasave")
-                if fetch_nova: brand.append("nova")
-                if fetch_choice: brand.append("choice")
-                for b in brand:
-                    add_fetch_log(b, 0, False)
+                for brand in st.session_state["selected_pharmacies"]:
+                    add_fetch_log(brand, 0, False)
                 st.error(f"Error fetching data: {str(e)}")
 
 # Tab 3: Fetch History
@@ -418,7 +364,7 @@ with tab_analyze:
                                                     hours_data.append({
                                                         "Day": day,
                                                         "Opens": hours.get("open", "N/A"),
-                                                        "Closes": hours.get("closed", "N/A")
+                                                        "Closes": hours.get("close", hours.get("closed", "N/A"))
                                                     })
                                         
                                         # Add any days not in the standard order
@@ -427,7 +373,7 @@ with tab_analyze:
                                                 hours_data.append({
                                                     "Day": day,
                                                     "Opens": hours.get("open", "N/A"),
-                                                    "Closes": hours.get("closed", "N/A")
+                                                    "Closes": hours.get("close", hours.get("closed", "N/A"))
                                                 })
                                                 
                                         if hours_data:
