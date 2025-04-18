@@ -96,7 +96,11 @@ with tab_fetch:
         "choice": "Choice Pharmacy",
         "bendigo_ufs": "Bendigo UFS",
         "chemist_king": "Chemist King",
-        "friendly_care": "FriendlyCare Pharmacy"
+        "friendly_care": "FriendlyCare Pharmacy",
+        "fullife": "Fullife Pharmacy",
+        "good_price": "Good Price Pharmacy",
+        "healthy_pharmacy": "Healthy Pharmacy",
+        "healthy_world": "Healthy World Pharmacy"
     }
     
     # Initialize session state for selected pharmacies if not exists

@@ -16,6 +16,10 @@ from .pharmasave import PharmasaveHandler
 from .ramsay import RamsayHandler
 from .revive import ReviveHandler
 from .ydc import YdcHandler
+from .fullife import FullifeHandler
+from .good_price import GoodPriceHandler
+from .healthy_pharmacy import HealthyPharmacyHandler
+from .healthy_world import HealthyWorldPharmacyHandler
 
 __all__ = [
     'amcal',
@@ -34,5 +38,9 @@ __all__ = [
     'choice',
     'bendigo_ufs',
     'chemist_king',
-    'friendly_care'
+    'friendly_care',
+    'fullife',
+    'good_price',
+    'healthy_pharmacy',
+    'healthy_world'
 ]

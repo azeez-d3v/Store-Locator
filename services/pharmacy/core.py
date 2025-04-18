@@ -36,6 +36,7 @@ class PharmacyLocations:
     CHOICE_URL = "https://www.choicepharmacy.com.au/wp-admin/admin-ajax.php?action=store_search&lat=&lng=&max_results=100&search_radius=100&autoload=1"
     BENDIGO_UFS_SITEMAP_URL = "https://www.bendigoufs.com.au/page-sitemap.xml"
     CHEMIST_KING_URL = "https://www.chemistking.com.au/store-locator/api/stores"
+    HEALTHY_PHARMACY_SITEMAP_URL = "https://www.healthylife.com.au/sitemap/stores.xml"
     
     # Brand configurations
     BRAND_CONFIGS = {
@@ -65,7 +66,7 @@ class PharmacyLocations:
     def __init__(self):
         self.session_manager = SessionManager()
         # Import brand-specific handlers dynamically to avoid circular imports
-        from services.pharmacy.brands import amcal, dds, blooms, ramsay, revive, optimal, community, footes, alive, ydc, chemist_warehouse, pharmasave, nova, choice, bendigo_ufs, chemist_king, friendly_care
+        from services.pharmacy.brands import amcal, dds, blooms, ramsay, revive, optimal, community, footes, alive, ydc, chemist_warehouse, pharmasave, nova, choice, bendigo_ufs, chemist_king, friendly_care, fullife, good_price, healthy_pharmacy, healthy_world
         self.brand_handlers = {
             "amcal": amcal.AmcalHandler(self),
             "dds": dds.DDSHandler(self),
@@ -83,7 +84,11 @@ class PharmacyLocations:
             "choice": choice.ChoiceHandler(self),
             "bendigo_ufs": bendigo_ufs.BendigoUfsHandler(self),
             "chemist_king": chemist_king.ChemistKingHandler(self),
-            "friendly_care": friendly_care.FriendlyCareHandler(self)
+            "friendly_care": friendly_care.FriendlyCareHandler(self),
+            "fullife": fullife.FullifeHandler(self),
+            "good_price": good_price.GoodPriceHandler(self),
+            "healthy_pharmacy": healthy_pharmacy.HealthyPharmacyHandler(self),
+            "healthy_world": healthy_world.HealthyWorldPharmacyHandler(self)
         }
 
     async def fetch_locations(self, brand):
