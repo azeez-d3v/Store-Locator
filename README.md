@@ -79,8 +79,8 @@ The Pharmacy Store Locator is a Streamlit-based web application that allows user
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/yourusername/pharmacy-store-locator.git
-   cd pharmacy-store-locator
+   git clone https://github.com/azeez-d3v/Store-Locator.git
+   cd Store-Locator
    ```
 
 2. Run the setup batch file:
