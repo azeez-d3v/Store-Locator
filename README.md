@@ -70,7 +70,6 @@ The Pharmacy Store Locator is a Streamlit-based web application that allows user
 
 ### Advanced Features
 
-- **Service offering analysis**: Compare available services across pharmacy brands
 - **Robust error handling**: Gracefully handles various data formats and missing information
 - **Responsive UI**: Well-organized tabbed interface with meaningful visualizations
 
