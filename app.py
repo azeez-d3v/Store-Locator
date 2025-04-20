@@ -112,20 +112,31 @@ with tab_fetch:
         "chemist_warehouse_nz": "Chemist Warehouse NZ",
         "antidote_nz": "Antidote Pharmacy NZ",
         "unichem_nz": "Unichem NZ",
-        "bargain_chemist_nz": "Bargain Chemist NZ"
+        "bargain_chemist_nz": "Bargain Chemist NZ",
+        "woolworths_nz": "Woolworths Pharmacy NZ"
     }
 
     # Combine all brands for backward compatibility
     all_pharmacy_brands = {**au_pharmacy_brands, **nz_pharmacy_brands}
     
-    # Initialize session state for selected pharmacies if not exists
+    # Initialize session state variables
     if "selected_pharmacies" not in st.session_state:
         st.session_state["selected_pharmacies"] = []
+    if "selected_au_pharmacies" not in st.session_state:
+        st.session_state["selected_au_pharmacies"] = []
+    if "selected_nz_pharmacies" not in st.session_state:
+        st.session_state["selected_nz_pharmacies"] = []
     
-    # Create a callback function to update session state
-    def update_selection():
-        # This function updates session state immediately when selection changes
-        pass # Placeholder function to avoid errors
+    # Create callback functions to update session state
+    def on_au_selection_change():
+        # Update main selection list with both AU and NZ selections
+        nz_selections = st.session_state.get("selected_nz_pharmacies", [])
+        st.session_state["selected_pharmacies"] = st.session_state["selected_au_pharmacies"] + nz_selections
+    
+    def on_nz_selection_change():
+        # Update main selection list with both AU and NZ selections
+        au_selections = st.session_state.get("selected_au_pharmacies", [])
+        st.session_state["selected_pharmacies"] = au_selections + st.session_state["selected_nz_pharmacies"]
     
     # Create AU and NZ tabs for pharmacy selection
     au_tab, nz_tab = st.tabs(["Australia (AU)", "New Zealand (NZ)"])
@@ -140,6 +151,8 @@ with tab_fetch:
             if st.button("Select All AU", key="select_all_au"):
                 # Update session state to include all AU brands
                 au_brands = list(au_pharmacy_brands.keys())
+                # Update both the main selected_pharmacies and the specific AU selection
+                st.session_state["selected_au_pharmacies"] = au_brands
                 # Preserve any NZ selections
                 nz_selections = [b for b in st.session_state["selected_pharmacies"] if b in nz_pharmacy_brands]
                 st.session_state["selected_pharmacies"] = au_brands + nz_selections
@@ -148,8 +161,9 @@ with tab_fetch:
         with col2:
             if st.button("Clear AU Selection", key="clear_au_selection"):
                 # Remove only AU brands from session state
-                st.session_state["selected_pharmacies"] = [b for b in st.session_state["selected_pharmacies"] 
-                                                          if b not in au_pharmacy_brands]
+                st.session_state["selected_au_pharmacies"] = []
+                nz_selections = [b for b in st.session_state["selected_pharmacies"] if b in nz_pharmacy_brands]
+                st.session_state["selected_pharmacies"] = nz_selections
                 st.rerun()
         
         # Get current AU selections
@@ -161,7 +175,8 @@ with tab_fetch:
             options=list(au_pharmacy_brands.keys()),
             format_func=lambda x: au_pharmacy_brands[x],
             default=current_au_selections,
-            key="selected_au_pharmacies"
+            key="selected_au_pharmacies",
+            on_change=on_au_selection_change
         )
         
         # Update session state with combined AU and NZ selections
@@ -178,6 +193,8 @@ with tab_fetch:
             if st.button("Select All NZ", key="select_all_nz"):
                 # Update session state to include all NZ brands
                 nz_brands = list(nz_pharmacy_brands.keys())
+                # Update both the main selected_pharmacies and the specific NZ selection
+                st.session_state["selected_nz_pharmacies"] = nz_brands
                 # Preserve any AU selections
                 au_selections = [b for b in st.session_state["selected_pharmacies"] if b in au_pharmacy_brands]
                 st.session_state["selected_pharmacies"] = au_selections + nz_brands
@@ -186,8 +203,9 @@ with tab_fetch:
         with col2:
             if st.button("Clear NZ Selection", key="clear_nz_selection"):
                 # Remove only NZ brands from session state
-                st.session_state["selected_pharmacies"] = [b for b in st.session_state["selected_pharmacies"] 
-                                                          if b not in nz_pharmacy_brands]
+                st.session_state["selected_nz_pharmacies"] = []
+                au_selections = [b for b in st.session_state["selected_pharmacies"] if b in au_pharmacy_brands]
+                st.session_state["selected_pharmacies"] = au_selections
                 st.rerun()
         
         # Get current NZ selections
@@ -199,7 +217,8 @@ with tab_fetch:
             options=list(nz_pharmacy_brands.keys()),
             format_func=lambda x: nz_pharmacy_brands[x],
             default=current_nz_selections,
-            key="selected_nz_pharmacies"
+            key="selected_nz_pharmacies",
+            on_change=on_nz_selection_change
         )
         
         # Update session state with combined AU and NZ selections

@@ -49,6 +49,7 @@ The Pharmacy Store Locator is a Streamlit-based web application that allows user
     - Chemist Warehouse NZ
     - Complete Care NZ
     - Unichem
+    - Woolworths Pharmacy
 - **Asynchronous data fetching**: Efficiently retrieves data using modern async/await patterns
 - **Structured storage**: Saves all fetched data as CSV files in the output directory
 - **Fetch history tracking**: Logs all data retrieval operations with timestamps and success status

@@ -125,7 +125,7 @@ class PharmacyLocations:
         # Import brand-specific handlers dynamically to avoid circular imports
         from services.pharmacy.brands import amcal, dds, blooms, ramsay, revive, optimal, community, footes, alive, ydc, chemist_warehouse, pharmasave, nova, choice, bendigo_ufs, chemist_king, friendly_care, fullife, good_price, healthy_pharmacy, healthy_world, pennas, wizard, chemist_hub, superchem, complete_care
         # Import NZ handlers
-        from services.pharmacy.brands.nz import chemist_warehouse_nz, antidote, unichem, bargain_chemist
+        from services.pharmacy.brands.nz import chemist_warehouse_nz, antidote, unichem, bargain_chemist, woolworths
         
         self.brand_handlers = {
             "amcal": amcal.AmcalHandler(self),
@@ -158,7 +158,8 @@ class PharmacyLocations:
             "chemist_warehouse_nz": chemist_warehouse_nz.ChemistWarehouseNZHandler(self),
             "antidote_nz": antidote.AntidotePharmacyNZHandler(self),
             "unichem_nz": unichem.UnichemNZHandler(self),
-            "bargain_chemist_nz": bargain_chemist.BargainChemistNZHandler(self)
+            "bargain_chemist_nz": bargain_chemist.BargainChemistNZHandler(self),
+            "woolworths_nz": woolworths.WoolworthsPharmacyNZHandler(self)
         }
 
     async def fetch_locations(self, brand):
