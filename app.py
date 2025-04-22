@@ -70,7 +70,6 @@ def safe_column_check(df, column_name):
 
 # Main content
 st.title("🏥 Pharmacy Analytics Dashboard")
-
 # Create main tabs
 tab_fetch, tab_analyze, tab_history = st.tabs(["Data Fetching", "Data Analysis", "Fetch History"])
 
