@@ -75,3 +75,6 @@ coverage.xml
 .hypothesis/
 
 test_all_brands.py
+.python-version
+uv.lock
+pyproject.toml

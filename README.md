@@ -73,12 +73,32 @@ The Pharmacy Store Locator is a Streamlit-based web application that allows user
 - **Robust error handling**: Gracefully handles various data formats and missing information
 - **Responsive UI**: Well-organized tabbed interface with meaningful visualizations
 
+## 💻 Tech Stack
+
+### Core Technologies
+
+- **Python 3.11+**: Leverages modern Python features for improved performance and code organization
+- **Streamlit**: Powers the interactive web interface and data visualizations
+- **Pandas**: Handles data manipulation, transformation, and analysis
+- **Plotly**: Creates interactive visualizations, charts, and maps
+- **BeautifulSoup4**: Parses HTML content from pharmacy websites
+- **curl_cffi**: Provides high-performance HTTP request capabilities with browser emulation
+- **lxml**: XML/HTML parsing library for efficient data extraction
+
+### Package Management
+
+- **UV**: Modern, high-performance Python package manager and resolver
+  - Faster installation speeds compared to traditional pip
+  - Precise dependency resolution
+  - Lockfile generation for reproducible environments
+
 ## 🔧 Installation
 
 ### Prerequisites
 
-- Python 3.9+
+- Python 3.11+
 - Windows Operating System
+- UV package manager (optional but recommended)
 
 ### Setup Instructions
 
@@ -114,6 +134,42 @@ The Pharmacy Store Locator is a Streamlit-based web application that allows user
    - Launch the Streamlit application
 
 > **Note**: This setup process uses Python's built-in `venv` module and is not configured for Conda environments. If you're using Conda, you'll need to manually create a Conda environment and install the required packages using `conda install` or `pip install -r requirements.txt` within your Conda environment.
+
+#### Setup with UV (Recommended)
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/azeez-d3v/Store-Locator.git
+   cd Store-Locator
+   ```
+
+2. Install UV if you don't have it already:
+
+   ```bash
+   pip install uv
+   ```
+
+3. Create a virtual environment and install dependencies:
+
+   ```bash
+   uv venv
+   uv pip install -r requirements.txt
+   ```
+
+   Or install directly from pyproject.toml:
+
+   ```bash
+   uv venv
+   uv pip sync
+   ```
+
+4. Activate the environment and run the application:
+
+   ```bash
+   .venv\Scripts\activate
+   streamlit run app.py
+   ```
 
 #### Manual Setup (Alternative)
 
@@ -161,7 +217,6 @@ The Pharmacy Store Locator is a Streamlit-based web application that allows user
    - **Trading Hours**: Analyze opening hours and weekly schedule patterns
    - **Geographic Distribution**: View state distribution and map visualization
    - **Data Completeness**: Check data quality across different fields
-   - **Advanced Analysis**: Compare data across multiple pharmacy brands
 
 ### Viewing Fetch History
 
@@ -204,8 +259,20 @@ services/
 - **Pandas**: Handles data manipulation and analysis
 - **Plotly**: Creates interactive visualizations and maps
 - **BeautifulSoup**: Parses HTML content from pharmacy websites
+- **curl_cffi**: Performs HTTP requests with browser fingerprinting capabilities
 - **Asyncio**: Enables asynchronous data fetching
-- **Python 3.9+**: Modern Python features for better code organization
+- **Python 3.11+**: Modern Python features for better code organization
+
+### Dependencies
+
+All dependencies are specified in both `requirements.txt` and `pyproject.toml` files:
+
+- `streamlit`: Web application framework
+- `pandas`: Data analysis and manipulation
+- `plotly`: Interactive visualizations
+- `beautifulsoup4`: HTML parsing
+- `curl_cffi`: HTTP client library
+- `lxml`: XML/HTML parsing
 
 ### Data Model
 
