@@ -2,6 +2,7 @@ from ..base_handler import BasePharmacyHandler
 import logging
 import re
 import json
+from rich import print
 from datetime import datetime
 from bs4 import BeautifulSoup
 import xml.etree.ElementTree as ET

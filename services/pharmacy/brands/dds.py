@@ -1,4 +1,5 @@
 import asyncio
+from rich import print
 from ..base_handler import BasePharmacyHandler
 
 class DDSHandler(BasePharmacyHandler):

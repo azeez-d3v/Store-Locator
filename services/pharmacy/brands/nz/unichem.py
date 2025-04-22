@@ -1,6 +1,7 @@
 from ...base_handler import BasePharmacyHandler
 import json
 import re
+from rich import print
 import asyncio
 
 class UnichemNZHandler(BasePharmacyHandler):

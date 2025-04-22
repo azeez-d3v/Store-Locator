@@ -2,6 +2,7 @@ from ...base_handler import BasePharmacyHandler
 import json
 import re
 import asyncio
+from rich import print
 from bs4 import BeautifulSoup
 
 class BargainChemistNZHandler(BasePharmacyHandler):

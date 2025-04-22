@@ -1,5 +1,5 @@
 from ..base_handler import BasePharmacyHandler
-
+from rich import print
 class OptimalHandler(BasePharmacyHandler):
     """Handler for Optimal Pharmacy Plus pharmacies"""
     

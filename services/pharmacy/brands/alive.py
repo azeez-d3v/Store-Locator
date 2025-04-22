@@ -1,6 +1,7 @@
 from ..base_handler import BasePharmacyHandler
 import re
 from datetime import datetime
+from rich import print
 
 class AliveHandler(BasePharmacyHandler):
     """Handler for Alive Pharmacy Warehouse"""

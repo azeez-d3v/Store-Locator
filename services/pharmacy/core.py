@@ -2,6 +2,7 @@ import asyncio
 import sys
 import os
 import csv
+from rich import print
 from pathlib import Path
 
 # Append parent directory to path for imports

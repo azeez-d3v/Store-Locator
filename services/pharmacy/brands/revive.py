@@ -1,4 +1,5 @@
 from ..base_handler import BasePharmacyHandler
+from rich import print
 
 class ReviveHandler(BasePharmacyHandler):
     """Handler for Revive Pharmacies"""

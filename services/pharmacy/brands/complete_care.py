@@ -2,6 +2,7 @@ import asyncio
 import re
 from bs4 import BeautifulSoup
 import json
+from rich import print
 from urllib.parse import urlparse
 from ..base_handler import BasePharmacyHandler
 
@@ -383,8 +384,6 @@ class CompleteCareHandler(BasePharmacyHandler):
                                     'open': open_time.strip(),
                                     'close': close_time.strip()
                                 }
-                
-                print(f"Final trading hours: {pharmacy_details['trading_hours']}")
             else:
                 print(f"No hours element found for {location_id}")
             

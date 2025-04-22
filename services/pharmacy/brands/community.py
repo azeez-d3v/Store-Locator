@@ -1,4 +1,5 @@
 import re
+from rich import print
 from bs4 import BeautifulSoup, XMLParsedAsHTMLWarning
 import warnings
 from ..base_handler import BasePharmacyHandler

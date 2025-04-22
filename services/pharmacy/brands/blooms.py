@@ -1,3 +1,4 @@
+from rich import print
 from ..base_handler import BasePharmacyHandler
 from ..utils import extract_state_postcode
 

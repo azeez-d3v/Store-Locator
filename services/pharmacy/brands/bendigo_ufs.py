@@ -1,5 +1,6 @@
 import re
 import logging
+from rich import print
 from bs4 import BeautifulSoup
 from ..base_handler import BasePharmacyHandler
 from ..utils import decode_cloudflare_email, extract_state_postcode

@@ -1,6 +1,7 @@
 from ...base_handler import BasePharmacyHandler
 import re
 import json
+from rich import print
 from bs4 import BeautifulSoup
 
 class AntidotePharmacyNZHandler(BasePharmacyHandler):

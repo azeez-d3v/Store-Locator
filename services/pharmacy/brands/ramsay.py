@@ -1,5 +1,6 @@
 import asyncio
 import re
+from rich import print
 from ..base_handler import BasePharmacyHandler
 
 class RamsayHandler(BasePharmacyHandler):

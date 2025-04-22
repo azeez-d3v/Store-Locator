@@ -2,6 +2,7 @@ import re
 import json
 import asyncio
 import logging
+from rich import print
 from bs4 import BeautifulSoup
 from ...base_handler import BasePharmacyHandler
 
