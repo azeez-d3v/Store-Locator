@@ -171,7 +171,7 @@ with tab_fetch:
         
         # Use multiselect for AU pharmacy selection
         selected_au_pharmacies = st.multiselect(
-            "Choose Australian pharmacy brands",
+            "Choose Australian pharmacy banners",
             options=list(au_pharmacy_brands.keys()),
             format_func=lambda x: au_pharmacy_brands[x],
             default=current_au_selections,
@@ -213,7 +213,7 @@ with tab_fetch:
         
         # Use multiselect for NZ pharmacy selection
         selected_nz_pharmacies = st.multiselect(
-            "Choose New Zealand pharmacy brands",
+            "Choose New Zealand pharmacy banners",
             options=list(nz_pharmacy_brands.keys()),
             format_func=lambda x: nz_pharmacy_brands[x],
             default=current_nz_selections,
@@ -246,7 +246,17 @@ with tab_fetch:
                     
                     if len(selected_brands) > 1:
                         # Fetch multiple brands
-                        await pharmacy_api.fetch_and_save_all(selected_brands)
+                        results = await pharmacy_api.fetch_and_save_all(selected_brands)
+                        
+                        # Add fetch log entries for each brand
+                        for brand, result in results["details"].items():
+                            # Add log entry for this brand
+                            add_fetch_log(
+                                brand, 
+                                result.get("locations", 0), 
+                                result.get("status") == "success"
+                            )
+                        
                         st.success(f"Successfully fetched data for {', '.join(b.upper() for b in selected_brands)}!")
                     elif len(selected_brands) == 1:
                         # Fetch a single brand
@@ -280,6 +290,7 @@ with tab_history:
         history_df = pd.DataFrame(logs["fetch_history"])
         history_df["timestamp"] = pd.to_datetime(history_df["timestamp"])
         history_df["timestamp"] = history_df["timestamp"].dt.strftime("%Y-%m-%d %H:%M:%S")
+        history_df.sort_values(by="timestamp", ascending=False, inplace=True)
         st.dataframe(
             history_df[["timestamp", "brand", "count", "success"]],
             hide_index=True,
@@ -335,7 +346,6 @@ with tab_analyze:
                     
                     # Tab: Data Overview
                     with overview_tab:
-                        # Rest of your existing data overview code
                         # Reorder the dataframe to show 'name' column first
                         if safe_column_check(df, "name"):
                             cols = ["name"] + [col for col in df.columns if col != "name"]
@@ -350,27 +360,22 @@ with tab_analyze:
                         col1, col2, col3 = st.columns(3)
                         
                         with col1:
+                            st.metric("Number of Pharmacies", len(df))
+                        
+                        with col2:
                             if safe_column_check(df, "state"):
                                 states_count = df["state"].value_counts()
                                 st.metric("Number of States", len(states_count))
                             else:
                                 st.metric("Number of States", "N/A")
                         
-                        with col2:
+                        with col3:
                             if safe_column_check(df, "email"):
                                 populated_email = df["email"].notna().sum()
                                 email_percentage = int((populated_email / len(df)) * 100) if len(df) > 0 else 0
                                 st.metric("Locations with Email", f"{populated_email} ({email_percentage}%)")
                             else:
                                 st.metric("Locations with Email", "N/A")
-                        
-                        with col3:
-                            if safe_column_check(df, "website"):
-                                has_website = df["website"].notna().sum()
-                                website_percentage = int((has_website / len(df)) * 100) if len(df) > 0 else 0
-                                st.metric("Locations with Website", f"{has_website} ({website_percentage}%)")
-                            else:
-                                st.metric("Locations with Website", "N/A")
                     
                     # Tab: Trading Hours Analysis 
                     with trading_tab:
@@ -746,11 +751,7 @@ with tab_analyze:
                         col1, col2, col3 = st.columns(3)
                         
                         with col1:
-                            if safe_column_check(df, "suburb"):
-                                suburbs_count = df["suburb"].value_counts()
-                                st.metric("Number of Suburbs", len(suburbs_count))
-                            else:
-                                st.metric("Number of Suburbs", "N/A")
+                            st.metric("Number of Pharmacies", len(df))
                         
                         with col2:
                             if safe_column_check(df, "email"):
@@ -1084,7 +1085,7 @@ with tab_analyze:
         
         with col1:
             if au_files:
-                compare_au_file = st.selectbox("Select Australian pharmacy brand", 
+                compare_au_file = st.selectbox("Select Australian pharmacy banner", 
                                               list(au_files.keys()),
                                               key="compare_au_selector")
             else:
@@ -1092,7 +1093,7 @@ with tab_analyze:
         
         with col2:
             if nz_files:
-                compare_nz_file = st.selectbox("Select New Zealand pharmacy brand", 
+                compare_nz_file = st.selectbox("Select New Zealand pharmacy banner", 
                                               list(nz_files.keys()),
                                               key="compare_nz_selector")
             else:
