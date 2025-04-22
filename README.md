@@ -113,7 +113,7 @@ The Pharmacy Store Locator is a Streamlit-based web application that allows user
 
 2. Run the setup batch file:
 
-   ```
+   ```bash
    setup.bat
    ```
 
@@ -124,7 +124,7 @@ The Pharmacy Store Locator is a Streamlit-based web application that allows user
 
 3. Run the application:
 
-   ```
+   ```bash
    run.bat
    ```
 
@@ -225,7 +225,7 @@ The Pharmacy Store Locator is a Streamlit-based web application that allows user
 
 ## 📁 Project Structure
 
-```
+```python
 app.py                  # Main Streamlit application
 requirements.txt        # Python dependencies
 run.bat                 # Script to run the application
@@ -283,10 +283,6 @@ Each pharmacy record typically contains:
 - Trading hours (when available)
 - Available services
 - Website and email (when available)
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## 📄 License
 
