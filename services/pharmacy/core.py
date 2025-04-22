@@ -14,6 +14,40 @@ except ImportError:
     # Direct import if the related module is not found
     from session_manager import SessionManager
 
+# Import for progress reporting - if not available, provide fallback
+try:
+    import streamlit as st
+except ImportError:
+    # Create dummy streamlit functions for non-streamlit environments
+    class DummySt:
+        def progress(self, *args, **kwargs):
+            return DummyProgress()
+        
+        def expander(self, *args, **kwargs):
+            return DummyExpander()
+            
+    class DummyProgress:
+        def __enter__(self):
+            return self
+            
+        def __exit__(self, *args, **kwargs):
+            pass
+            
+        def update(self, *args, **kwargs):
+            pass
+    
+    class DummyExpander:
+        def __enter__(self):
+            return self
+            
+        def __exit__(self, *args, **kwargs):
+            pass
+            
+        def write(self, *args, **kwargs):
+            pass
+    
+    st = DummySt()
+
 class PharmacyLocations:
     """
     Generic class to fetch pharmacy locations from different brands

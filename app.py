@@ -1,13 +1,14 @@
-import streamlit as st
-import pandas as pd
-import plotly.express as px
-import plotly.graph_objects as go
-import json
-import os
-import asyncio
 from pathlib import Path
 from datetime import datetime
+import os
 import sys
+import json
+import asyncio
+import pandas as pd
+import streamlit as st
+import plotly.express as px
+import plotly.graph_objects as go
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from services.pharmacy import PharmacyLocations
@@ -257,7 +258,10 @@ with tab_fetch:
                                 result.get("status") == "success"
                             )
                         
-                        st.success(f"Successfully fetched data for {', '.join(b.upper() for b in selected_brands)}!")
+                        # st.success(f"Successfully fetched data for {', '.join(b.upper() for b in selected_brands)}!")
+                        brand_badges = " ".join([f":blue-badge[:material/home_app_logo: {brand.upper()}]" for brand in selected_brands])
+                        st.markdown(brand_badges)
+                        st.badge("fetch success", icon=":material/check:", color="green")
                     elif len(selected_brands) == 1:
                         # Fetch a single brand
                         brand = selected_brands[0]
@@ -265,7 +269,8 @@ with tab_fetch:
                         if details:
                             pharmacy_api.save_to_csv(details, f"{brand}_pharmacies.csv")
                             add_fetch_log(brand, len(details), True)
-                            st.success(f"Successfully fetched {len(details)} {brand.upper()} locations!")
+                            st.badge(f"{brand.upper()}", icon=":material/home_app_logo:", color="blue")
+                            st.badge(f"{len(details)} location fetched", icon=":material/trail_length:", color="green")
                         else:
                             add_fetch_log(brand, 0, False)
                             st.error(f"No data found for {brand.upper()}")
@@ -756,7 +761,7 @@ with tab_analyze:
                         with col2:
                             if safe_column_check(df, "email"):
                                 populated_email = df["email"].notna().sum()
-                                email_percentage = int((populated_email / len(df)) * 100) if len(df) > 0 else 0
+                                email_percentage = int((populated_email / len(df)) * 100 if len(df) > 0 else 0)
                                 st.metric("Locations with Email", f"{populated_email} ({email_percentage}%)")
                             else:
                                 st.metric("Locations with Email", "N/A")
@@ -764,7 +769,7 @@ with tab_analyze:
                         with col3:
                             if safe_column_check(df, "phone"):
                                 has_phone = df["phone"].notna().sum()
-                                phone_percentage = int((has_phone / len(df)) * 100) if len(df) > 0 else 0
+                                phone_percentage = int((has_phone / len(df)) * 100 if len(df) > 0 else 0)
                                 st.metric("Locations with Phone", f"{has_phone} ({phone_percentage}%)")
                             else:
                                 st.metric("Locations with Phone", "N/A")
