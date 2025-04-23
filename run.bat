@@ -12,6 +12,13 @@ if not exist "%VENV_DIR%\" (
     exit /b 1
 )
 
+REM Check if uv package exists
+if not exist "%VENV_DIR%\Lib\site-packages\uv\" (
+    echo uv package is not installed in the virtual environment. Please run setup.bat first.
+    pause
+    exit /b 1
+)
+
 REM Activate virtual environment
 call %VENV_DIR%\Scripts\activate.bat
 

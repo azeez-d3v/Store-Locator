@@ -18,11 +18,21 @@ if not exist "%VENV_DIR%\" (
 REM Activate virtual environment
 call %VENV_DIR%\Scripts\activate.bat
 
-echo Installing uv package manager...
-python -m pip install uv
+REM Check if uv folder exists in the virtual environment
+if exist "%VENV_DIR%\Lib\site-packages\uv\" (
+    echo uv package is already installed in the virtual environment.
+) else (
+    echo uv package not found. Installing uv package manager...
+    python -m pip install uv
+)
 
-echo Initializing uv...
-uv init
+REM Check if pyproject.toml exists before initializing uv
+if not exist "pyproject.toml" (
+    echo Initializing uv...
+    uv init
+) else (
+    echo pyproject.toml found. Skipping uv init.
+)
 
 REM Install dependencies
 if exist requirements.txt (
@@ -63,4 +73,16 @@ cls
 echo Setup complete.
 echo.
 echo Time taken: %hh%:%mm%:%ss%.%cc% (HH:MM:SS.CC)
+echo.
+echo Virtual environment status:
+if exist "%VENV_DIR%\" (
+    echo - Virtual environment: INSTALLED
+) else (
+    echo - Virtual environment: NOT INSTALLED
+)
+if exist "%VENV_DIR%\Lib\site-packages\uv\" (
+    echo - uv package: INSTALLED
+) else (
+    echo - uv package: NOT INSTALLED
+)
 pause
