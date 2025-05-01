@@ -11,6 +11,51 @@ The Pharmacy Store Locator is a Streamlit-based web application that allows user
 3. Compare data across different pharmacy chains
 4. Visualize pharmacy data through interactive maps, charts, and statistics
 
+## 📑 Table of Contents
+
+- [🏥 Pharmacy Store Locator Analytics Dashboard](#-pharmacy-store-locator-analytics-dashboard)
+  - [📋 Overview](#-overview)
+  - [📑 Table of Contents](#-table-of-contents)
+  - [🚀 Features](#-features)
+    - [Data Collection](#data-collection)
+    - [Data Analysis](#data-analysis)
+    - [Advanced Features](#advanced-features)
+  - [💻 Tech Stack](#-tech-stack)
+    - [Core Technologies](#core-technologies)
+    - [Package Management](#package-management)
+  - [🔧 Installation](#-installation)
+    - [Prerequisites](#prerequisites)
+    - [Setup Instructions](#setup-instructions)
+      - [Easy Setup (Windows)](#easy-setup-windows)
+      - [Setup with UV (Recommended)](#setup-with-uv-recommended)
+      - [Manual Setup (Alternative)](#manual-setup-alternative)
+  - [📊 Usage Guide](#-usage-guide)
+    - [Fetching Pharmacy Data](#fetching-pharmacy-data)
+    - [Analyzing Data](#analyzing-data)
+    - [Viewing Fetch History](#viewing-fetch-history)
+  - [📁 Project Structure](#-project-structure)
+  - [📝 Technical Details](#-technical-details)
+    - [Components](#components)
+    - [Dependencies](#dependencies)
+    - [Data Model](#data-model)
+  - [🧩 Adding a New Pharmacy Banner](#-adding-a-new-pharmacy-banner)
+    - [Overview of Pharmacy Handler Architecture](#overview-of-pharmacy-handler-architecture)
+    - [Step 1: Create a New Handler Class](#step-1-create-a-new-handler-class)
+    - [Step 2: Implement Required Methods](#step-2-implement-required-methods)
+      - [2.1 `fetch_locations()`](#21-fetch_locations)
+      - [2.2 `fetch_pharmacy_details(self, location)`](#22-fetch_pharmacy_detailsself-location)
+      - [2.3 `fetch_all_locations_details()`](#23-fetch_all_locations_details)
+      - [2.4 `extract_pharmacy_details(self, pharmacy_data)`](#24-extract_pharmacy_detailsself-pharmacy_data)
+    - [Step 3: Helper Methods](#step-3-helper-methods)
+    - [Step 4: Register Your Handler in the System](#step-4-register-your-handler-in-the-system)
+    - [Step 5: Test Your Implementation](#step-5-test-your-implementation)
+    - [Tips for Different Pharmacy Website Types](#tips-for-different-pharmacy-website-types)
+      - [1. API-Based Websites](#1-api-based-websites)
+      - [2. HTML-Based Websites](#2-html-based-websites)
+      - [3. JavaScript-Heavy Websites](#3-javascript-heavy-websites)
+    - [Common Challenges and Solutions](#common-challenges-and-solutions)
+  - [📄 License](#-license)
+
 ## 🚀 Features
 
 ### Data Collection
