@@ -56,13 +56,18 @@ def add_fetch_log(brand, count, success):
     })
     save_logs(logs)
 
-def get_csv_files():
-    """Get a list of all CSV files in the output directory"""
-    return [f for f in OUTPUT_DIR.glob("*.csv") if f.is_file()]
+def get_data_files():
+    """Get a list of all data files (Excel and CSV) in the output directory"""
+    excel_files = [f for f in OUTPUT_DIR.glob("*.xlsx") if f.is_file()]
+    csv_files = [f for f in OUTPUT_DIR.glob("*.csv") if f.is_file()]
+    return excel_files + csv_files
 
 def load_data(file_path):
-    """Load data from a CSV file"""
-    return pd.read_csv(file_path)
+    """Load data from a file (Excel or CSV)"""
+    if str(file_path).endswith('.xlsx'):
+        return pd.read_excel(file_path, sheet_name="pharmacy_details")
+    else:
+        return pd.read_csv(file_path)
 
 # Helper function to safely check if a column exists
 def safe_column_check(df, column_name):
@@ -266,7 +271,7 @@ with tab_fetch:
                         brand = selected_brands[0]
                         details = await pharmacy_api.fetch_all_locations_details(brand)
                         if details:
-                            pharmacy_api.save_to_csv(details, f"{brand}_pharmacies.csv")
+                            pharmacy_api.save_to_excel(details, f"{brand}_pharmacies.xlsx")
                             add_fetch_log(brand, len(details), True)
                             st.badge(f"{brand.upper()}", icon=":material/home_app_logo:", color="blue")
                             st.badge(f"{len(details)} location fetched", icon=":material/trail_length:", color="green")
@@ -306,7 +311,7 @@ with tab_history:
 # Tab 2: Data Analysis
 with tab_analyze:
     # Data selection
-    csv_files = get_csv_files()
+    csv_files = get_data_files()
     if not csv_files:
         st.warning("No data files found. Please fetch data first.")
     else:

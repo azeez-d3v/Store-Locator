@@ -2,6 +2,7 @@ import asyncio
 import sys
 import os
 import csv
+import pandas as pd
 from rich import print
 from pathlib import Path
 
@@ -244,13 +245,13 @@ class PharmacyLocations:
             
         raise ValueError(f"Unknown pharmacy brand: {brand}")
         
-    def save_to_csv(self, data, filename):
+    def save_to_excel(self, data, filename):
         """
-        Save a list of dictionaries to a CSV file.
+        Save a list of dictionaries to an Excel file with sheet name 'pharmacy_details'.
         
         Args:
             data: List of dictionaries with pharmacy details
-            filename: Name of the CSV file to create (ignored, will use "pharmacy_details.csv")
+            filename: Name of the Excel file to create
             
         Returns:
             bool: True if save successful, False otherwise
@@ -263,14 +264,12 @@ class PharmacyLocations:
         output_dir = Path("output")
         output_dir.mkdir(exist_ok=True)
         
-        # Use fixed filename "pharmacy_details.csv"
-        filepath = output_dir / filename
+        # Change file extension to .xlsx if needed
+        if not filename.endswith('.xlsx'):
+            filename = filename.replace('.csv', '.xlsx') if filename.endswith('.csv') else f"{filename}.xlsx"
         
-        # Define the exact field order we want with the specified field names
-        fixed_fieldnames = [
-            'EntityName', 'OutletAddress', 'Phone', 'Fax', 'Email', 
-            'Working hours', 'latitude', 'longitude'
-        ]
+        # Create the full filepath
+        filepath = output_dir / filename
         
         # Map original field names to the new field names
         field_mapping = {
@@ -295,10 +294,9 @@ class PharmacyLocations:
             
             print(f"Saving {len(filtered_data)} records to {filepath}...")
             
-            with open(filepath, 'w', newline='', encoding='utf-8') as csvfile:
-                writer = csv.DictWriter(csvfile, fieldnames=fixed_fieldnames)
-                writer.writeheader()
-                writer.writerows(filtered_data)
+            # Convert to DataFrame and save to Excel with fixed sheet name
+            df = pd.DataFrame(filtered_data)
+            df.to_excel(filepath, sheet_name="pharmacy_details", index=False)
                 
             print(f"Data successfully saved to {filepath}")
             return True
@@ -355,7 +353,7 @@ class PharmacyLocations:
                     results_summary["failed_brands"] += 1
                 elif result:
                     # Save data to CSV and track success
-                    save_success = self.save_to_csv(result, f"{brand}_pharmacies.csv")
+                    save_success = self.save_to_excel(result, f"{brand}_pharmacies.xlsx")
                     if save_success:
                         brand_summary["locations"] = len(result)
                         results_summary["total_locations"] += len(result)
