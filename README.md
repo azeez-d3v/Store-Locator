@@ -1,12 +1,12 @@
 # 🏥 Pharmacy Store Locator Analytics Dashboard
 
-A comprehensive tool for fetching, analyzing, and visualizing pharmacy location data across multiple pharmacy brands in Australia and New Zealand.
+A comprehensive tool for fetching, analyzing, and visualizing pharmacy location data across multiple pharmacy banners in Australia and New Zealand.
 
 ## 📋 Overview
 
 The Pharmacy Store Locator is a Streamlit-based web application that allows users to:
 
-1. Fetch pharmacy location data from multiple pharmacy brands
+1. Fetch pharmacy location data from multiple pharmacy banners
 2. Analyze geographic distribution, trading hours, and service offerings
 3. Compare data across different pharmacy chains
 4. Visualize pharmacy data through interactive maps, charts, and statistics
@@ -15,7 +15,7 @@ The Pharmacy Store Locator is a Streamlit-based web application that allows user
 
 ### Data Collection
 
-- **Multi-brand support**: Fetches data from 25+ pharmacy brands:
+- **Multi-banner support**: Fetches data from 25+ pharmacy banners:
   - **Australia**:
     - Discount Drug Stores (DDS)
     - Amcal
@@ -66,7 +66,7 @@ The Pharmacy Store Locator is a Streamlit-based web application that allows user
   - Detailed weekly schedule view
   - Opening hours comparison across days
 - **Data completeness analysis**: Visualize data quality and completeness across fields
-- **Brand comparison**: Compare metrics across different pharmacy chains
+- **Banner comparison**: Compare metrics across different pharmacy chains
 
 ### Advanced Features
 
@@ -204,14 +204,14 @@ The Pharmacy Store Locator is a Streamlit-based web application that allows user
 ### Fetching Pharmacy Data
 
 1. Navigate to the "Data Fetching" tab
-2. Select one or more pharmacy brands using the checkboxes
+2. Select one or more pharmacy banners using the checkboxes
 3. Click "Fetch Data" and wait for the process to complete
 4. The system will display a success message with the number of locations fetched
 
 ### Analyzing Data
 
 1. Go to the "Data Analysis" tab
-2. Select a pharmacy brand dataset from the dropdown menu
+2. Select a pharmacy banner dataset from the dropdown menu
 3. Explore the various analysis tabs:
    - **Data Overview**: View basic statistics and a complete dataset table
    - **Trading Hours**: Analyze opening hours and weekly schedule patterns
@@ -221,7 +221,7 @@ The Pharmacy Store Locator is a Streamlit-based web application that allows user
 ### Viewing Fetch History
 
 1. Navigate to the "Fetch History" tab
-2. Review past fetch operations with timestamps, brand names, record counts, and success status
+2. Review past fetch operations with timestamps, banner names, record counts, and success status
 
 ## 📁 Project Structure
 
@@ -242,13 +242,13 @@ services/
     base_handler.py     # Base class for pharmacy handlers
     core.py             # Core functionality for pharmacy data fetching
     utils.py            # Utility functions for data processing
-    brands/
+    banners/
       __init__.py
-      alive.py          # Individual brand implementations
+      alive.py          # Individual banner implementations
       amcal.py
-      # ... other AU brand implementations
+      # ... other AU banner implementations
       nz/
-        # New Zealand brand implementations
+        # New Zealand banner implementations
 ```
 
 ## 📝 Technical Details
@@ -287,6 +287,592 @@ Each pharmacy record typically contains:
 ## 📄 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🧩 Adding a New Pharmacy Banner
+
+This section provides a comprehensive guide on how to add support for a new pharmacy banner to the system.
+
+### Overview of Pharmacy Handler Architecture
+
+Every pharmacy banner has its own handler class that inherits from `BasePharmacyHandler`. These handlers are responsible for:
+
+1. Fetching basic location data for all pharmacies in the banner
+2. Retrieving detailed information for each pharmacy location
+3. Standardizing the data into a consistent format for storage and analysis
+
+### Step 1: Create a New Handler Class
+
+Create a new Python file in the appropriate directory:
+
+- For Australian pharmacies: `services/pharmacy/brands/your_banner_name.py`
+- For New Zealand pharmacies: `services/pharmacy/brands/nz/your_banner_name.py`
+
+Example structure:
+
+```python
+from datetime import datetime
+import re
+import logging
+from bs4 import BeautifulSoup
+
+from ..base_handler import BasePharmacyHandler
+
+class YourBannerHandler(BasePharmacyHandler):
+    """Handler for Your Banner Pharmacy stores"""
+    
+    def __init__(self, pharmacy_locations):
+        super().__init__(pharmacy_locations)
+        self.banner_name = "your_banner"
+        self.base_url = "https://www.yourbanner.com.au/stores"  # Main URL for store locations
+        self.headers = {
+            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36'
+        }
+        self.logger = logging.getLogger(__name__)
+```
+
+### Step 2: Implement Required Methods
+
+Every handler must implement these four essential methods:
+
+#### 2.1 `fetch_locations()`
+
+This method retrieves a list of basic pharmacy locations. Depending on the source website, this might use an API or scrape HTML.
+
+**API Example:**
+
+```python
+async def fetch_locations(self):
+    """
+    Fetch all locations for this pharmacy banner
+    
+    Returns:
+        List of locations with basic information
+    """
+    try:
+        # Make request to the API endpoint
+        response = await self.session_manager.get(
+            url="https://api.yourbanner.com.au/stores",
+            headers=self.headers
+        )
+        
+        if response.status_code != 200:
+            self.logger.error(f"Failed to fetch locations: HTTP {response.status_code}")
+            return []
+        
+        # Parse the JSON response
+        json_data = response.json()
+        stores = json_data.get('stores', [])
+        
+        # Process each store into our standard format
+        all_locations = []
+        for i, store in enumerate(stores):
+            try:
+                location = {
+                    'id': store.get('id', str(i)),
+                    'name': store.get('name', ''),
+                    'url': store.get('url', ''),
+                    'banner': 'Your Banner'
+                }
+                all_locations.append(location)
+            except Exception as e:
+                self.logger.warning(f"Error creating location item {i}: {str(e)}")
+        
+        self.logger.info(f"Found {len(all_locations)} locations")
+        return all_locations
+    except Exception as e:
+        self.logger.error(f"Exception when fetching locations: {str(e)}")
+        return []
+```
+
+**HTML Scraping Example:**
+
+```python
+async def fetch_locations(self):
+    """
+    Fetch all locations by scraping the store locator page
+    
+    Returns:
+        List of locations
+    """
+    try:
+        # Make request to the store locator page
+        response = await self.session_manager.get(
+            url=self.base_url,
+            headers=self.headers
+        )
+        
+        if response.status_code != 200:
+            self.logger.error(f"Failed to fetch locations: HTTP {response.status_code}")
+            return []
+            
+        # Parse HTML content
+        soup = BeautifulSoup(response.text, 'html.parser')
+        
+        # Find store elements (adjust selectors based on the website's structure)
+        store_elements = soup.select('div.store-card')
+        
+        all_locations = []
+        for i, element in enumerate(store_elements):
+            try:
+                # Extract store information from the HTML
+                store_name = element.select_one('h3.store-name').text.strip()
+                store_url = element.select_one('a.store-link')['href']
+                store_id = str(i + 1)
+                
+                location = {
+                    'id': store_id,
+                    'name': store_name,
+                    'url': store_url if store_url.startswith('http') else f"https://www.yourbanner.com.au{store_url}",
+                    'banner': 'Your Banner'
+                }
+                all_locations.append(location)
+            except Exception as e:
+                self.logger.warning(f"Error creating location item {i}: {str(e)}")
+        
+        self.logger.info(f"Found {len(all_locations)} locations")
+        return all_locations
+    except Exception as e:
+        self.logger.error(f"Exception when fetching locations: {str(e)}")
+        return []
+```
+
+#### 2.2 `fetch_pharmacy_details(self, location)`
+
+This method fetches detailed information for a specific pharmacy location.
+
+```python
+async def fetch_pharmacy_details(self, location):
+    """
+    Get details for a specific pharmacy location
+    
+    Args:
+        location: Dict containing basic pharmacy location info
+        
+    Returns:
+        Complete pharmacy details
+    """
+    try:
+        # Get the store URL from the location data
+        store_url = location.get('url', '')
+        if not store_url:
+            self.logger.error(f"No URL found for location {location.get('id', '')}")
+            return {}
+        
+        # Make request to the store page
+        response = await self.session_manager.get(
+            url=store_url,
+            headers=self.headers
+        )
+        
+        if response.status_code != 200:
+            self.logger.error(f"Failed to fetch details: HTTP {response.status_code}")
+            return {}
+        
+        # Parse the HTML content using BeautifulSoup
+        try:
+            soup = BeautifulSoup(response.text, 'html.parser')
+            
+            # Extract detailed store information (customize based on website structure)
+            store_details = self._extract_store_details(soup, location)
+            
+            self.logger.info(f"Extracted details for {location.get('name', '')}")
+            
+            return store_details
+        except Exception as e:
+            self.logger.error(f"HTML parsing error: {str(e)}")
+            return {}
+    except Exception as e:
+        self.logger.error(f"Exception when fetching details: {str(e)}")
+        return {}
+        
+def _extract_store_details(self, soup, location):
+    """
+    Extract all store details from the pharmacy page
+    
+    Args:
+        soup: BeautifulSoup object of the store page
+        location: Basic location information
+        
+    Returns:
+        Dictionary with complete pharmacy details
+    """
+    try:
+        # Extract store information from HTML
+        store_id = location.get('id', '')
+        store_name = location.get('name', '')
+        store_url = location.get('url', '')
+        
+        # Initialize variables
+        address = ""
+        phone = ""
+        email = ""
+        trading_hours = {}
+        latitude = None
+        longitude = None
+        
+        # Look for contact information section (customize selectors)
+        contact_section = soup.select_one('div.contact-info')
+        if contact_section:
+            # Extract address
+            address_element = contact_section.select_one('p.address')
+            if address_element:
+                address = address_element.text.strip()
+                
+            # Extract phone
+            phone_element = contact_section.select_one('p.phone')
+            if phone_element:
+                phone = phone_element.text.strip()
+                
+            # Extract email
+            email_element = contact_section.select_one('a[href^="mailto:"]')
+            if email_element:
+                email = email_element.text.strip()
+        
+        # Look for trading hours section
+        hours_section = soup.select_one('div.trading-hours')
+        if hours_section:
+            # Extract day and hours information
+            hour_items = hours_section.select('li.hours-item')
+            for item in hour_items:
+                day_hours_text = item.text.strip()
+                # Parse day and hours (format: "Monday: 8am to 6pm")
+                day_hours_match = re.match(r'([^:]+):\s*(.*)', day_hours_text)
+                if day_hours_match:
+                    day = day_hours_match.group(1).strip()
+                    hours_value = day_hours_match.group(2).strip()
+                    
+                    # Handle closed days
+                    if hours_value.lower() == 'closed':
+                        trading_hours[day] = {'open': 'Closed', 'close': 'Closed'}
+                    else:
+                        # Parse time ranges like "8am to 6pm"
+                        time_parts = hours_value.split(' to ')
+                        if len(time_parts) == 2:
+                            trading_hours[day] = {
+                                'open': time_parts[0].strip(),
+                                'close': time_parts[1].strip()
+                            }
+        
+        # Look for map coordinates (often in a script tag or data attributes)
+        map_element = soup.select_one('div[data-lat][data-lng]')
+        if map_element:
+            latitude = map_element.get('data-lat')
+            longitude = map_element.get('data-lng')
+        
+        # Parse address into components
+        address_components = self._parse_address(address)
+        
+        # Create the final pharmacy details object
+        result = {
+            'banner': 'Your Banner',
+            'name': store_name,
+            'store_id': store_id,
+            'address': address,
+            'street_address': address_components.get('street', ''),
+            'suburb': address_components.get('suburb', ''),
+            'state': address_components.get('state', ''),
+            'postcode': address_components.get('postcode', ''),
+            'phone': phone,
+            'email': email,
+            'website': store_url,
+            'trading_hours': trading_hours,
+            'latitude': latitude,
+            'longitude': longitude,
+            'last_updated': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        }
+        
+        # Remove any None values
+        return {k: v for k, v in result.items() if v is not None}
+    except Exception as e:
+        self.logger.error(f"Error extracting store details: {str(e)}")
+        return {
+            'banner': 'Your Banner',
+            'name': store_name,
+            'store_id': store_id,
+            'website': store_url,
+            'last_updated': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        }
+```
+
+#### 2.3 `fetch_all_locations_details()`
+
+This method fetches details for all pharmacy locations, typically by calling `fetch_pharmacy_details()` for each location.
+
+```python
+async def fetch_all_locations_details(self):
+    """
+    Fetch details for all pharmacy locations
+    
+    Returns:
+        List of dictionaries containing pharmacy details
+    """
+    self.logger.info("Fetching all pharmacy locations...")
+    
+    try:
+        # First get all basic location data
+        locations = await self.fetch_locations()
+        if not locations:
+            return []
+        
+        # Initialize the list for storing complete pharmacy details
+        all_details = []
+        
+        # Option 1: Sequential processing (simpler but slower)
+        for i, location in enumerate(locations):
+            try:
+                self.logger.info(f"Processing details for location {i+1}/{len(locations)}: {location.get('name', '')}")
+                store_details = await self.fetch_pharmacy_details(location)
+                if store_details:
+                    all_details.append(store_details)
+            except Exception as e:
+                self.logger.warning(f"Error processing location {i}: {str(e)}")
+        
+        # Option 2: Concurrent processing (faster)
+        # Uncomment this code and comment out Option 1 for concurrent processing
+        '''
+        import asyncio
+        
+        # Create a semaphore to limit concurrent connections
+        semaphore = asyncio.Semaphore(5)  # Adjust based on website limitations
+        
+        async def fetch_with_semaphore(location):
+            """Helper function to fetch details with semaphore control"""
+            async with semaphore:
+                try:
+                    return await self.fetch_pharmacy_details(location)
+                except Exception as e:
+                    self.logger.warning(f"Error fetching details for {location.get('name')}: {e}")
+                    return None
+        
+        # Create tasks for all locations
+        tasks = [fetch_with_semaphore(location) for location in locations]
+        
+        # Process results as they complete
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        
+        # Filter out any None results or exceptions
+        all_details = [
+            result for result in results 
+            if result and not isinstance(result, Exception)
+        ]
+        '''
+        
+        self.logger.info(f"Successfully processed {len(all_details)} locations")
+        return all_details
+    except Exception as e:
+        self.logger.error(f"Exception when fetching all locations: {str(e)}")
+        return []
+```
+
+#### 2.4 `extract_pharmacy_details(self, pharmacy_data)`
+
+This method standardizes pharmacy data into a consistent format.
+
+```python
+def extract_pharmacy_details(self, pharmacy_data):
+    """
+    Extract specific fields from pharmacy data
+    
+    Args:
+        pharmacy_data: Dictionary containing raw pharmacy data
+        
+    Returns:
+        Standardized pharmacy details dictionary
+    """
+    if not pharmacy_data:
+        return {}
+        
+    # For some pharmacies, data is already in the right format from _extract_store_details
+    # Just return it as is, or perform any additional standardization
+    return pharmacy_data
+```
+
+### Step 3: Helper Methods
+
+Add helper methods for parsing addresses, trading hours, etc.:
+
+```python
+def _parse_address(self, address):
+    """
+    Parse an address string into components
+    
+    Args:
+        address: The full address string
+        
+    Returns:
+        Dictionary with address components (street, suburb, state, postcode)
+    """
+    if not address:
+        return {'street': '', 'suburb': '', 'state': '', 'postcode': ''}
+    
+    # Normalize the address
+    normalized_address = address.strip().replace('\n', ', ')
+    
+    # Default result
+    result = {'street': '', 'suburb': '', 'state': '', 'postcode': ''}
+    
+    # State mapping
+    state_mapping = {
+        'NEW SOUTH WALES': 'NSW',
+        'VICTORIA': 'VIC',
+        'QUEENSLAND': 'QLD',
+        'SOUTH AUSTRALIA': 'SA',
+        'WESTERN AUSTRALIA': 'WA',
+        'TASMANIA': 'TAS',
+        'NORTHERN TERRITORY': 'NT',
+        'AUSTRALIAN CAPITAL TERRITORY': 'ACT',
+        'NSW': 'NSW',
+        'VIC': 'VIC',
+        'QLD': 'QLD',
+        'SA': 'SA',
+        'WA': 'WA',
+        'TAS': 'TAS',
+        'NT': 'NT',
+        'ACT': 'ACT'
+    }
+    
+    # Pattern to match addresses in format: street, suburb, state, postcode
+    pattern = r'(.*?),\s*([^,]+?),\s*([^,]+?),\s*(\d{4})$'
+    match = re.search(pattern, normalized_address)
+    
+    if match:
+        result['street'] = match.group(1).strip()
+        result['suburb'] = match.group(2).strip()
+        result['state'] = match.group(3).strip()
+        result['postcode'] = match.group(4).strip()
+        
+        # Normalize state
+        for state_name, abbr in state_mapping.items():
+            if result['state'].upper() == state_name:
+                result['state'] = abbr
+                break
+    else:
+        # Try to extract postcode (4 digits at the end of the string)
+        postcode_match = re.search(r'(\d{4})$', normalized_address)
+        if postcode_match:
+            result['postcode'] = postcode_match.group(1)
+            
+            # Try to infer state from postcode
+            try:
+                postcode_num = int(result['postcode'])
+                if 1000 <= postcode_num <= 2999:
+                    result['state'] = 'NSW'
+                elif 3000 <= postcode_num <= 3999:
+                    result['state'] = 'VIC'
+                elif 4000 <= postcode_num <= 4999:
+                    result['state'] = 'QLD'
+                elif 5000 <= postcode_num <= 5999:
+                    result['state'] = 'SA'
+                elif 6000 <= postcode_num <= 6999:
+                    result['state'] = 'WA'
+                elif 7000 <= postcode_num <= 7999:
+                    result['state'] = 'TAS'
+                elif 800 <= postcode_num <= 999:
+                    result['state'] = 'NT'
+                elif 2600 <= postcode_num <= 2618 or 2900 <= postcode_num <= 2920:
+                    result['state'] = 'ACT'
+            except (ValueError, TypeError):
+                pass
+    
+    return result
+
+def _format_phone(self, phone):
+    """Format phone number consistently"""
+    if not phone:
+        return ""
+    
+    # Remove non-numeric characters except + for country code
+    digits = ''.join(c for c in phone if c.isdigit() or c == '+')
+    
+    # Format Australian phone numbers
+    if digits.startswith('61') or digits.startswith('+61'):
+        # Format as +61 X XXXX XXXX
+        if digits.startswith('+'):
+            digits = digits[1:]
+        
+        if len(digits) == 11 and digits.startswith('61'):
+            formatted = f"+{digits[0:2]} {digits[2]} {digits[3:7]} {digits[7:]}"
+            return formatted
+    
+    # Return original if not matching standard format
+    return phone
+```
+
+### Step 4: Register Your Handler in the System
+
+Add your handler to the core.py file:
+
+1. Add the import at the top of `services/pharmacy/core.py`:
+
+```python
+from services.pharmacy.banners import your_banner
+```
+
+2. Add your handler to the banner_handlers dictionary in the `__init__` method:
+
+```python
+self.banner_handlers = {
+    # existing handlers...
+    "your_banner": your_banner.YourBannerHandler(self),
+}
+```
+
+3. Add the URL to the constants section if needed:
+
+```python
+YOUR_BRAND_URL = "https://www.yourbanner.com.au/stores"
+```
+
+### Step 5: Test Your Implementation
+
+1. Run the application:
+
+```bash
+streamlit run app.py
+```
+
+2. Navigate to the "Data Fetching" tab
+3. Select your new pharmacy banner
+4. Click "Fetch Data" and verify the data is correctly retrieved and processed
+
+### Tips for Different Pharmacy Website Types
+
+#### 1. API-Based Websites
+
+If the pharmacy website uses an API:
+
+- Use browser developer tools (F12) to identify API endpoints
+- Look for XHR/Fetch requests when navigating the store locator
+- Examine request headers and parameters
+- Use the `session_manager.get()` or `session_manager.post()` methods to make API calls
+
+#### 2. HTML-Based Websites
+
+If the pharmacy website requires HTML scraping:
+
+- Use BeautifulSoup to parse HTML content
+- Identify key HTML elements using browser developer tools
+- Create helper methods for parsing complex structures
+- Be defensive with your selectors (use try/except blocks)
+
+#### 3. JavaScript-Heavy Websites
+
+For websites that load data via JavaScript:
+
+- Look for data embedded in the HTML (often in script tags or data attributes)
+- Check for JSON data in the page source
+- If data is only loaded via AJAX, find and use those endpoints
+
+### Common Challenges and Solutions
+
+1. **Rate Limiting**: Use semaphores to limit concurrent requests
+2. **Dynamic Content**: Look for API endpoints or embedded data
+3. **Varied Address Formats**: Create robust address parsing logic
+4. **Inconsistent Hours Format**: Add custom parsing for each format
+5. **CAPTCHA/Bot Protection**: Add appropriate headers and adjust request patterns
+
+By following this guide, you should be able to add support for most pharmacy banners. Remember to respect each website's terms of service and avoid excessive requests that might impact their servers.
 
 ---
 
