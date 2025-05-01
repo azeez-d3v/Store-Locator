@@ -284,10 +284,6 @@ Each pharmacy record typically contains:
 - Available services
 - Website and email (when available)
 
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
 ## 🧩 Adding a New Pharmacy Banner
 
 This section provides a comprehensive guide on how to add support for a new pharmacy banner to the system.
@@ -873,6 +869,10 @@ For websites that load data via JavaScript:
 5. **CAPTCHA/Bot Protection**: Add appropriate headers and adjust request patterns
 
 By following this guide, you should be able to add support for most pharmacy banners. Remember to respect each website's terms of service and avoid excessive requests that might impact their servers.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ---
 
