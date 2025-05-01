@@ -350,9 +350,9 @@ with tab_analyze:
                     
                     # Tab: Data Overview
                     with overview_tab:
-                        # Reorder the dataframe to show 'name' column first
-                        if safe_column_check(df, "name"):
-                            cols = ["name"] + [col for col in df.columns if col != "name"]
+                        # Reorder the dataframe to show 'EntityName' column first
+                        if safe_column_check(df, "EntityName"):
+                            cols = ["EntityName"] + [col for col in df.columns if col != "EntityName"]
                             display_df = df[cols]
                         else:
                             display_df = df
@@ -383,14 +383,14 @@ with tab_analyze:
                     
                     # Tab: Trading Hours Analysis 
                     with trading_tab:
-                        if safe_column_check(df, "trading_hours"):
+                        if safe_column_check(df, "Working hours"):
                             st.header("Trading Hours Analysis")
                             
                             # Check if any pharmacy has trading hours data
                             has_hours = False
                             for _, row in df.iterrows():
                                 try:
-                                    trading_hours_data = row["trading_hours"]
+                                    trading_hours_data = row["Working hours"]
                                     # Handle different formats of trading_hours data
                                     if isinstance(trading_hours_data, str) and trading_hours_data and trading_hours_data.lower() not in ["nan", "{}", "null", ""]:
                                         # Try to parse the string as JSON
@@ -419,7 +419,7 @@ with tab_analyze:
                                 pharmacies_with_hours = []
                                 for i, row in df.iterrows():
                                     try:
-                                        trading_hours_str = row["trading_hours"]
+                                        trading_hours_str = row["Working hours"]
                                         trading_hours_data = None
                                         
                                         # Try to parse trading_hours if it's a string
@@ -437,7 +437,7 @@ with tab_analyze:
                                             trading_hours_data = trading_hours_str
                                             
                                         if trading_hours_data and isinstance(trading_hours_data, dict):
-                                            name = row["name"] if safe_column_check(df, "name") and pd.notna(row["name"]) else f"Pharmacy #{i}"
+                                            name = row["EntityName"] if safe_column_check(df, "EntityName") and pd.notna(row["EntityName"]) else f"Pharmacy #{i}"
                                             pharmacies_with_hours.append((i, name))
                                     except (TypeError, AttributeError):
                                         continue
@@ -461,7 +461,7 @@ with tab_analyze:
                                     
                                     if selected_idx is not None:
                                         # Parse and display trading hours
-                                        trading_hours_str = df.iloc[selected_idx]["trading_hours"]
+                                        trading_hours_str = df.iloc[selected_idx]["Working hours"]
                                         try:
                                             trading_hours = None
                                             if isinstance(trading_hours_str, str):
@@ -663,13 +663,13 @@ with tab_analyze:
                                 map_df = map_df.dropna(subset=["latitude", "longitude"])
                                 
                                 if not map_df.empty:
-                                    hover_data = ["address", "phone"]
+                                    hover_data = ["OutletAddress", "Phone"]
                                     if safe_column_check(map_df, "suburb"):
                                         hover_data.append("suburb")
                                     if safe_column_check(map_df, "state"):
                                         hover_data.append("state")
                                         
-                                    hover_name = "name" if safe_column_check(map_df, "name") else None
+                                    hover_name = "EntityName" if safe_column_check(map_df, "EntityName") else None
                                     
                                     fig_map = px.scatter_map(
                                         map_df,
@@ -741,9 +741,9 @@ with tab_analyze:
                     
                     # Tab: Data Overview
                     with overview_tab:
-                        # Reorder the dataframe to show 'name' column first
-                        if safe_column_check(df, "name"):
-                            cols = ["name"] + [col for col in df.columns if col != "name"]
+                        # Reorder the dataframe to show 'EntityName' column first
+                        if safe_column_check(df, "EntityName"):
+                            cols = ["EntityName"] + [col for col in df.columns if col != "EntityName"]
                             display_df = df[cols]
                         else:
                             display_df = df
@@ -775,14 +775,14 @@ with tab_analyze:
                     
                     # Tab: Trading Hours Analysis
                     with trading_tab:
-                        if safe_column_check(df, "trading_hours"):
+                        if safe_column_check(df, "Working hours"):
                             st.header("Trading Hours Analysis")
                             
                             # Check if any pharmacy has trading hours data
                             has_hours = False
                             for _, row in df.iterrows():
                                 try:
-                                    trading_hours_data = row["trading_hours"]
+                                    trading_hours_data = row["Working hours"]
                                     # Handle different formats of trading_hours data
                                     if isinstance(trading_hours_data, str) and trading_hours_data and trading_hours_data.lower() not in ["nan", "{}", "null", ""]:
                                         # Try to parse the string as JSON
@@ -811,7 +811,7 @@ with tab_analyze:
                                 pharmacies_with_hours = []
                                 for i, row in df.iterrows():
                                     try:
-                                        trading_hours_str = row["trading_hours"]
+                                        trading_hours_str = row["Working hours"]
                                         trading_hours_data = None
                                         
                                         # Try to parse trading_hours if it's a string
@@ -829,7 +829,7 @@ with tab_analyze:
                                             trading_hours_data = trading_hours_str
                                             
                                         if trading_hours_data and isinstance(trading_hours_data, dict):
-                                            name = row["name"] if safe_column_check(df, "name") and pd.notna(row["name"]) else f"Pharmacy #{i}"
+                                            name = row["EntityName"] if safe_column_check(df, "EntityName") and pd.notna(row["EntityName"]) else f"Pharmacy #{i}"
                                             pharmacies_with_hours.append((i, name))
                                     except (TypeError, AttributeError):
                                         continue
@@ -853,7 +853,7 @@ with tab_analyze:
                                     
                                     if selected_idx is not None:
                                         # Parse and display trading hours
-                                        trading_hours_str = df.iloc[selected_idx]["trading_hours"]
+                                        trading_hours_str = df.iloc[selected_idx]["Working hours"]
                                         try:
                                             trading_hours = None
                                             if isinstance(trading_hours_str, str):
@@ -1025,13 +1025,13 @@ with tab_analyze:
                                 map_df = map_df.dropna(subset=["latitude", "longitude"])
                                 
                                 if not map_df.empty:
-                                    hover_data = ["address", "phone"]
+                                    hover_data = ["OutletAddress", "Phone"]
                                     if safe_column_check(map_df, "suburb"):
                                         hover_data.append("suburb")
                                     if safe_column_check(map_df, "postcode"):
                                         hover_data.append("postcode")
                                         
-                                    hover_name = "name" if safe_column_check(map_df, "name") else None
+                                    hover_name = "EntityName" if safe_column_check(map_df, "EntityName") else None
                                     
                                     fig_map = px.scatter_map(
                                         map_df,
@@ -1121,7 +1121,7 @@ with tab_analyze:
             st.subheader("Data Availability Comparison")
             
             # Compare common fields
-            common_fields = ["email", "phone", "trading_hours"]
+            common_fields = ["Email", "Phone", "Working hours"]
             
             # Prepare comparison data
             comparison_data = []
@@ -1155,7 +1155,7 @@ with tab_analyze:
                 st.dataframe(comp_df, use_container_width=True)
                 
                 # Trading hours comparison - if both have trading hours
-                if all(safe_column_check(df, "trading_hours") for df in [au_df, nz_df]):
+                if all(safe_column_check(df, "Working hours") for df in [au_df, nz_df]):
                     st.subheader("Trading Hours Comparison")
                     
                     # Function to get average opening and closing time for given day
@@ -1166,10 +1166,10 @@ with tab_analyze:
                         for _, row in df.iterrows():
                             try:
                                 # Parse trading hours
-                                if isinstance(row["trading_hours"], str):
-                                    hours = json.loads(row["trading_hours"].replace("'", "\""))
-                                elif isinstance(row["trading_hours"], dict):
-                                    hours = row["trading_hours"]
+                                if isinstance(row["Working hours"], str):
+                                    hours = json.loads(row["Working hours"].replace("'", "\""))
+                                elif isinstance(row["Working hours"], dict):
+                                    hours = row["Working hours"]
                                 else:
                                     continue
                                     

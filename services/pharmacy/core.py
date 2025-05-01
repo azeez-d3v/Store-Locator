@@ -250,31 +250,48 @@ class PharmacyLocations:
         
         Args:
             data: List of dictionaries with pharmacy details
-            filename: Name of the CSV file to create
+            filename: Name of the CSV file to create (ignored, will use "pharmacy_details.csv")
             
         Returns:
             bool: True if save successful, False otherwise
         """
         if not data:
-            print(f"No data to save to {filename}")
+            print("No data to save")
             return False
             
         # Ensure the output directory exists
         output_dir = Path("output")
         output_dir.mkdir(exist_ok=True)
         
+        # Use fixed filename "pharmacy_details.csv"
         filepath = output_dir / filename
         
-        # Define the exact field order we want
+        # Define the exact field order we want with the specified field names
         fixed_fieldnames = [
-            'name', 'address', 'email', 'fax', 'latitude', 'longitude', 'phone', 
-            'postcode', 'state', 'street_address', 'suburb', 'trading_hours', 'website'
+            'EntityName', 'OutletAddress', 'Phone', 'Fax', 'Email', 
+            'Working hours', 'latitude', 'longitude'
         ]
         
+        # Map original field names to the new field names
+        field_mapping = {
+            'EntityName': 'name',
+            'OutletAddress': 'address',
+            'Phone': 'phone',
+            'Fax': 'fax',
+            'Email': 'email',
+            'Working hours': 'trading_hours',
+            'latitude': 'latitude',
+            'longitude': 'longitude'
+        }
+        
         try:
-            # Filter data to only include the specified fields in one pass
-            filtered_data = [{field: item.get(field, None) for field in fixed_fieldnames} 
-                            for item in data]
+            # Filter and map data to include only the specified fields with the new names
+            filtered_data = []
+            for item in data:
+                mapped_item = {}
+                for new_field, original_field in field_mapping.items():
+                    mapped_item[new_field] = item.get(original_field, None)
+                filtered_data.append(mapped_item)
             
             print(f"Saving {len(filtered_data)} records to {filepath}...")
             
