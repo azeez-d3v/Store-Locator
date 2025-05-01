@@ -249,9 +249,13 @@ with tab_fetch:
                     # Always use session_state directly to ensure latest selection
                     selected_brands = st.session_state["selected_pharmacies"]
                     
+                    # Get current month and year for filename
+                    current_date = datetime.now()
+                    month_year = f"{current_date.strftime('%b').lower()}_{current_date.year}"
+                    
                     if len(selected_brands) > 1:
                         # Fetch multiple brands
-                        results = await pharmacy_api.fetch_and_save_all(selected_brands)
+                        results = await pharmacy_api.fetch_and_save_all(selected_brands, month_year)
                         
                         # Add fetch log entries for each brand
                         for brand, result in results["details"].items():
@@ -271,7 +275,8 @@ with tab_fetch:
                         brand = selected_brands[0]
                         details = await pharmacy_api.fetch_all_locations_details(brand)
                         if details:
-                            pharmacy_api.save_to_excel(details, f"{brand}_pharmacies.xlsx")
+                            # Use month_year in the filename
+                            pharmacy_api.save_to_excel(details, f"{brand}_{month_year}.xlsx")
                             add_fetch_log(brand, len(details), True)
                             st.badge(f"{brand.upper()}", icon=":material/home_app_logo:", color="blue")
                             st.badge(f"{len(details)} location fetched", icon=":material/trail_length:", color="green")

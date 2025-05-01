@@ -304,12 +304,13 @@ class PharmacyLocations:
             print(f"Error saving data to {filepath}: {e}")
             return False
         
-    async def fetch_and_save_all(self, selected_brands=None):
+    async def fetch_and_save_all(self, selected_brands=None, month_year=None):
         """
         Fetch all locations for all brands concurrently and save to CSV files.
         
         Args:
             selected_brands: List of brands to fetch. If None, fetch all brands.
+            month_year: Optional string for including month and year in the filename (e.g., "may_2025")
             
         Returns:
             dict: A summary of results with counts of successful and failed operations
@@ -321,6 +322,12 @@ class PharmacyLocations:
         else:
             # Only use the brands that were selected
             brands = [brand for brand in selected_brands if brand in self.brand_handlers]
+        
+        # Generate month_year string if not provided
+        if month_year is None:
+            from datetime import datetime
+            current_date = datetime.now()
+            month_year = f"{current_date.strftime('%b').lower()}_{current_date.year}"
         
         # Track results for reporting
         results_summary = {
@@ -352,15 +359,18 @@ class PharmacyLocations:
                     brand_summary["error"] = str(result)
                     results_summary["failed_brands"] += 1
                 elif result:
-                    # Save data to CSV and track success
-                    save_success = self.save_to_excel(result, f"{brand}_pharmacies.xlsx")
+                    # Create filename with month_year
+                    filename = f"{brand}_{month_year}.xlsx"
+                    
+                    # Save data to Excel and track success
+                    save_success = self.save_to_excel(result, filename)
                     if save_success:
                         brand_summary["locations"] = len(result)
                         results_summary["total_locations"] += len(result)
                         results_summary["successful_brands"] += 1
                     else:
                         brand_summary["status"] = "failed"
-                        brand_summary["error"] = "Failed to save CSV file"
+                        brand_summary["error"] = "Failed to save Excel file"
                         results_summary["failed_brands"] += 1
                 else:
                     print(f"No data found for {brand.upper()} pharmacies")
