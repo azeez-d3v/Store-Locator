@@ -40,7 +40,7 @@ if exist requirements.txt (
     uv add -r requirements.txt
 ) else (
     echo requirements.txt not found. Installing default packages using uv...
-    uv add pandas streamlit beautifulsoup4 curl-cffi plotly lxml
+    uv add pandas streamlit beautifulsoup4 curl-cffi plotly lxml rich openpyxl
 )
 
 REM Calculate elapsed time
