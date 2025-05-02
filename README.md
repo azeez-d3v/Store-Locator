@@ -319,6 +319,7 @@ All dependencies are specified in both `requirements.txt` and `pyproject.toml` f
 - `beautifulsoup4`: HTML parsing
 - `curl_cffi`: HTTP client library
 - `lxml`: XML/HTML parsing
+- `openpyxl`: Read/Write Excel Files
 
 ### Data Model
 
@@ -326,9 +327,8 @@ Each pharmacy record typically contains:
 
 - Name and contact information
 - Geographic coordinates and address
-- Trading hours (when available)
-- Available services
-- Website and email (when available)
+- Working hours (when available)
+- Email (when available)
 
 ## 🧩 Adding a New Pharmacy Banner
 
