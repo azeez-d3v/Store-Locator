@@ -129,7 +129,8 @@ The Pharmacy Store Locator is a Streamlit-based web application that allows user
 - **BeautifulSoup4**: Parses HTML content from pharmacy websites
 - **curl_cffi**: Provides high-performance HTTP request capabilities with browser emulation
 - **lxml**: XML/HTML parsing library for efficient data extraction
-
+- **openpyxl**: A Python library to read/write Excel files
+  
 ### Package Management
 
 - **UV**: Modern, high-performance Python package manager and resolver
