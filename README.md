@@ -81,7 +81,7 @@ The Pharmacy Store Locator is a Streamlit-based web application that allows user
     - Friendly Care Pharmacy
     - Fullife Pharmacy
     - Good Price Pharmacy
-    - Healthy Pharmacy
+    - Healthy Life Pharmacy
     - Healthy World Pharmacy
     - Pennas Pharmacy
     - Wizard Pharmacy

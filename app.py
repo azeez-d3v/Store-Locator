@@ -104,7 +104,7 @@ with tab_fetch:
         "friendly_care": "FriendlyCare Pharmacy",
         "fullife": "Fullife Pharmacy",
         "good_price": "Good Price Pharmacy",
-        "healthy_pharmacy": "Healthy Pharmacy",
+        "healthy_life_pharmacy": "Healthy Life Pharmacy",
         "healthy_world": "Healthy World Pharmacy",
         "pennas": "Pennas Pharmacy",
         "wizard": "Wizard Pharmacy",

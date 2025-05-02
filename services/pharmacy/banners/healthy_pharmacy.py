@@ -12,7 +12,7 @@ class HealthyPharmacyHandler(BasePharmacyHandler):
     
     def __init__(self, pharmacy_locations):
         super().__init__(pharmacy_locations)
-        self.brand_name = "healthy_pharmacy"
+        self.brand_name = "healthy_life_pharmacy"
 
         self.headers = {
             'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',

@@ -183,7 +183,7 @@ class PharmacyLocations:
             "friendly_care": friendly_care.FriendlyCareHandler(self),
             "fullife": fullife.FullifeHandler(self),
             "good_price": good_price.GoodPriceHandler(self),
-            "healthy_pharmacy": healthy_pharmacy.HealthyPharmacyHandler(self),
+            "healthy_life_pharmacy": healthy_pharmacy.HealthyPharmacyHandler(self),
             "healthy_world": healthy_world.HealthyWorldPharmacyHandler(self),
             "pennas": pennas.PennasPharmacyHandler(self),
             "wizard": wizard.WizardPharmacyHandler(self),
