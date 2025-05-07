@@ -110,7 +110,9 @@ with tab_fetch:
         "wizard": "Wizard Pharmacy",
         "chemist_hub": "Chemist Hub",
         "superchem": "SuperChem Pharmacy",
-        "complete_care": "Complete Care Pharmacy"
+        "complete_care": "Complete Care Pharmacy",
+        "terry_white": "TerryWhite Chemmart",
+        "my_chemist": "My Chemist"
     }
 
     nz_pharmacy_brands = {

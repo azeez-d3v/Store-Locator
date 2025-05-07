@@ -88,6 +88,8 @@ The Pharmacy Store Locator is a Streamlit-based web application that allows user
     - Chemist Hub
     - SuperChem
     - Complete Care Pharmacy
+    - TerryWhite Chemmart
+    - MyChemist
   - **New Zealand**:
     - Antidote Pharmacy
     - Bargain Chemist

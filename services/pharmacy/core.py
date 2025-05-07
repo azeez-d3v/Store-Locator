@@ -75,6 +75,8 @@ class PharmacyLocations:
     NOVA_URL = "https://www.novapharmacy.com.au/wp-admin/admin-ajax.php?action=store_search&lat=-&lng=&max_results=100&search_radius=100&autoload=1"
     CHOICE_URL = "https://www.choicepharmacy.com.au/wp-admin/admin-ajax.php?action=store_search&lat=&lng=&max_results=100&search_radius=100&autoload=1"
     BENDIGO_UFS_SITEMAP_URL = "https://www.bendigoufs.com.au/page-sitemap.xml"
+    TERRY_WHITE_URL = "https://terrywhitechemmart.com.au/store-api/get-stores-summary"
+    MY_CHEMIST_URL = "https://www.mychemist.com.au/ams/webparts/Google_Map_SL_files/storelocator_data.ashx?searchedPoint=(-42.8744692,%20147.3100401)&TrafficSource=1&TrafficSourceState=5&_=1746655982326"
     CHEMIST_KING_URLS = [
             "https://www.chemistking.com.au/colonellightgardens",
             "https://www.chemistking.com.au/frewville",
@@ -159,7 +161,7 @@ class PharmacyLocations:
     def __init__(self):
         self.session_manager = SessionManager()
         # Import brand-specific handlers dynamically to avoid circular imports
-        from services.pharmacy.banners import amcal, dds, blooms, ramsay, revive, optimal, community, footes, alive, ydc, chemist_warehouse, pharmasave, nova, choice, bendigo_ufs, chemist_king, friendly_care, fullife, good_price, healthy_pharmacy, healthy_world, pennas, wizard, chemist_hub, superchem, complete_care
+        from services.pharmacy.banners import amcal, dds, blooms, ramsay, revive, optimal, community, footes, alive, ydc, chemist_warehouse, pharmasave, nova, choice, bendigo_ufs, chemist_king, friendly_care, fullife, good_price, healthy_pharmacy, healthy_world, pennas, wizard, chemist_hub, superchem, complete_care, terry_white, my_chemist
         # Import NZ handlers
         from services.pharmacy.banners.nz import chemist_warehouse_nz, antidote, unichem, bargain_chemist, woolworths
         
@@ -190,6 +192,8 @@ class PharmacyLocations:
             "chemist_hub": chemist_hub.ChemistHubHandler(self),
             "superchem": superchem.SuperChemHandler(self),
             "complete_care": complete_care.CompleteCareHandler(self),
+            "terry_white": terry_white.TerryWhiteHandler(self),
+            "my_chemist": my_chemist.MyChemistHandler(self),
             # New Zealand handlers
             "chemist_warehouse_nz": chemist_warehouse_nz.ChemistWarehouseNZHandler(self),
             "antidote_nz": antidote.AntidotePharmacyNZHandler(self),
