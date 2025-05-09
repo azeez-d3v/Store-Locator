@@ -147,6 +147,10 @@ class PharmacyLocations:
         }
     }
     
+    # Direct Chemist Outlet GraphQL URLs
+    DIRECT_CHEMIST_STORES_URL = "https://www.directchemistoutlet.com.au/graphql?query=query+getAmStoreLocatorsByState%7BamStoreLocatorsByState%7Bstate_code+state_id+items%7Bid+is_new+state+name+url_key+__typename%7D__typename%7D%7D&operationName=getAmStoreLocatorsByState&variables=%7B%7D"
+    DIRECT_CHEMIST_DETAIL_URL = "https://www.directchemistoutlet.com.au/graphql?query=query+getStoreLocations%28%24locationId%3AInt%24stateId%3AInt%24distance%3AAmStoreLocatorDistanceFilterInput%24attributes%3A%5BAmStoreLocatorAttributeFilterInput%5D%24pageSize%3AInt%29%7BsearchAmStoreLocations%28filter%3A%7Blocation_id%3A%24locationId+state_id%3A%24stateId+distance%3A%24distance+attributes%3A%24attributes%7DpageSize%3A%24pageSize%29%7Bitems%7Baddress+full_address+state_code+attributes%7Battribute_code+attribute_id+entity_id+frontend_input+frontend_label+option_title_item%7Btitle+path+__typename%7Dvalue+__typename%7Daverage_rating+city+country+description+distance+email+id+images%7Bid+image_name+is_base+image_path+__typename%7Dis_new+lat+lng+main_image_name+marker_img+name+phone+schedule_string+show_schedule+state+url_key+website+working_time_today+zip+__typename%7Dpage_info%7Bcurrent_page+page_size+total_pages+__typename%7Dtotal_count+__typename%7D%7D&operationName=getStoreLocations&variables=%7B%22locationId%22:{location_id}%7D"
+    
     # Common headers used across API calls
     COMMON_HEADERS = {
         'Accept': 'application/json, text/plain, */*',
@@ -161,7 +165,7 @@ class PharmacyLocations:
     def __init__(self):
         self.session_manager = SessionManager()
         # Import brand-specific handlers dynamically to avoid circular imports
-        from services.pharmacy.banners import amcal, dds, blooms, ramsay, revive, optimal, community, footes, alive, ydc, chemist_warehouse, pharmasave, nova, choice, bendigo_ufs, chemist_king, friendly_care, fullife, good_price, healthy_pharmacy, healthy_world, pennas, wizard, chemist_hub, superchem, complete_care, terry_white, my_chemist
+        from services.pharmacy.banners import amcal, dds, blooms, ramsay, revive, optimal, community, footes, alive, ydc, chemist_warehouse, pharmasave, nova, choice, bendigo_ufs, chemist_king, friendly_care, fullife, good_price, healthy_pharmacy, healthy_world, pennas, wizard, chemist_hub, superchem, complete_care, terry_white, my_chemist, direct_chemist
         # Import NZ handlers
         from services.pharmacy.banners.nz import chemist_warehouse_nz, antidote, unichem, bargain_chemist, woolworths
         
@@ -194,6 +198,7 @@ class PharmacyLocations:
             "complete_care": complete_care.CompleteCareHandler(self),
             "terry_white": terry_white.TerryWhiteHandler(self),
             "my_chemist": my_chemist.MyChemistHandler(self),
+            "direct_chemist": direct_chemist.DirectChemistHandler(self),
             # New Zealand handlers
             "chemist_warehouse_nz": chemist_warehouse_nz.ChemistWarehouseNZHandler(self),
             "antidote_nz": antidote.AntidotePharmacyNZHandler(self),

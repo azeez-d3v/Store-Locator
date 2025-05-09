@@ -9,6 +9,7 @@ from .chemist_warehouse import ChemistWarehouseHandler
 from .choice import ChoiceHandler
 from .community import CommunityHandler
 from .dds import DDSHandler
+from .direct_chemist import DirectChemistHandler
 from .footes import FootesHandler
 from .friendly_care import FriendlyCareHandler
 from .nova import NovaHandler
@@ -50,5 +51,6 @@ __all__ = [
     'pennas',
     'wizard',
     'chemist_hub',
-    'superchem'
+    'superchem',
+    'direct_chemist'
 ]

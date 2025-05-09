@@ -90,6 +90,7 @@ The Pharmacy Store Locator is a Streamlit-based web application that allows user
     - Complete Care Pharmacy
     - TerryWhite Chemmart
     - MyChemist
+    - Direct Chemist Outlet
   - **New Zealand**:
     - Antidote Pharmacy
     - Bargain Chemist
