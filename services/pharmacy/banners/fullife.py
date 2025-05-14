@@ -40,9 +40,11 @@ class FullifeHandler(BasePharmacyHandler):
             
             # Parse the HTML content
             soup = BeautifulSoup(response.text, 'html.parser')
-            
-            # Find all pharmacy items
-            pharmacy_items = soup.find_all('div', {'role': 'listitem', 'class': 'Zc7IjY'})
+              # Find all pharmacy items
+            pharmacy_items = soup.find_all('div', {'role': 'listitem', 'class': 'T7n0L6'})
+            if not pharmacy_items:
+                # Try alternative selector
+                pharmacy_items = soup.find_all('div', {'class': 'cGWabE'})
             
             # Initialize the list for storing complete pharmacy details
             all_details = []
@@ -89,9 +91,17 @@ class FullifeHandler(BasePharmacyHandler):
             
         Returns:
             Dictionary with complete pharmacy details
-        """
-        # Find the store link which contains the store ID
-        learn_more_link = item.find('a', {'aria-label': 'Learn More'})
+        """        # If item is a container, find the actual pharmacy item inside
+        pharmacy_item = item.find('div', {'role': 'listitem'}) or item
+        
+        # Find the store link which contains the store ID - look for "Learn More" button
+        learn_more_link = pharmacy_item.find('a', {'aria-label': 'Learn More'})
+        if not learn_more_link:
+            # Try finding by class
+            learn_more_div = pharmacy_item.find('div', {'class': 'comp-klrg2zs3'})
+            if learn_more_div:
+                learn_more_link = learn_more_div.find('a')
+        
         if not learn_more_link:
             return None
             
@@ -102,14 +112,20 @@ class FullifeHandler(BasePharmacyHandler):
             
         # Extract store ID from URL
         store_id = store_url.split('/')[-1]
+          # Find store name heading
+        store_name = None
         
-        # Find store name heading - first try the rich text element
-        store_name_elem = item.find('h4', class_='font_4')
-        if store_name_elem:
-            store_name = store_name_elem.get_text().strip()
-        else:
+        # Try finding in the h4 element in comp-klrg2zrz1 div (as seen in the HTML)
+        store_name_container = pharmacy_item.find('div', {'class': 'comp-klrg2zrz1'})
+        if store_name_container:
+            store_name_elem = store_name_container.find('h4', class_='font_4')
+            if store_name_elem:
+                store_name = store_name_elem.get_text().strip()
+        
+        # If not found, try other methods
+        if not store_name:
             # Try to find the button with the store name
-            store_button = item.find('a', {'aria-label': lambda x: x and x != 'Learn More'})
+            store_button = pharmacy_item.find('a', {'aria-label': lambda x: x and x != 'Learn More'})
             if store_button and store_button.find('span'):
                 store_name = store_button.find('span').get_text().strip()
                 # Format the store name
@@ -119,13 +135,25 @@ class FullifeHandler(BasePharmacyHandler):
                 store_name = f"Fullife Pharmacy {store_id.title()}"
         
         # Find the rich text element containing store details
-        details_elem = item.find('div', {'id': re.compile(r'comp-klrg2zrn__item')})
+        details_elem = pharmacy_item.find('div', {'class': 'comp-klrg2zrn'})
         
+        if not details_elem:
+            # Try alternative class structures
+            for div in pharmacy_item.find_all('div', {'class': lambda x: x and 'richText' in x or 'wixui-rich-text' in x}):
+                if div.find_all('p'):
+                    details_elem = div
+                    break
         if not details_elem:
             return None
             
         # Get all paragraphs in the details
-        paragraphs = details_elem.find_all('p', class_='font_4')
+        paragraphs = details_elem.find_all('p', class_='font_4') or details_elem.find_all('p')
+        
+        # If still no paragraphs found, try more generic search
+        if not paragraphs:
+            for element in details_elem.find_all(['p', 'span']):
+                if element.get_text().strip():
+                    paragraphs.append(element)
         
         # Initialize variables for store details
         address_lines = []
