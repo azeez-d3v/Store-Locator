@@ -5,16 +5,22 @@ REM Setup script: directly install uv and use it for dependency management
 REM Start the timer
 set start_time=%time%
 
-echo Installing uv directly from astral.sh...
-powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
-
-REM Check if uv was successfully installed
+REM Check if uv is already installed
 where uv >nul 2>&1
-if %ERRORLEVEL% NEQ 0 (
-    echo Failed to install uv. Please check your internet connection and try again.
-    goto :end
+if %ERRORLEVEL% EQU 0 (
+    echo uv is already installed. Skipping installation.
 ) else (
-    echo uv successfully installed.
+    echo Installing uv directly from astral.sh...
+    powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+    
+    REM Check if uv was successfully installed
+    where uv >nul 2>&1
+    if %ERRORLEVEL% NEQ 0 (
+        echo Failed to install uv. Please check your internet connection and try again.
+        goto :end
+    ) else (
+        echo uv successfully installed.
+    )
 )
 
 REM Check if pyproject.toml exists before initializing uv
