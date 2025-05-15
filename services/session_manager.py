@@ -32,7 +32,7 @@ class SessionManager:
         Returns:
             List of response objects
         """
-        async with AsyncSession(impersonate="chrome131") as session:
+        async with AsyncSession(impersonate="edge101") as session:
             tasks = []
             for req in requests:
                 url = req['url']
@@ -70,7 +70,7 @@ class SessionManager:
         Returns:
             Response object
         """
-        async with AsyncSession(impersonate="chrome131") as session:
+        async with AsyncSession(impersonate="edge101") as session:
             combined_headers = {**self.default_headers}
             
             if headers:
@@ -93,7 +93,7 @@ class SessionManager:
         Returns:
             Response object
         """
-        async with AsyncSession(impersonate="chrome131") as session:
+        async with AsyncSession(impersonate="edge101") as session:
             combined_headers = {**self.default_headers}
             if headers:
                 combined_headers.update(headers)
