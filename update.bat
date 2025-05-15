@@ -69,6 +69,11 @@ del "%TEMP_ZIP%" 2>nul
 rmdir /s /q "%TEMP_DIR%" 2>nul
 
 echo.
+echo Deleting Python cache directories...
+for /d /r . %%d in (__pycache__) do @if exist "%%d" rmdir /s /q "%%d"
+echo Python cache directories removed.
+
+echo.
 echo ===================================================
 echo Update completed successfully!
 echo ===================================================
