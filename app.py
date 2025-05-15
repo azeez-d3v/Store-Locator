@@ -375,21 +375,34 @@ with tab_analyze:
                         # Key metrics
                         st.subheader("Key Metrics")
                         col1, col2, col3 = st.columns(3)
-                        
                         with col1:
                             st.metric("Number of Pharmacies", len(df))
-                        
                         with col2:
-                            if safe_column_check(df, "state"):
-                                states_count = df["state"].value_counts()
-                                st.metric("Number of States", len(states_count))
+                            # Check for both "phone" and "Phone" columns
+                            phone_column = None
+                            if safe_column_check(df, "phone"):
+                                phone_column = "phone"
+                            elif safe_column_check(df, "Phone"):
+                                phone_column = "Phone"
+                                
+                            if phone_column:
+                                has_phone = df[phone_column].notna().sum()
+                                phone_percentage = int((has_phone / len(df)) * 100 if len(df) > 0 else 0)
+                                st.metric("Locations with Phone", f"{has_phone} ({phone_percentage}%)")
                             else:
-                                st.metric("Number of States", "N/A")
+                                st.metric("Locations with Phone", "N/A")
                         
                         with col3:
+                            # Check for both "email" and "Email" columns
+                            email_column = None
                             if safe_column_check(df, "email"):
-                                populated_email = df["email"].notna().sum()
-                                email_percentage = int((populated_email / len(df)) * 100) if len(df) > 0 else 0
+                                email_column = "email"
+                            elif safe_column_check(df, "Email"):
+                                email_column = "Email"
+                                
+                            if email_column:
+                                populated_email = df[email_column].notna().sum()
+                                email_percentage = int((populated_email / len(df)) * 100 if len(df) > 0 else 0)
                                 st.metric("Locations with Email", f"{populated_email} ({email_percentage}%)")
                             else:
                                 st.metric("Locations with Email", "N/A")
@@ -594,112 +607,45 @@ with tab_analyze:
                                     st.info("No pharmacies with trading hours data found.")
                             else:
                                 st.info("No trading hours data available in this dataset.")
-                        else:
-                            st.info("No trading hours data available in this dataset.")
-                    
-                    # Tab: Geographic Distribution
+                      # Tab: Geographic Distribution
                     with geo_tab:
-                        state_tab, map_tab = st.tabs(["By State", "Map View"])
-                        
-                        with state_tab:
-                            # Australian state analysis
-                            if safe_column_check(df, "state"):
-                                # Define valid Australian states
-                                valid_states = {"NSW", "VIC", "QLD", "SA", "WA", "TAS", "NT", "ACT"}
-                                
-                                # Clean state data to standardize formatting
-                                df_state = df.copy()
-                                # Convert state column to proper format
-                                df_state["state"] = df_state["state"].astype(str)
-                                df_state["state"] = df_state["state"].str.upper().str.strip()
-                                
-                                # Map common variations to standard abbreviations
-                                state_mapping = {
-                                    "NEW SOUTH WALES": "NSW",
-                                    "VICTORIA": "VIC",
-                                    "QUEENSLAND": "QLD",
-                                    "SOUTH AUSTRALIA": "SA",
-                                    "WESTERN AUSTRALIA": "WA",
-                                    "TASMANIA": "TAS",
-                                    "NORTHERN TERRITORY": "NT",
-                                    "AUSTRALIAN CAPITAL TERRITORY": "ACT",
-                                    # Additional variations
-                                    "NSW": "NSW",
-                                    "VIC": "VIC",
-                                    "QLD": "QLD",
-                                    "SA": "SA",
-                                    "WA": "WA", 
-                                    "TAS": "TAS",
-                                    "NT": "NT",
-                                    "ACT": "ACT"
-                                }
-                                
-                                df_state["state"] = df_state["state"].replace(state_mapping)
-                                
-                                # Filter for valid Australian states
-                                valid_state_data = df_state[df_state["state"].isin(valid_states)]
-                                if len(valid_state_data) > 0:
-                                    state_counts = valid_state_data["state"].value_counts().reset_index()
-                                    state_counts.columns = ["State", "Count"]
+                        # Display pharmacies on a map
+                        if safe_column_check(df, "latitude") and safe_column_check(df, "longitude"):
+                            # Remove rows with missing lat/long values
+                            map_df = df.dropna(subset=["latitude", "longitude"])
+                            
+                            # Convert latitude and longitude to numeric
+                            map_df["latitude"] = pd.to_numeric(map_df["latitude"], errors="coerce")
+                            map_df["longitude"] = pd.to_numeric(map_df["longitude"], errors="coerce")
+                            
+                            # Drop rows with invalid lat/long values
+                            map_df = map_df.dropna(subset=["latitude", "longitude"])
+                            
+                            if not map_df.empty:
+                                hover_data = ["OutletAddress", "Phone"]
+                                if safe_column_check(map_df, "suburb"):
+                                    hover_data.append("suburb")
+                                if safe_column_check(map_df, "state"):
+                                    hover_data.append("state")
                                     
-                                    # Sort states in a logical order
-                                    state_order = ["NSW", "VIC", "QLD", "SA", "WA", "TAS", "NT", "ACT"]
-                                    state_counts["State_Order"] = state_counts["State"].apply(lambda x: state_order.index(x) if x in state_order else 999)
-                                    state_counts = state_counts.sort_values("State_Order").drop("State_Order", axis=1)
-                                    
-                                    fig_states = px.bar(
-                                        state_counts,
-                                        x="State", 
-                                        y="Count",
-                                        color="Count",
-                                        text_auto=True,
-                                        title=f"Pharmacy Distribution by State - {selected_au_file}"
-                                    )
-                                    fig_states.update_layout(height=500)
-                                    st.plotly_chart(fig_states, use_container_width=True)
-                                else:
-                                    st.warning("No valid Australian state data found in this dataset")
+                                hover_name = "Entity Name" if safe_column_check(map_df, "Entity Name") else None
+                                
+                                fig_map = px.scatter_map(
+                                    map_df,
+                                    lat="latitude",
+                                    lon="longitude",
+                                    hover_name=hover_name,
+                                    hover_data=hover_data,
+                                    zoom=3,
+                                    map_style="open-street-map",
+                                    title=f"Pharmacy Locations - {selected_au_file}"
+                                )
+                                fig_map.update_layout(height=600)
+                                st.plotly_chart(fig_map, use_container_width=True)
                             else:
-                                st.warning("State data not available in this dataset")
-                        
-                        with map_tab:
-                            # Display pharmacies on a map
-                            if safe_column_check(df, "latitude") and safe_column_check(df, "longitude"):
-                                # Remove rows with missing lat/long values
-                                map_df = df.dropna(subset=["latitude", "longitude"])
-                                
-                                # Convert latitude and longitude to numeric
-                                map_df["latitude"] = pd.to_numeric(map_df["latitude"], errors="coerce")
-                                map_df["longitude"] = pd.to_numeric(map_df["longitude"], errors="coerce")
-                                
-                                # Drop rows with invalid lat/long values
-                                map_df = map_df.dropna(subset=["latitude", "longitude"])
-                                
-                                if not map_df.empty:
-                                    hover_data = ["OutletAddress", "Phone"]
-                                    if safe_column_check(map_df, "suburb"):
-                                        hover_data.append("suburb")
-                                    if safe_column_check(map_df, "state"):
-                                        hover_data.append("state")
-                                        
-                                    hover_name = "Entity Name" if safe_column_check(map_df, "Entity Name") else None
-                                    
-                                    fig_map = px.scatter_map(
-                                        map_df,
-                                        lat="latitude",
-                                        lon="longitude",
-                                        hover_name=hover_name,
-                                        hover_data=hover_data,
-                                        zoom=3,
-                                        map_style="open-street-map",
-                                        title=f"Pharmacy Locations - {selected_au_file}"
-                                    )
-                                    fig_map.update_layout(height=600)
-                                    st.plotly_chart(fig_map, use_container_width=True)
-                                else:
-                                    st.warning("No valid geographic data available for mapping")
-                            else:
-                                st.warning("Geographic data (latitude/longitude) not available")
+                                st.warning("No valid geographic data available for mapping")
+                        else:
+                            st.warning("Geographic data (latitude/longitude) not available")
                     
                     # Tab: Data Completeness Analysis
                     with completeness_tab:
@@ -769,22 +715,37 @@ with tab_analyze:
                         
                         with col1:
                             st.metric("Number of Pharmacies", len(df))
-                        
+
                         with col2:
+                            # Check for both "phone" and "Phone" columns
+                            phone_column = None
+                            if safe_column_check(df, "phone"):
+                                phone_column = "phone"
+                            elif safe_column_check(df, "Phone"):
+                                phone_column = "Phone"
+                                
+                            if phone_column:
+                                has_phone = df[phone_column].notna().sum()
+                                phone_percentage = int((has_phone / len(df)) * 100 if len(df) > 0 else 0)
+                                st.metric("Locations with Phone", f"{has_phone} ({phone_percentage}%)")
+                            else:
+                                st.metric("Locations with Phone", "N/A")
+                                
+                        with col3:
+                            # Check for both "email" and "Email" columns
+                            email_column = None
                             if safe_column_check(df, "email"):
-                                populated_email = df["email"].notna().sum()
+                                email_column = "email"
+                            elif safe_column_check(df, "Email"):
+                                email_column = "Email"
+                                
+                            if email_column:
+                                populated_email = df[email_column].notna().sum()
                                 email_percentage = int((populated_email / len(df)) * 100 if len(df) > 0 else 0)
                                 st.metric("Locations with Email", f"{populated_email} ({email_percentage}%)")
                             else:
                                 st.metric("Locations with Email", "N/A")
                         
-                        with col3:
-                            if safe_column_check(df, "phone"):
-                                has_phone = df["phone"].notna().sum()
-                                phone_percentage = int((has_phone / len(df)) * 100 if len(df) > 0 else 0)
-                                st.metric("Locations with Phone", f"{has_phone} ({phone_percentage}%)")
-                            else:
-                                st.metric("Locations with Phone", "N/A")
                     
                     # Tab: Trading Hours Analysis
                     with trading_tab:
@@ -986,82 +947,46 @@ with tab_analyze:
                                     st.info("No pharmacies with trading hours data found.")
                             else:
                                 st.info("No trading hours data available in this dataset.")
-                        else:
-                            st.info("No trading hours data available in this dataset.")
                     
                     # Tab: Geographic Distribution
                     with geo_tab:
-                        region_tab, map_tab = st.tabs(["By Region", "Map View"])
-                        
-                        with region_tab:
-                            # New Zealand region analysis
-                            st.subheader("New Zealand Regional Distribution")
+                        # Display pharmacies on a map
+                        if safe_column_check(df, "latitude") and safe_column_check(df, "longitude"):
+                            # Remove rows with missing lat/long values
+                            map_df = df.dropna(subset=["latitude", "longitude"])
                             
-                            # For NZ data, use suburb field for regional analysis
-                            if safe_column_check(df, "suburb"):
-                                suburb_counts = df["suburb"].value_counts().reset_index()
-                                suburb_counts.columns = ["Suburb", "Count"]
-                                
-                                # Sort by count in descending order
-                                suburb_counts = suburb_counts.sort_values("Count", ascending=False)
-                                
-                                if not suburb_counts.empty:
-                                    # Show top 15 suburbs
-                                    top_suburbs = suburb_counts.head(15)
+                            # Convert latitude and longitude to numeric
+                            map_df["latitude"] = pd.to_numeric(map_df["latitude"], errors="coerce")
+                            map_df["longitude"] = pd.to_numeric(map_df["longitude"], errors="coerce")
+                            
+                            # Drop rows with invalid lat/long values
+                            map_df = map_df.dropna(subset=["latitude", "longitude"])
+                            
+                            if not map_df.empty:
+                                hover_data = ["OutletAddress", "Phone"]
+                                if safe_column_check(map_df, "suburb"):
+                                    hover_data.append("suburb")
+                                if safe_column_check(map_df, "postcode"):
+                                    hover_data.append("postcode")
                                     
-                                    fig_suburbs = px.bar(
-                                        top_suburbs,
-                                        x="Suburb", 
-                                        y="Count",
-                                        color="Count",
-                                        text_auto=True,
-                                        title=f"Top Suburbs - {selected_nz_file}"
-                                    )
-                                    fig_suburbs.update_layout(height=500)
-                                    st.plotly_chart(fig_suburbs, use_container_width=True)
-                                else:
-                                    st.warning("No suburb data available for analysis")
+                                hover_name = "Entity Name" if safe_column_check(map_df, "Entity Name") else None
+                                
+                                fig_map = px.scatter_map(
+                                    map_df,
+                                    lat="latitude",
+                                    lon="longitude",
+                                    hover_name=hover_name,
+                                    hover_data=hover_data,
+                                    zoom=5,
+                                    map_style="open-street-map",
+                                    title=f"Pharmacy Locations - {selected_nz_file}"
+                                )
+                                fig_map.update_layout(height=600)
+                                st.plotly_chart(fig_map, use_container_width=True)
                             else:
-                                st.warning("Suburb data not available in this dataset")
-                        
-                        with map_tab:
-                            # Display pharmacies on a map
-                            if safe_column_check(df, "latitude") and safe_column_check(df, "longitude"):
-                                # Remove rows with missing lat/long values
-                                map_df = df.dropna(subset=["latitude", "longitude"])
-                                
-                                # Convert latitude and longitude to numeric
-                                map_df["latitude"] = pd.to_numeric(map_df["latitude"], errors="coerce")
-                                map_df["longitude"] = pd.to_numeric(map_df["longitude"], errors="coerce")
-                                
-                                # Drop rows with invalid lat/long values
-                                map_df = map_df.dropna(subset=["latitude", "longitude"])
-                                
-                                if not map_df.empty:
-                                    hover_data = ["OutletAddress", "Phone"]
-                                    if safe_column_check(map_df, "suburb"):
-                                        hover_data.append("suburb")
-                                    if safe_column_check(map_df, "postcode"):
-                                        hover_data.append("postcode")
-                                        
-                                    hover_name = "Entity Name" if safe_column_check(map_df, "Entity Name") else None
-                                    
-                                    fig_map = px.scatter_map(
-                                        map_df,
-                                        lat="latitude",
-                                        lon="longitude",
-                                        hover_name=hover_name,
-                                        hover_data=hover_data,
-                                        zoom=5,
-                                        map_style="open-street-map",
-                                        title=f"Pharmacy Locations - {selected_nz_file}"
-                                    )
-                                    fig_map.update_layout(height=600)
-                                    st.plotly_chart(fig_map, use_container_width=True)
-                                else:
-                                    st.warning("No valid geographic data available for mapping")
-                            else:
-                                st.warning("Geographic data (latitude/longitude) not available")
+                                st.warning("No valid geographic data available for mapping")
+                        else:
+                            st.warning("Geographic data (latitude/longitude) not available")
                     
                     # Tab: Data Completeness Analysis
                     with completeness_tab:
