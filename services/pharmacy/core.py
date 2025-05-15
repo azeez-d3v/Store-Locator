@@ -282,7 +282,7 @@ class PharmacyLocations:
         
         # Map original field names to the new field names
         field_mapping = {
-            'EntityName': 'name',
+            'Entity Name': 'name',
             'OutletAddress': 'address',
             'Phone': 'phone',
             'Fax': 'fax',
@@ -366,10 +366,12 @@ class PharmacyLocations:
                     print(f"Error processing {brand.upper()} pharmacies: {result}")
                     brand_summary["status"] = "failed"
                     brand_summary["error"] = str(result)
-                    results_summary["failed_brands"] += 1
+                    results_summary["failed_brands"] += 1               
+                    
                 elif result:
-                    # Create filename with month_year
-                    filename = f"{brand}_{month_year}.xlsx"
+                    # Create filename with month_year - capitalize each word in brand
+                    capitalized_brand = '_'.join(word.capitalize() for word in brand.split('_'))
+                    filename = f"{capitalized_brand}_{month_year}.xlsx"
                     
                     # Save data to Excel and track success
                     save_success = self.save_to_excel(result, filename)

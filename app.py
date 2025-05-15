@@ -251,10 +251,10 @@ with tab_fetch:
                 async def fetch_data():
                     # Always use session_state directly to ensure latest selection
                     selected_brands = st.session_state["selected_pharmacies"]
-                    
-                    # Get current month and year for filename
+                      # Get current month and year for filename
                     current_date = datetime.now()
-                    month_year = f"{current_date.strftime('%b').lower()}_{current_date.year}"
+                    month_name = current_date.strftime('%b').capitalize()
+                    month_year = f"{month_name}_{current_date.year}"
                     
                     if len(selected_brands) > 1:
                         # Fetch multiple brands
@@ -277,9 +277,9 @@ with tab_fetch:
                         # Fetch a single brand
                         brand = selected_brands[0]
                         details = await pharmacy_api.fetch_all_locations_details(brand)
-                        if details:
-                            # Use month_year in the filename
-                            pharmacy_api.save_to_excel(details, f"{brand}_{month_year}.xlsx")
+                        if details:                            # Use month_year in the filename
+                            brand_capitalized = brand.title()
+                            pharmacy_api.save_to_excel(details, f"{brand_capitalized}_{month_year}.xlsx")
                             add_fetch_log(brand, len(details), True)
                             st.badge(f"{brand.upper()}", icon=":material/home_app_logo:", color="blue")
                             st.badge(f"{len(details)} location fetched", icon=":material/trail_length:", color="green")
@@ -363,9 +363,9 @@ with tab_analyze:
                     
                     # Tab: Data Overview
                     with overview_tab:
-                        # Reorder the dataframe to show 'EntityName' column first
-                        if safe_column_check(df, "EntityName"):
-                            cols = ["EntityName"] + [col for col in df.columns if col != "EntityName"]
+                        # Reorder the dataframe to show 'Entity Name' column first
+                        if safe_column_check(df, "Entity Name"):
+                            cols = ["Entity Name"] + [col for col in df.columns if col != "Entity Name"]
                             display_df = df[cols]
                         else:
                             display_df = df
@@ -450,7 +450,7 @@ with tab_analyze:
                                             trading_hours_data = trading_hours_str
                                             
                                         if trading_hours_data and isinstance(trading_hours_data, dict):
-                                            name = row["EntityName"] if safe_column_check(df, "EntityName") and pd.notna(row["EntityName"]) else f"Pharmacy #{i}"
+                                            name = row["Entity Name"] if safe_column_check(df, "Entity Name") and pd.notna(row["Entity Name"]) else f"Pharmacy #{i}"
                                             pharmacies_with_hours.append((i, name))
                                     except (TypeError, AttributeError):
                                         continue
@@ -682,7 +682,7 @@ with tab_analyze:
                                     if safe_column_check(map_df, "state"):
                                         hover_data.append("state")
                                         
-                                    hover_name = "EntityName" if safe_column_check(map_df, "EntityName") else None
+                                    hover_name = "Entity Name" if safe_column_check(map_df, "Entity Name") else None
                                     
                                     fig_map = px.scatter_map(
                                         map_df,
@@ -754,9 +754,9 @@ with tab_analyze:
                     
                     # Tab: Data Overview
                     with overview_tab:
-                        # Reorder the dataframe to show 'EntityName' column first
-                        if safe_column_check(df, "EntityName"):
-                            cols = ["EntityName"] + [col for col in df.columns if col != "EntityName"]
+                        # Reorder the dataframe to show 'Entity Name' column first
+                        if safe_column_check(df, "Entity Name"):
+                            cols = ["Entity Name"] + [col for col in df.columns if col != "Entity Name"]
                             display_df = df[cols]
                         else:
                             display_df = df
@@ -842,7 +842,7 @@ with tab_analyze:
                                             trading_hours_data = trading_hours_str
                                             
                                         if trading_hours_data and isinstance(trading_hours_data, dict):
-                                            name = row["EntityName"] if safe_column_check(df, "EntityName") and pd.notna(row["EntityName"]) else f"Pharmacy #{i}"
+                                            name = row["Entity Name"] if safe_column_check(df, "Entity Name") and pd.notna(row["Entity Name"]) else f"Pharmacy #{i}"
                                             pharmacies_with_hours.append((i, name))
                                     except (TypeError, AttributeError):
                                         continue
@@ -1044,7 +1044,7 @@ with tab_analyze:
                                     if safe_column_check(map_df, "postcode"):
                                         hover_data.append("postcode")
                                         
-                                    hover_name = "EntityName" if safe_column_check(map_df, "EntityName") else None
+                                    hover_name = "Entity Name" if safe_column_check(map_df, "Entity Name") else None
                                     
                                     fig_map = px.scatter_map(
                                         map_df,
