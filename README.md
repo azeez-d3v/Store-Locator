@@ -33,6 +33,7 @@ The Pharmacy Store Locator is a Streamlit-based web application that allows user
       - [Easy Setup (Windows)](#easy-setup-windows)
       - [Setup with UV (Recommended)](#setup-with-uv-recommended)
       - [Manual Setup (Alternative)](#manual-setup-alternative)
+    - [Updating the Application](#updating-the-application)
   - [📊 Usage Guide](#-usage-guide)
     - [Fetching Pharmacy Data](#fetching-pharmacy-data)
     - [Analyzing Data](#analyzing-data)
@@ -258,6 +259,14 @@ For highly interactive sites with complex JavaScript rendering, the codebase can
    - Upgrade pip to the latest version
    - Install all required dependencies from requirements.txt
 
+   If the setup fails, use the legacy setup option:
+
+   ```bash
+   setup-legacy.bat
+   ```
+
+   The legacy setup uses a different approach to create the virtual environment and install dependencies with uv package manager.
+
 3. Run the application:
 
    ```bash
@@ -268,6 +277,21 @@ For highly interactive sites with complex JavaScript rendering, the codebase can
    - Activate the virtual environment
    - Verify all required packages are installed
    - Launch the Streamlit application
+
+4. Updating the application:
+
+   To update the application to the latest version, simply run:
+
+   ```bash
+   update.bat
+   ```
+
+   This will:
+   - Create a backup of your current files
+   - Download the latest version from GitHub
+   - Update all application files and services
+   - Preserve your output and logs folders
+   - Clean up temporary files
 
 > **Note**: This setup process uses Python's built-in `venv` module and is not configured for Conda environments. If you're using Conda, you'll need to manually create a Conda environment and install the required packages using `conda install` or `pip install -r requirements.txt` within your Conda environment.
 
@@ -307,6 +331,14 @@ For highly interactive sites with complex JavaScript rendering, the codebase can
    streamlit run app.py
    ```
 
+5. To update the application:
+
+   ```bash
+   update.bat
+   ```
+
+   This will update your application to the latest version from GitHub.
+
 #### Manual Setup (Alternative)
 
 1. Clone the repository:
@@ -334,6 +366,39 @@ For highly interactive sites with complex JavaScript rendering, the codebase can
    ```bash
    streamlit run app.py
    ```
+
+5. To update the application:
+
+   ```bash
+   update.bat
+   ```
+
+   This will update your application to the latest version from GitHub.
+
+### Updating the Application
+
+To keep your Pharmacy Store Locator application up-to-date with the latest features, bug fixes, and improvements, you can use the included update utility. This utility makes it easy to update without losing your existing data, logs, or custom configurations.
+
+To update your application:
+
+1. Close any running instances of the application.
+
+2. Run the update utility:
+
+   ```bash
+   update.bat
+   ```
+
+3. The update process will:
+   - Create a backup of your current files in a 'backup' folder
+   - Download the latest version from GitHub
+   - Update all application files and services
+   - Preserve your data files in the 'output' and 'logs' folders
+   - Clean up temporary files
+
+4. If the update process fails for any reason, your original files will remain unchanged.
+
+5. If you encounter issues with the updated application, you can restore from the backup or run `setup-legacy.bat` to rebuild the environment.
 
 ## 📊 Usage Guide
 
