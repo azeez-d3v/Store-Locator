@@ -1,4 +1,3 @@
-import asyncio
 from abc import ABC, abstractmethod
 
 class BasePharmacyHandler(ABC):

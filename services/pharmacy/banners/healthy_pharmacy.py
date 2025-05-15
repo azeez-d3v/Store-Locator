@@ -1,11 +1,9 @@
 from ..base_handler import BasePharmacyHandler
 import logging
 import re
-import json
 from rich import print
 from datetime import datetime
 from bs4 import BeautifulSoup
-import xml.etree.ElementTree as ET
 
 class HealthyPharmacyHandler(BasePharmacyHandler):
     """Handler for Healthy Pharmacy stores"""
@@ -262,7 +260,7 @@ class HealthyPharmacyHandler(BasePharmacyHandler):
                 # Look for specific text patterns within any div
                 all_divs = soup.find_all('div', {'class': 'rich-text_richText__0_Axt'})
                 for div in all_divs:
-                    div_text = div.text
+                    # div_text = div.text
                     
                     # Check for a list that might contain address, phone, email
                     unordered_list = div.find('ul')

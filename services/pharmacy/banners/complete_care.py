@@ -1,7 +1,6 @@
 import asyncio
 import re
 from bs4 import BeautifulSoup
-import json
 from rich import print
 from urllib.parse import urlparse
 from ..base_handler import BasePharmacyHandler

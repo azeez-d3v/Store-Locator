@@ -1,11 +1,8 @@
 from ..base_handler import BasePharmacyHandler
 import logging
 import re
-import json
 from datetime import datetime
 from bs4 import BeautifulSoup
-import urllib.parse
-from rich import print
 
 class PennasPharmacyHandler(BasePharmacyHandler):
     """Handler for Pennas Pharmacy stores"""

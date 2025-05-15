@@ -1,10 +1,11 @@
 import asyncio
 import sys
 import os
-import csv
 import pandas as pd
 from rich import print
 from pathlib import Path
+
+from services.pharmacy.banners import discount_drug_stores
 
 # Append parent directory to path for imports
 parent_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -165,13 +166,13 @@ class PharmacyLocations:
     def __init__(self):
         self.session_manager = SessionManager()
         # Import brand-specific handlers dynamically to avoid circular imports
-        from services.pharmacy.banners import amcal, dds, blooms, ramsay, revive, optimal, community, footes, alive, ydc, chemist_warehouse, pharmasave, nova, choice, bendigo_ufs, chemist_king, friendly_care, fullife, good_price, healthy_pharmacy, healthy_world, pennas, wizard, chemist_hub, superchem, complete_care, terry_white, my_chemist, direct_chemist
+        from services.pharmacy.banners import amcal, blooms, ramsay, revive, optimal, community, footes, alive, ydc, chemist_warehouse, pharmasave, nova, choice, bendigo_ufs, chemist_king, friendly_care, fullife, good_price, healthy_pharmacy, healthy_world, pennas, wizard, chemist_hub, superchem, complete_care, terry_white, my_chemist, direct_chemist
         # Import NZ handlers
         from services.pharmacy.banners.nz import chemist_warehouse_nz, antidote, unichem, bargain_chemist, woolworths
         
         self.brand_handlers = {
             "amcal": amcal.AmcalHandler(self),
-            "dds": dds.DDSHandler(self),
+            "dds": discount_drug_stores.DDSHandler(self),
             "blooms": blooms.BloomsHandler(self),
             "ramsay": ramsay.RamsayHandler(self),
             "revive": revive.ReviveHandler(self),
@@ -400,7 +401,7 @@ class PharmacyLocations:
             results_summary["details"][brand] = brand_summary
         
         # Print summary report
-        print(f"\nFetch and Save Summary:")
+        print("\nFetch and Save Summary:")
         print(f"- Brands processed: {results_summary['total_brands']}")
         print(f"- Successful: {results_summary['successful_brands']}")
         print(f"- Failed: {results_summary['failed_brands']}")

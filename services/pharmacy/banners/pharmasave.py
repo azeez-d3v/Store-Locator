@@ -2,7 +2,6 @@ from ..base_handler import BasePharmacyHandler
 import re
 from rich import print
 from bs4 import BeautifulSoup
-from datetime import datetime
 
 class PharmasaveHandler(BasePharmacyHandler):
     """Handler for Pharmasave Pharmacies"""
@@ -70,10 +69,10 @@ class PharmasaveHandler(BasePharmacyHandler):
         Returns:
             List of dictionaries containing pharmacy details
         """
-        print(f"Fetching all Pharmasave locations...")
+        print("Fetching all Pharmasave locations...")
         locations = await self.fetch_locations()
         if not locations:
-            print(f"No Pharmasave locations found.")
+            print("No Pharmasave locations found.")
             return []
             
         print(f"Found {len(locations)} Pharmasave locations. Processing details...")

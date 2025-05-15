@@ -62,10 +62,10 @@ class YdcHandler(BasePharmacyHandler):
         Returns:
             List of dictionaries containing pharmacy details
         """
-        print(f"Fetching all Your Discount Chemist locations...")
+        print("Fetching all Your Discount Chemist locations...")
         locations = await self.fetch_locations()
         if not locations:
-            print(f"No Your Discount Chemist locations found.")
+            print("No Your Discount Chemist locations found.")
             return []
             
         print(f"Found {len(locations)} Your Discount Chemist locations. Processing details...")

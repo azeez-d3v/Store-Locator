@@ -1,6 +1,5 @@
 from ...base_handler import BasePharmacyHandler
 import re
-import json
 from rich import print
 from bs4 import BeautifulSoup
 
@@ -299,11 +298,11 @@ class AntidotePharmacyNZHandler(BasePharmacyHandler):
         Returns:
             List of dictionaries containing pharmacy details
         """
-        print(f"Fetching all Antidote Pharmacy NZ locations...")
+        print("Fetching all Antidote Pharmacy NZ locations...")
         locations = await self.fetch_locations()
         
         if not locations:
-            print(f"No Antidote Pharmacy NZ locations found.")
+            print("No Antidote Pharmacy NZ locations found.")
             return []
             
         print(f"Found {len(locations)} Antidote Pharmacy NZ locations.")

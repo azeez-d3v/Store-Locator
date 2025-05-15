@@ -1,6 +1,5 @@
 from ..base_handler import BasePharmacyHandler
 import re
-from datetime import datetime
 from rich import print
 
 class AliveHandler(BasePharmacyHandler):
@@ -57,10 +56,10 @@ class AliveHandler(BasePharmacyHandler):
         Returns:
             List of dictionaries containing pharmacy details
         """
-        print(f"Fetching all Alive Pharmacy locations...")
+        print("Fetching all Alive Pharmacy locations...")
         locations = await self.fetch_locations()
         if not locations:
-            print(f"No Alive Pharmacy locations found.")
+            print("No Alive Pharmacy locations found.")
             return []
             
         print(f"Found {len(locations)} Alive Pharmacy locations. Processing details...")
@@ -186,7 +185,7 @@ class AliveHandler(BasePharmacyHandler):
         text = hours_text.lower().replace('.', ' ').replace(',', ' ')
         
         # Split input by potential segments
-        segments = []
+        # segments = []
         
         # First, try to split by days
         pattern = r'((?:\d+(?::\d+)?(?:am|pm)\s*[-–—]\s*\d+(?::\d+)?(?:am|pm))(?:\s+[a-zA-Z]+(?:\s+to\s+[a-zA-Z]+)?(?:day|DAY))?)'

@@ -1,7 +1,6 @@
 from ..base_handler import BasePharmacyHandler
 import logging
 import re
-from rich import print
 import json
 from datetime import datetime
 from bs4 import BeautifulSoup

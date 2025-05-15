@@ -66,10 +66,10 @@ class AmcalHandler(BasePharmacyHandler):
             List of dictionaries containing pharmacy details
         """
         # First get all locations
-        print(f"Fetching all Amcal locations...")
+        print("Fetching all Amcal locations...")
         locations = await self.fetch_locations()
         if not locations:
-            print(f"No Amcal locations found.")
+            print("No Amcal locations found.")
             return []
             
         print(f"Found {len(locations)} Amcal locations. Fetching details concurrently...")

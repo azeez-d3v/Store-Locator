@@ -85,10 +85,10 @@ class OptimalHandler(BasePharmacyHandler):
             List of dictionaries containing pharmacy details
         """
         # For Optimal, all details are included in the locations endpoint
-        print(f"Fetching all Optimal locations...")
+        print("Fetching all Optimal locations...")
         locations = await self.fetch_locations()
         if not locations:
-            print(f"No Optimal locations found.")
+            print("No Optimal locations found.")
             return []
             
         print(f"Found {len(locations)} Optimal locations. Processing details...")

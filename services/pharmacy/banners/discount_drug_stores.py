@@ -66,10 +66,10 @@ class DDSHandler(BasePharmacyHandler):
             List of dictionaries containing pharmacy details
         """
         # First get all locations
-        print(f"Fetching all DDS locations...")
+        print("Fetching all DDS locations...")
         locations = await self.fetch_locations()
         if not locations:
-            print(f"No DDS locations found.")
+            print("No DDS locations found.")
             return []
             
         print(f"Found {len(locations)} DDS locations. Fetching details concurrently...")

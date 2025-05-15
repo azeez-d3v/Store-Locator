@@ -2,7 +2,6 @@ from ..base_handler import BasePharmacyHandler
 import re
 from rich import print
 from bs4 import BeautifulSoup
-from datetime import datetime
 
 class ChoiceHandler(BasePharmacyHandler):
     """Handler for Choice Pharmacies"""
@@ -60,10 +59,10 @@ class ChoiceHandler(BasePharmacyHandler):
         Returns:
             List of dictionaries containing pharmacy details
         """
-        print(f"Fetching all Choice Pharmacy locations...")
+        print("Fetching all Choice Pharmacy locations...")
         locations = await self.fetch_locations()
         if not locations:
-            print(f"No Choice Pharmacy locations found.")
+            print("No Choice Pharmacy locations found.")
             return []
             
         print(f"Found {len(locations)} Choice Pharmacy locations. Processing details...")

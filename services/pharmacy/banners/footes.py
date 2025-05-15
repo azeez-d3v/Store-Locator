@@ -332,10 +332,10 @@ class FootesHandler(BasePharmacyHandler):
             List of dictionaries containing pharmacy details
         """
         # For Footes, all details are included in the locations endpoint
-        print(f"Fetching all Footes Pharmacy locations...")
+        print("Fetching all Footes Pharmacy locations...")
         locations = await self.fetch_locations()
         if not locations:
-            print(f"No Footes Pharmacy locations found.")
+            print("No Footes Pharmacy locations found.")
             return []
             
         print(f"Found {len(locations)} Footes Pharmacy locations. Processing details...")

@@ -148,7 +148,7 @@ class CommunityHandler(BasePharmacyHandler):
                         
                         # Add debug information to better understand the extraction
                         if 'name' not in pharmacy_data:
-                            print(f"Warning: Could not extract name for a pharmacy. HTML structure might have changed.")
+                            print("Warning: Could not extract name for a pharmacy. HTML structure might have changed.")
                             
                         locations.append(pharmacy_data)
                     except Exception as e:
@@ -207,10 +207,10 @@ class CommunityHandler(BasePharmacyHandler):
             List of dictionaries containing pharmacy details
         """
         # For Community Care Chemist, all details are included in the locations endpoint
-        print(f"Fetching all Community Care Chemist locations...")
+        print("Fetching all Community Care Chemist locations...")
         locations = await self.fetch_locations()
         if not locations:
-            print(f"No Community Care Chemist locations found.")
+            print("No Community Care Chemist locations found.")
             return []
             
         print(f"Found {len(locations)} Community Care Chemist locations. Processing details...")

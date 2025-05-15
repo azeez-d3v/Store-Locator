@@ -8,7 +8,7 @@ from .chemist_king import ChemistKingHandler
 from .chemist_warehouse import ChemistWarehouseHandler
 from .choice import ChoiceHandler
 from .community import CommunityHandler
-from .dds import DDSHandler
+from .discount_drug_stores import DDSHandler
 from .direct_chemist import DirectChemistHandler
 from .footes import FootesHandler
 from .friendly_care import FriendlyCareHandler
@@ -28,7 +28,7 @@ from .superchem import SuperChemHandler
 
 __all__ = [
     'amcal',
-    'dds',
+    'discount_drug_stores',
     'blooms',
     'ramsay',
     'revive',

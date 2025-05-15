@@ -86,10 +86,10 @@ class ReviveHandler(BasePharmacyHandler):
             List of dictionaries containing pharmacy details
         """
         # For Revive, all details are included in the locations endpoint
-        print(f"Fetching all Revive locations...")
+        print("Fetching all Revive locations...")
         locations = await self.fetch_locations()
         if not locations:
-            print(f"No Revive locations found.")
+            print("No Revive locations found.")
             return []
             
         print(f"Found {len(locations)} Revive locations. Processing details...")

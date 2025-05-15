@@ -90,11 +90,11 @@ class UnichemNZHandler(BasePharmacyHandler):
         Returns:
             List of dictionaries containing pharmacy details
         """
-        print(f"Fetching all Unichem NZ pharmacy locations...")
+        print("Fetching all Unichem NZ pharmacy locations...")
         locations = await self.fetch_locations()
         
         if not locations:
-            print(f"No Unichem NZ locations found.")
+            print("No Unichem NZ locations found.")
             return []
         
         print(f"Found {len(locations)} Unichem NZ locations. Fetching details in parallel...")

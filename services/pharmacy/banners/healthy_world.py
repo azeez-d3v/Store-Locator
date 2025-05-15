@@ -1,8 +1,6 @@
 from ..base_handler import BasePharmacyHandler
 import logging
 import re
-import json
-from rich import print
 from datetime import datetime
 from bs4 import BeautifulSoup
 
@@ -290,7 +288,7 @@ class HealthyWorldPharmacyHandler(BasePharmacyHandler):
                 return {}
             
             # Keep track of processed store names to avoid duplicates
-            processed_names = set()
+            # processed_names = set()
             
             # Create a dictionary to map store names to their location data
             store_location_map = {}

@@ -1,7 +1,6 @@
 from ...base_handler import BasePharmacyHandler
 import re
 from rich import print
-from datetime import datetime
 
 class ChemistWarehouseNZHandler(BasePharmacyHandler):
     """Handler for Chemist Warehouse NZ Pharmacies"""
@@ -68,10 +67,10 @@ class ChemistWarehouseNZHandler(BasePharmacyHandler):
         Returns:
             List of dictionaries containing pharmacy details
         """
-        print(f"Fetching all Chemist Warehouse NZ locations...")
+        print("Fetching all Chemist Warehouse NZ locations...")
         locations = await self.fetch_locations()
         if not locations:
-            print(f"No Chemist Warehouse NZ locations found.")
+            print("No Chemist Warehouse NZ locations found.")
             return []
             
         print(f"Found {len(locations)} Chemist Warehouse NZ locations. Processing details...")

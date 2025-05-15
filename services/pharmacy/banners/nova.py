@@ -2,7 +2,6 @@ from ..base_handler import BasePharmacyHandler
 import re
 from rich import print
 from bs4 import BeautifulSoup
-from datetime import datetime
 
 class NovaHandler(BasePharmacyHandler):
     """Handler for Nova Pharmacies"""
@@ -60,10 +59,10 @@ class NovaHandler(BasePharmacyHandler):
         Returns:
             List of dictionaries containing pharmacy details
         """
-        print(f"Fetching all Nova Pharmacy locations...")
+        print("Fetching all Nova Pharmacy locations...")
         locations = await self.fetch_locations()
         if not locations:
-            print(f"No Nova Pharmacy locations found.")
+            print("No Nova Pharmacy locations found.")
             return []
             
         print(f"Found {len(locations)} Nova Pharmacy locations. Processing details...")

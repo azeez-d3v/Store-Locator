@@ -3,7 +3,6 @@ import re
 from rich import print
 from datetime import datetime
 import xml.etree.ElementTree as ET
-from io import StringIO
 
 class MyChemistHandler(BasePharmacyHandler):
     """Handler for My Chemist stores"""
@@ -117,10 +116,10 @@ class MyChemistHandler(BasePharmacyHandler):
         Returns:
             List of dictionaries containing pharmacy details
         """
-        print(f"Fetching all My Chemist locations...")
+        print("Fetching all My Chemist locations...")
         locations = await self.fetch_locations()
         if not locations:
-            print(f"No My Chemist locations found.")
+            print("No My Chemist locations found.")
             return []
             
         print(f"Found {len(locations)} My Chemist locations. Processing details...")

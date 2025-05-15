@@ -1,6 +1,5 @@
 import re
 import logging
-from rich import print
 from bs4 import BeautifulSoup
 from ..base_handler import BasePharmacyHandler
 from ..utils import decode_cloudflare_email, extract_state_postcode
@@ -124,7 +123,7 @@ class BendigoUfsHandler(BasePharmacyHandler):
                 if contact_header:
                     contact_p = contact_header.find_next('p')
                     if contact_p:
-                        contact_text = contact_p.text.strip()
+                        # contact_text = contact_p.text.strip()
                         
                         # Extract phone - use a more precise pattern to only capture the phone number
                         phone_match = re.search(r'Tel:?\s*([\d\s]+)(?:<br|<\/|$)', str(contact_p))

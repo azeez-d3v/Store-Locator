@@ -1,6 +1,5 @@
 from ..base_handler import BasePharmacyHandler
 import re
-from rich import print
 from datetime import datetime
 import logging
 import asyncio
@@ -214,7 +213,7 @@ class ChemistKingHandler(BasePharmacyHandler):
         if hours_heading:
             # Look for the div that contains the actual hours
             # First try to find it using class or id-based selectors
-            parent_element = hours_heading.parent
+            # parent_element = hours_heading.parent
             
             # Look for nearby elements with specific structure matching the hours layout
             potential_containers = []

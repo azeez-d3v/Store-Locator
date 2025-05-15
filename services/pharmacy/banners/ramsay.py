@@ -1,4 +1,3 @@
-import asyncio
 import re
 from rich import print
 from ..base_handler import BasePharmacyHandler
@@ -92,7 +91,7 @@ class RamsayHandler(BasePharmacyHandler):
         headers = self.headers.copy()
         if session_id:
             headers['SessionId'] = session_id
-            print(f"Using session ID for Ramsay API request")
+            print("Using session ID for Ramsay API request")
         else:
             print("Warning: No session ID found for Ramsay API request")
             
@@ -141,10 +140,10 @@ class RamsayHandler(BasePharmacyHandler):
             List of dictionaries containing pharmacy details
         """
         # For Ramsay, all details are included in the locations endpoint
-        print(f"Fetching all Ramsay locations...")
+        print("Fetching all Ramsay locations...")
         locations = await self.fetch_locations()
         if not locations:
-            print(f"No Ramsay locations found.")
+            print("No Ramsay locations found.")
             return []
             
         print(f"Found {len(locations)} Ramsay locations. Processing details...")

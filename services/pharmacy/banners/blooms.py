@@ -1,6 +1,5 @@
 from rich import print
 from ..base_handler import BasePharmacyHandler
-from ..utils import extract_state_postcode
 
 class BloomsHandler(BasePharmacyHandler):
     """Handler for Blooms The Chemist pharmacies"""
@@ -79,10 +78,10 @@ class BloomsHandler(BasePharmacyHandler):
             List of dictionaries containing pharmacy details
         """
         # For Blooms, all details are included in the locations endpoint
-        print(f"Fetching all Blooms locations...")
+        print("Fetching all Blooms locations...")
         locations = await self.fetch_locations()
         if not locations:
-            print(f"No Blooms locations found.")
+            print("No Blooms locations found.")
             return []
             
         print(f"Found {len(locations)} Blooms locations. Processing details...")

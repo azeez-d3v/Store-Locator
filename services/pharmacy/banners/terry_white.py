@@ -2,7 +2,6 @@ from ..base_handler import BasePharmacyHandler
 import re
 from rich import print
 from datetime import datetime
-import json
 
 class TerryWhiteHandler(BasePharmacyHandler):
     """Handler for TerryWhite Pharmacy stores"""
@@ -39,7 +38,7 @@ class TerryWhiteHandler(BasePharmacyHandler):
                 print(f"Found {len(locations)} TerryWhite Pharmacy locations")
                 return locations
             else:
-                print(f"Unexpected response format from TerryWhite API")
+                print("Unexpected response format from TerryWhite API")
                 return []
         else:
             raise Exception(f"Failed to fetch TerryWhite Pharmacy locations: {response.status_code}")
@@ -65,10 +64,10 @@ class TerryWhiteHandler(BasePharmacyHandler):
         Returns:
             List of dictionaries containing pharmacy details
         """
-        print(f"Fetching all TerryWhite Pharmacy locations...")
+        print("Fetching all TerryWhite Pharmacy locations...")
         locations = await self.fetch_locations()
         if not locations:
-            print(f"No TerryWhite Pharmacy locations found.")
+            print("No TerryWhite Pharmacy locations found.")
             return []
             
         print(f"Found {len(locations)} TerryWhite Pharmacy locations. Processing details...")

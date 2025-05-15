@@ -1,8 +1,6 @@
 from ..base_handler import BasePharmacyHandler
 import logging
 import json
-import re
-from rich import print
 from datetime import datetime
 import asyncio
 
