@@ -5,7 +5,7 @@ REM Update script: Downloads the latest version from GitHub without requiring Gi
 setlocal EnableDelayedExpansion
 
 REM Configure repository information
-set REPO_OWNER=Azeeeez
+set REPO_OWNER=azeez-d3v
 set REPO_NAME=Store-Locator
 set GITHUB_URL=https://github.com/%REPO_OWNER%/%REPO_NAME%/archive/refs/heads/main.zip
 set TEMP_ZIP=%TEMP%\store-locator-update.zip

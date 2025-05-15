@@ -79,3 +79,5 @@ test_all_brands.py
 uv.lock
 pyproject.toml
 test.py
+
+backup/
