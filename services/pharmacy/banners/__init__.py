@@ -16,6 +16,7 @@ from .nova import NovaHandler
 from .optimal import OptimalHandler
 from .pharmasave import PharmasaveHandler
 from .pennas import PennasPharmacyHandler
+from .priceline import PricelineHandler
 from .ramsay import RamsayHandler
 from .revive import ReviveHandler
 from .ydc import YdcHandler

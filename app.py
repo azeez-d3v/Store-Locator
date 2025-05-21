@@ -113,7 +113,8 @@ with tab_fetch:
         "complete_care": "Complete Care Pharmacy",
         "terry_white": "TerryWhite Chemmart",
         "my_chemist": "My Chemist",
-        "direct_chemist": "Direct Chemist Outlet"
+        "direct_chemist": "Direct Chemist Outlet",
+        "priceline": "Priceline Pharmacy",
     }
 
     nz_pharmacy_brands = {
