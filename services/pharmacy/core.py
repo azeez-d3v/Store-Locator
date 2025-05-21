@@ -91,6 +91,7 @@ class PharmacyLocations:
         ]
     HEALTHY_PHARMACY_SITEMAP_URL = "https://www.healthylife.com.au/sitemap/stores.xml"
     PRICELINE_API_URL = "https://api.priceline.com.au/occ/v2/priceline/stores?accuracy=0&fields=FULL&pharmacyStore=true&sort=asc&lang=en&curr=AUD&latitude=&longitude=&pageSize=1000&radius=50000"
+    ADVANTAGE_API_URL = "https://app.medmate.com.au/mstore-live/api/get_locations"
     PENNAS_URLS = [
             "https://www.pennaspharmacy.com.au/locations/pennas-discount-pharmacy-edensor-park",
             "https://www.pennaspharmacy.com.au/locations/pennas-discount-pharmacy-prestons",
@@ -167,7 +168,7 @@ class PharmacyLocations:
     def __init__(self):
         self.session_manager = SessionManager()
         # Import brand-specific handlers dynamically to avoid circular imports
-        from services.pharmacy.banners import amcal, blooms, ramsay, revive, optimal, community, footes, alive, ydc, chemist_warehouse, pharmasave, nova, choice, bendigo_ufs, chemist_king, friendly_care, fullife, good_price, healthy_pharmacy, healthy_world, pennas, wizard, chemist_hub, superchem, complete_care, terry_white, my_chemist, direct_chemist, priceline
+        from services.pharmacy.banners import amcal, blooms, ramsay, revive, optimal, community, footes, alive, ydc, chemist_warehouse, pharmasave, nova, choice, bendigo_ufs, chemist_king, friendly_care, fullife, good_price, healthy_pharmacy, healthy_world, pennas, wizard, chemist_hub, superchem, complete_care, terry_white, my_chemist, direct_chemist, priceline, advantage, alliance
         # Import NZ handlers
         from services.pharmacy.banners.nz import chemist_warehouse_nz, antidote, unichem, bargain_chemist, woolworths
         
@@ -207,7 +208,9 @@ class PharmacyLocations:
             "unichem_nz": unichem.UnichemNZHandler(self),
             "bargain_chemist_nz": bargain_chemist.BargainChemistNZHandler(self),
             "woolworths_nz": woolworths.WoolworthsPharmacyNZHandler(self),
-            "priceline": priceline.PricelineHandler(self)
+            "priceline": priceline.PricelineHandler(self),
+            "advantage": advantage.AdvantagePharmacyHandler(self),
+            "alliance": alliance.AlliancePharmacyHandler(self)
         }
 
     async def fetch_locations(self, brand):

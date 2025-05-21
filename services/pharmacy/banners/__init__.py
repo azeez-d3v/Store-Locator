@@ -1,5 +1,7 @@
 # Import all AU brand handlers
 from .alive import AliveHandler
+from .advantage import AdvantagePharmacyHandler
+from .alliance import AlliancePharmacyHandler
 from .amcal import AmcalHandler
 from .bendigo_ufs import BendigoUfsHandler
 from .blooms import BloomsHandler
@@ -53,5 +55,7 @@ __all__ = [
     'wizard',
     'chemist_hub',
     'superchem',
-    'direct_chemist'
+    'direct_chemist',
+    'advantage',
+    'alliance'
 ]

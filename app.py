@@ -115,6 +115,8 @@ with tab_fetch:
         "my_chemist": "My Chemist",
         "direct_chemist": "Direct Chemist Outlet",
         "priceline": "Priceline Pharmacy",
+        "advantage": "Advantage Pharmacy",
+        "alliance": "Alliance Pharmacy",
     }
 
     nz_pharmacy_brands = {
