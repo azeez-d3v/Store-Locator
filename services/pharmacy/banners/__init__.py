@@ -5,6 +5,7 @@ from .alliance import AlliancePharmacyHandler
 from .amcal import AmcalHandler
 from .bendigo_ufs import BendigoUfsHandler
 from .blooms import BloomsHandler
+from .capital_chemist import CapitalChemistHandler
 from .chemist_hub import ChemistHubHandler
 from .chemist_king import ChemistKingHandler
 from .chemist_warehouse import ChemistWarehouseHandler
@@ -57,5 +58,6 @@ __all__ = [
     'superchem',
     'direct_chemist',
     'advantage',
-    'alliance'
+    'alliance',
+    'capital_chemist'
 ]

@@ -117,6 +117,7 @@ with tab_fetch:
         "priceline": "Priceline Pharmacy",
         "advantage": "Advantage Pharmacy",
         "alliance": "Alliance Pharmacy",
+        "capital_chemist": "Capital Chemist",
     }
 
     nz_pharmacy_brands = {

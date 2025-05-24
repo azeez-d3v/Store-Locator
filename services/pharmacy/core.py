@@ -136,6 +136,7 @@ class PharmacyLocations:
         "https://completecarepharmacies.com.au/locations/rosny/",
         "https://completecarepharmacies.com.au/locations/south-hobart/"
     ]
+    CAPITAL_CHEMIST_URL = "https://www.capitalchemist.com.au/"
     # Brand configurations
     BRAND_CONFIGS = {
         "dds": {
@@ -168,7 +169,7 @@ class PharmacyLocations:
     def __init__(self):
         self.session_manager = SessionManager()
         # Import brand-specific handlers dynamically to avoid circular imports
-        from services.pharmacy.banners import amcal, blooms, ramsay, revive, optimal, community, footes, alive, ydc, chemist_warehouse, pharmasave, nova, choice, bendigo_ufs, chemist_king, friendly_care, fullife, good_price, healthy_pharmacy, healthy_world, pennas, wizard, chemist_hub, superchem, complete_care, terry_white, my_chemist, direct_chemist, priceline, advantage, alliance
+        from services.pharmacy.banners import amcal, blooms, ramsay, revive, optimal, community, footes, alive, ydc, chemist_warehouse, pharmasave, nova, choice, bendigo_ufs, chemist_king, friendly_care, fullife, good_price, healthy_pharmacy, healthy_world, pennas, wizard, chemist_hub, superchem, complete_care, terry_white, my_chemist, direct_chemist, priceline, advantage, alliance, capital_chemist
         # Import NZ handlers
         from services.pharmacy.banners.nz import chemist_warehouse_nz, antidote, unichem, bargain_chemist, woolworths
         
@@ -202,15 +203,16 @@ class PharmacyLocations:
             "terry_white": terry_white.TerryWhiteHandler(self),
             "my_chemist": my_chemist.MyChemistHandler(self),
             "direct_chemist": direct_chemist.DirectChemistHandler(self),
+            "priceline": priceline.PricelineHandler(self),
+            "advantage": advantage.AdvantagePharmacyHandler(self),
+            "alliance": alliance.AlliancePharmacyHandler(self),
             # New Zealand handlers
             "chemist_warehouse_nz": chemist_warehouse_nz.ChemistWarehouseNZHandler(self),
             "antidote_nz": antidote.AntidotePharmacyNZHandler(self),
             "unichem_nz": unichem.UnichemNZHandler(self),
             "bargain_chemist_nz": bargain_chemist.BargainChemistNZHandler(self),
             "woolworths_nz": woolworths.WoolworthsPharmacyNZHandler(self),
-            "priceline": priceline.PricelineHandler(self),
-            "advantage": advantage.AdvantagePharmacyHandler(self),
-            "alliance": alliance.AlliancePharmacyHandler(self)
+            "capital_chemist": capital_chemist.CapitalChemistHandler(self),
         }
 
     async def fetch_locations(self, brand):
