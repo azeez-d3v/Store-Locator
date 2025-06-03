@@ -7,6 +7,7 @@ from .bendigo_ufs import BendigoUfsHandler
 from .blooms import BloomsHandler
 from .capital_chemist import CapitalChemistHandler
 from .caremore import CaremoreHandler
+from .chemist_discount_centre import ChemistDiscountCentreHandler
 from .chemist_hub import ChemistHubHandler
 from .chemist_king import ChemistKingHandler
 from .chemist_warehouse import ChemistWarehouseHandler
@@ -16,6 +17,10 @@ from .discount_drug_stores import DDSHandler
 from .direct_chemist import DirectChemistHandler
 from .footes import FootesHandler
 from .friendly_care import FriendlyCareHandler
+from .greenleaf import GreenleafHandler
+from .healthsave import HealthsaveHandler
+from .jadin import JadinHandler
+from .livelife import LivelifeHandler
 from .nova import NovaHandler
 from .optimal import OptimalHandler
 from .pharmasave import PharmasaveHandler
@@ -30,6 +35,10 @@ from .healthy_pharmacy import HealthyPharmacyHandler
 from .healthy_world import HealthyWorldPharmacyHandler
 from .wizard import WizardPharmacyHandler
 from .superchem import SuperChemHandler
+from .chemist_works import ChemistWorksHandler
+from .chemsave import ChemsaveHandler
+from .pharmacist_advice import PharmacistAdviceHandler
+from .soul_pattinson import SoulPattinsonHandler
 
 __all__ = [
     'amcal',
@@ -57,9 +66,20 @@ __all__ = [
     'wizard',
     'chemist_hub',
     'superchem',
+    'chemist_works',
     'direct_chemist',
     'advantage',
     'alliance',
     'capital_chemist',
-    'caremore'
+    'caremore',
+    'chemist_discount_centre',
+    'greenleaf',
+    'healthsave',
+    'jadin',
+    'livelife',
+    'priceline',
+    'alive',
+    'chemsave',
+    'pharmacist_advice',
+    'soul_pattinson',
 ]

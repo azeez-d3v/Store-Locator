@@ -118,7 +118,21 @@ with tab_fetch:
         "advantage": "Advantage Pharmacy",
         "alliance": "Alliance Pharmacy",
         "capital_chemist": "Capital Chemist",
-        "caremore": "Caremore Pharmacy"
+        "caremore": "Caremore Pharmacy",
+        "chemist_discount_centre": "Chemist Discount Centre",
+        "chemist_works": "Chemist Works",
+        "chemsave": "Chemsave Pharmacy",
+        "greenleaf": "Greenleaf Pharmacy",
+        "healthsave": "Healthsave Pharmacy",
+        "jadin": "Jadin Chemist Group",
+        "livelife": "Livelife Pharmacy",
+        "pharmacist_advice": "Pharmacist Advice Pharmacy",
+        "pharmacy4less": "Pharmacy 4 Less",
+        "pharmacy_co": "Pharmacy & Co",
+        "soul_pattinson": "Soul Pattinson Chemist",
+        "star_discount": "Star Discount Chemist",
+        "ufs_dispensaries": "UFS Dispensaries",
+        "united_chemist": "United Chemist",
     }
 
     nz_pharmacy_brands = {

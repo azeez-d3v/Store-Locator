@@ -78,6 +78,8 @@ class PharmacyLocations:
     BENDIGO_UFS_SITEMAP_URL = "https://www.bendigoufs.com.au/page-sitemap.xml"
     TERRY_WHITE_URL = "https://terrywhitechemmart.com.au/store-api/get-stores-summary"
     MY_CHEMIST_URL = "https://www.mychemist.com.au/ams/webparts/Google_Map_SL_files/storelocator_data.ashx?searchedPoint=(-42.8744692,%20147.3100401)&TrafficSource=1&TrafficSourceState=5&_=1746655982326"
+    PHARMACIST_ADVICE_URL = "https://pharmacistadvice.com.au/wp-content/plugins/superstorefinder-wp/ssf-wp-xml.php"
+    SOUL_PATTINSON_URL = "https://soulpattinson.com.au/wp-content/plugins/superstorefinder-wp/ssf-wp-xml.php"
     CHEMIST_KING_URLS = [
             "https://www.chemistking.com.au/colonellightgardens",
             "https://www.chemistking.com.au/frewville",
@@ -91,6 +93,7 @@ class PharmacyLocations:
         ]
     HEALTHY_PHARMACY_SITEMAP_URL = "https://www.healthylife.com.au/sitemap/stores.xml"
     PRICELINE_API_URL = "https://api.priceline.com.au/occ/v2/priceline/stores?accuracy=0&fields=FULL&pharmacyStore=true&sort=asc&lang=en&curr=AUD&latitude=&longitude=&pageSize=1000&radius=50000"
+    PHARMACY4LESS_URL = "https://cdncf.storelocatorwidgets.com/json/6c0hBJeL5yk8cmaKJGNjTu0JhWNaMQpX?callback=slw"
     ADVANTAGE_API_URL = "https://app.medmate.com.au/mstore-live/api/get_locations"
     PENNAS_URLS = [
             "https://www.pennaspharmacy.com.au/locations/pennas-discount-pharmacy-edensor-park",
@@ -117,6 +120,9 @@ class PharmacyLocations:
     HEALTHY_WORLD_URL = "https://healthyworldpharmacy.com.au/pages/locations"
     WIZARD_URL = "https://www.wizardpharmacy.com.au/store-finder"
     SUPERCHEM_API_URL = "https://www.superchem.com.au/_system/action/group-store-finder/all-locations"
+    PHARMACY_CO_API_URL = "https://www.pharmacyandco.com.au/_system/action/group-store-finder/all-locations"
+    CHEMIST_WORKS_URL = "https://www.chemistworks.com.au/contact-us/"
+    CHEMSAVE_URL = "https://www.chemsave.com.au/amlocator/index/ajax/"
     CHEMIST_HUB_URLS =  [
             "https://www.chemisthub.au/store-locator/chemist-hub-rockdale",
             "https://www.chemisthub.au/store-locator/chemist-hub-sanctuary-point",
@@ -138,6 +144,14 @@ class PharmacyLocations:
     ]
     CAPITAL_CHEMIST_URL = "https://www.capitalchemist.com.au/"
     CAREMORE_URL = "https://caremore.com.au/store-locator/"
+    CHEMIST_DISCOUNT_CENTRE_URL = "https://www.chemistdiscountcentre.com.au/Shops/NearestByRadius"
+    HEALTHSAVE_URL = "https://www.healthsave.com.au/wp-admin/admin-ajax.php?action=store_search&lat=&lng=&max_results=100&search_radius=100&autoload=1"
+    GREENLEAF_URL = "https://greenleafpharmacies.com.au/wp-admin/admin-ajax.php?action=store_search&lat=&lng=&max_results=100&search_radius=100&autoload=1"
+    LIVELIFE_URL = "https://livelifepharmacy.com/wp-admin/admin-ajax.php?action=store_search&lat=&lng=&max_results=100&search_radius=100&autoload=1"
+    JADIN_URL = "https://jadin.com.au/wp-admin/admin-ajax.php?action=store_search&lat=&lng=&max_results=100&search_radius=100&autoload=1"
+    STAR_DISCOUNT_URL = "https://sdc-frontend-fmd6ahcwgxhbcshd.z01.azurefd.net/test/integration/GeoLocation/GetShopDetails"
+    UFS_DISPENSARIES_URL = "https://sl.storeify.app/js/stores/ufs-pharmacies.myshopify.com/storeifyapps-storelocator-geojson.js"
+    UNITED_CHEMIST_URL = "https://www.unitedchemists.net.au/libraries/resources/js/udcjson.txt"
     # Brand configurations
     BRAND_CONFIGS = {
         "dds": {
@@ -170,7 +184,7 @@ class PharmacyLocations:
     def __init__(self):
         self.session_manager = SessionManager()
         # Import brand-specific handlers dynamically to avoid circular imports
-        from services.pharmacy.banners import amcal, blooms, ramsay, revive, optimal, community, footes, alive, ydc, chemist_warehouse, pharmasave, nova, choice, bendigo_ufs, chemist_king, friendly_care, fullife, good_price, healthy_pharmacy, healthy_world, pennas, wizard, chemist_hub, superchem, complete_care, terry_white, my_chemist, direct_chemist, priceline, advantage, alliance, capital_chemist, caremore
+        from services.pharmacy.banners import amcal, blooms, ramsay, revive, optimal, community, footes, alive, ydc, chemist_warehouse, pharmasave, nova, choice, bendigo_ufs, chemist_king, friendly_care, fullife, good_price, healthy_pharmacy, healthy_world, pennas, wizard, chemist_hub, superchem, pharmacy_co, complete_care, terry_white, my_chemist, direct_chemist, priceline, advantage, alliance, capital_chemist, caremore, chemist_discount_centre, chemist_works, chemsave, healthsave, greenleaf, livelife, jadin, pharmacist_advice, soul_pattinson, pharmacy4less, star_discount, ufs_dispensaries, united_chemist
         # Import NZ handlers
         from services.pharmacy.banners.nz import chemist_warehouse_nz, antidote, unichem, bargain_chemist, woolworths
         
@@ -200,13 +214,29 @@ class PharmacyLocations:
             "wizard": wizard.WizardPharmacyHandler(self),
             "chemist_hub": chemist_hub.ChemistHubHandler(self),
             "superchem": superchem.SuperChemHandler(self),
+            "pharmacy_co": pharmacy_co.PharmacyCoHandler(self),
             "complete_care": complete_care.CompleteCareHandler(self),
             "terry_white": terry_white.TerryWhiteHandler(self),
             "my_chemist": my_chemist.MyChemistHandler(self),
+            "pharmacist_advice": pharmacist_advice.PharmacistAdviceHandler(self),
+            "soul_pattinson": soul_pattinson.SoulPattinsonHandler(self),
             "direct_chemist": direct_chemist.DirectChemistHandler(self),
             "priceline": priceline.PricelineHandler(self),
             "advantage": advantage.AdvantagePharmacyHandler(self),
             "alliance": alliance.AlliancePharmacyHandler(self),
+            "caremore": caremore.CaremoreHandler(self),
+            "chemist_discount_centre": chemist_discount_centre.ChemistDiscountCentreHandler(self),
+            "chemist_works": chemist_works.ChemistWorksHandler(self),
+            "chemsave": chemsave.ChemsaveHandler(self),
+            "healthsave": healthsave.HealthsaveHandler(self),
+            "greenleaf": greenleaf.GreenleafHandler(self),
+            "livelife": livelife.LivelifeHandler(self),
+            "jadin": jadin.JadinHandler(self),
+            "pharmacy4less": pharmacy4less.Pharmacy4LessHandler(self),
+            "star_discount": star_discount.StarDiscountHandler(self),
+            "ufs_dispensaries": ufs_dispensaries.UfsDispensariesHandler(self),
+            "united_chemist": united_chemist.UnitedChemistHandler(self),
+
             # New Zealand handlers
             "chemist_warehouse_nz": chemist_warehouse_nz.ChemistWarehouseNZHandler(self),
             "antidote_nz": antidote.AntidotePharmacyNZHandler(self),
@@ -214,7 +244,7 @@ class PharmacyLocations:
             "bargain_chemist_nz": bargain_chemist.BargainChemistNZHandler(self),
             "woolworths_nz": woolworths.WoolworthsPharmacyNZHandler(self),
             "capital_chemist": capital_chemist.CapitalChemistHandler(self),
-            "caremore": caremore.CaremoreHandler(self),
+
         }
 
     async def fetch_locations(self, brand):
@@ -222,7 +252,7 @@ class PharmacyLocations:
         Fetch locations for a specific pharmacy brand.
         
         Args:
-            brand: String identifier for the brand (e.g., "dds", "amcal", "blooms", "ramsay", "revive", "optimal", "community")
+            brand: String identifier for the brand (e.g., "dds", "amcal", "blooms", "ramsay", "revive", "optimal", "community", "chemsave")
             
         Returns:
             Processed location data
@@ -237,7 +267,7 @@ class PharmacyLocations:
         Fetch detailed information for a specific pharmacy.
         
         Args:
-            brand: String identifier for the brand (e.g., "dds", "amcal", "blooms", "ramsay", "revive", "optimal", "community")
+            brand: String identifier for the brand (e.g., "dds", "amcal", "blooms", "ramsay", "revive", "optimal", "community", "chemsave")
             location_id: The ID of the location to get details for
             
         Returns:
@@ -254,7 +284,7 @@ class PharmacyLocations:
         Uses concurrent requests for better performance.
         
         Args:
-            brand: String identifier for the brand (e.g., "dds", "amcal", "blooms", "ramsay", "revive", "optimal", "community")
+            brand: String identifier for the brand (e.g., "dds", "amcal", "blooms", "ramsay", "revive", "optimal", "community", "chemsave")
             
         Returns:
             List of dictionaries containing pharmacy details
