@@ -137,6 +137,7 @@ class PharmacyLocations:
         "https://completecarepharmacies.com.au/locations/south-hobart/"
     ]
     CAPITAL_CHEMIST_URL = "https://www.capitalchemist.com.au/"
+    CAREMORE_URL = "https://caremore.com.au/store-locator/"
     # Brand configurations
     BRAND_CONFIGS = {
         "dds": {
@@ -169,7 +170,7 @@ class PharmacyLocations:
     def __init__(self):
         self.session_manager = SessionManager()
         # Import brand-specific handlers dynamically to avoid circular imports
-        from services.pharmacy.banners import amcal, blooms, ramsay, revive, optimal, community, footes, alive, ydc, chemist_warehouse, pharmasave, nova, choice, bendigo_ufs, chemist_king, friendly_care, fullife, good_price, healthy_pharmacy, healthy_world, pennas, wizard, chemist_hub, superchem, complete_care, terry_white, my_chemist, direct_chemist, priceline, advantage, alliance, capital_chemist
+        from services.pharmacy.banners import amcal, blooms, ramsay, revive, optimal, community, footes, alive, ydc, chemist_warehouse, pharmasave, nova, choice, bendigo_ufs, chemist_king, friendly_care, fullife, good_price, healthy_pharmacy, healthy_world, pennas, wizard, chemist_hub, superchem, complete_care, terry_white, my_chemist, direct_chemist, priceline, advantage, alliance, capital_chemist, caremore
         # Import NZ handlers
         from services.pharmacy.banners.nz import chemist_warehouse_nz, antidote, unichem, bargain_chemist, woolworths
         
@@ -213,6 +214,7 @@ class PharmacyLocations:
             "bargain_chemist_nz": bargain_chemist.BargainChemistNZHandler(self),
             "woolworths_nz": woolworths.WoolworthsPharmacyNZHandler(self),
             "capital_chemist": capital_chemist.CapitalChemistHandler(self),
+            "caremore": caremore.CaremoreHandler(self),
         }
 
     async def fetch_locations(self, brand):
