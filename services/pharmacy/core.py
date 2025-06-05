@@ -2,6 +2,10 @@ import asyncio
 import sys
 import os
 import pandas as pd
+import asyncio
+import sys
+import os
+import pandas as pd
 from rich import print
 from pathlib import Path
 
@@ -67,7 +71,7 @@ class PharmacyLocations:
     FOOTES_SITEMAP_URL = "https://footespharmacies.com/stores-sitemap.xml"
     ALIVE_URL = "https://stockist.co/api/v1/u6442/locations/all"
     YDC_URL = "https://bc-wh.myintegrator.com.au/api/store/d75m9rit2s/location-list"
-    CHEMIST_WAREHOUSE_URL = "https://www.chemistwarehouse.com.au/webapi/store/store-locator?BusinessGroupId=2&SearchByState=&SortByDistance=false"
+    CHEMIST_WAREHOUSE_URL = "https://api.chemistwarehouse.com.au/web/v1/channels/cwr-cw-au/en/radius?channel-type=store&latitude={latitude}&longitude={longitude}&search-type=store-locator"
     CHEMIST_WAREHOUSE_NZ_URL = "https://www.chemistwarehouse.co.nz/webapi/store/store-locator?BusinessGroupId=4&SearchByState=&SortByDistance=false"
     CHEMPRO_URL = "https://www.chempro.com.au/index.php?route=extension/module/wk_store_locater/setter"
     CHEMIST_OUTLET_URL = "https://www.chemistoutlet.com.au/index.php?route=extension/module/wk_store_locater/setter"
