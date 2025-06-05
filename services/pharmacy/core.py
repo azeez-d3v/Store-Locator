@@ -69,6 +69,8 @@ class PharmacyLocations:
     YDC_URL = "https://bc-wh.myintegrator.com.au/api/store/d75m9rit2s/location-list"
     CHEMIST_WAREHOUSE_URL = "https://www.chemistwarehouse.com.au/webapi/store/store-locator?BusinessGroupId=2&SearchByState=&SortByDistance=false"
     CHEMIST_WAREHOUSE_NZ_URL = "https://www.chemistwarehouse.co.nz/webapi/store/store-locator?BusinessGroupId=4&SearchByState=&SortByDistance=false"
+    CHEMPRO_URL = "https://www.chempro.com.au/index.php?route=extension/module/wk_store_locater/setter"
+    CHEMIST_OUTLET_URL = "https://www.chemistoutlet.com.au/index.php?route=extension/module/wk_store_locater/setter"
     ANTIDOTE_NZ_URL = "https://www.antidotepharmacy.co.nz/"
     UNICHEM_NZ_LOCATIONS_URL = "https://www.closeby.co/embed/60e75b93df98a16d97499b8b8512e14f/locations?bounding_box&cachable=true&isInitialLoad=true"
     BARGAIN_CHEMIST_NZ_URL = "https://www.bargainchemist.co.nz/pages/find-a-store"
@@ -152,6 +154,11 @@ class PharmacyLocations:
     STAR_DISCOUNT_URL = "https://sdc-frontend-fmd6ahcwgxhbcshd.z01.azurefd.net/test/integration/GeoLocation/GetShopDetails"
     UFS_DISPENSARIES_URL = "https://sl.storeify.app/js/stores/ufs-pharmacies.myshopify.com/storeifyapps-storelocator-geojson.js"
     UNITED_CHEMIST_URL = "https://www.unitedchemists.net.au/libraries/resources/js/udcjson.txt"
+    PHARMACY_SELECT_URL = "https://pharmacyselect.com.au/"
+    QUALITY_PHARMACY_URL = "https://www.qualitypharmacy.com.au/find-our-pharmacy"
+    VITALITY_PHARMACY_URL = "https://vitalitypharmacy.com.au/"
+    WHOLELIFE_PHARMACY_URL = "https://wholelife.com.au/locations/"
+    LIFE_PHARMACY_NZ_URL = "https://stockist.co/api/v1/u22846/locations/all"
     # Brand configurations
     BRAND_CONFIGS = {
         "dds": {
@@ -170,6 +177,7 @@ class PharmacyLocations:
     DIRECT_CHEMIST_STORES_URL = "https://www.directchemistoutlet.com.au/graphql?query=query+getAmStoreLocatorsByState%7BamStoreLocatorsByState%7Bstate_code+state_id+items%7Bid+is_new+state+name+url_key+__typename%7D__typename%7D%7D&operationName=getAmStoreLocatorsByState&variables=%7B%7D"
     DIRECT_CHEMIST_DETAIL_URL = "https://www.directchemistoutlet.com.au/graphql?query=query+getStoreLocations%28%24locationId%3AInt%24stateId%3AInt%24distance%3AAmStoreLocatorDistanceFilterInput%24attributes%3A%5BAmStoreLocatorAttributeFilterInput%5D%24pageSize%3AInt%29%7BsearchAmStoreLocations%28filter%3A%7Blocation_id%3A%24locationId+state_id%3A%24stateId+distance%3A%24distance+attributes%3A%24attributes%7DpageSize%3A%24pageSize%29%7Bitems%7Baddress+full_address+state_code+attributes%7Battribute_code+attribute_id+entity_id+frontend_input+frontend_label+option_title_item%7Btitle+path+__typename%7Dvalue+__typename%7Daverage_rating+city+country+description+distance+email+id+images%7Bid+image_name+is_base+image_path+__typename%7Dis_new+lat+lng+main_image_name+marker_img+name+phone+schedule_string+show_schedule+state+url_key+website+working_time_today+zip+__typename%7Dpage_info%7Bcurrent_page+page_size+total_pages+__typename%7Dtotal_count+__typename%7D%7D&operationName=getStoreLocations&variables=%7B%22locationId%22:{location_id}%7D"
     
+    PHARMACY_SELECT_URL = "https://pharmacyselect.com.au/"
     # Common headers used across API calls
     COMMON_HEADERS = {
         'Accept': 'application/json, text/plain, */*',
@@ -184,9 +192,9 @@ class PharmacyLocations:
     def __init__(self):
         self.session_manager = SessionManager()
         # Import brand-specific handlers dynamically to avoid circular imports
-        from services.pharmacy.banners import amcal, blooms, ramsay, revive, optimal, community, footes, alive, ydc, chemist_warehouse, pharmasave, nova, choice, bendigo_ufs, chemist_king, friendly_care, fullife, good_price, healthy_pharmacy, healthy_world, pennas, wizard, chemist_hub, superchem, pharmacy_co, complete_care, terry_white, my_chemist, direct_chemist, priceline, advantage, alliance, capital_chemist, caremore, chemist_discount_centre, chemist_works, chemsave, healthsave, greenleaf, livelife, jadin, pharmacist_advice, soul_pattinson, pharmacy4less, star_discount, ufs_dispensaries, united_chemist
+        from services.pharmacy.banners import amcal, blooms, ramsay, revive, optimal, community, footes, alive, ydc, chemist_warehouse, pharmasave, nova, choice, bendigo_ufs, chemist_king, friendly_care, fullife, good_price, healthy_pharmacy, healthy_world, pennas, wizard, chemist_hub, superchem, pharmacy_co, complete_care, terry_white, my_chemist, direct_chemist, priceline, advantage, alliance, capital_chemist, caremore, chemist_discount_centre, chemist_works, chemsave, healthsave, greenleaf, livelife, jadin, pharmacist_advice, soul_pattinson, pharmacy4less, star_discount, ufs_dispensaries, united_chemist, pharmacy777, pharmacy_select, quality_pharmacy, vitality_pharmacy, wholelife_pharmacy
         # Import NZ handlers
-        from services.pharmacy.banners.nz import chemist_warehouse_nz, antidote, unichem, bargain_chemist, woolworths
+        from services.pharmacy.banners.nz import chemist_warehouse_nz, antidote, unichem, bargain_chemist, woolworths, life_pharmacy
         
         self.brand_handlers = {
             "amcal": amcal.AmcalHandler(self),
@@ -236,6 +244,11 @@ class PharmacyLocations:
             "star_discount": star_discount.StarDiscountHandler(self),
             "ufs_dispensaries": ufs_dispensaries.UfsDispensariesHandler(self),
             "united_chemist": united_chemist.UnitedChemistHandler(self),
+            "pharmacy777": pharmacy777.Pharmacy777Handler(self),
+            "pharmacy_select": pharmacy_select.PharmacySelectHandler(self),
+            "quality_pharmacy": quality_pharmacy.QualityPharmacyHandler(self),
+            "vitality_pharmacy": vitality_pharmacy.VitalityPharmacyHandler(self),
+            "wholelife_pharmacy": wholelife_pharmacy.WholelifePharmacyHandler(self),
 
             # New Zealand handlers
             "chemist_warehouse_nz": chemist_warehouse_nz.ChemistWarehouseNZHandler(self),
@@ -243,7 +256,9 @@ class PharmacyLocations:
             "unichem_nz": unichem.UnichemNZHandler(self),
             "bargain_chemist_nz": bargain_chemist.BargainChemistNZHandler(self),
             "woolworths_nz": woolworths.WoolworthsPharmacyNZHandler(self),
+            "life_pharmacy_nz": life_pharmacy.LifePharmacyNZHandler(self),
             "capital_chemist": capital_chemist.CapitalChemistHandler(self),
+            
 
         }
 

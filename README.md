@@ -65,7 +65,7 @@ The Pharmacy Store Locator is a Streamlit-based web application that allows user
 
 ### Data Collection
 
-- **Multi-banner support**: Fetches data from 25+ pharmacy banners:
+- **Multi-banner support**: Fetches data from 50+ pharmacy banners:
   - **Australia**:
     - Discount Drug Stores (DDS)
     - Amcal
@@ -83,7 +83,7 @@ The Pharmacy Store Locator is a Streamlit-based web application that allows user
     - Choice Pharmacy
     - Bendigo UFS
     - Chemist King
-    - Friendly Care Pharmacy
+    - FriendlyCare Pharmacy
     - Fullife Pharmacy
     - Good Price Pharmacy
     - Healthy Life Pharmacy
@@ -91,18 +91,43 @@ The Pharmacy Store Locator is a Streamlit-based web application that allows user
     - Pennas Pharmacy
     - Wizard Pharmacy
     - Chemist Hub
-    - SuperChem
+    - SuperChem Pharmacy
     - Complete Care Pharmacy
     - TerryWhite Chemmart
-    - MyChemist
+    - My Chemist
     - Direct Chemist Outlet
+    - Priceline Pharmacy
+    - Advantage Pharmacy
+    - Alliance Pharmacy
+    - Capital Chemist
+    - Caremore Pharmacy
+    - Chemist Discount Centre
+    - Chemist Works
+    - Chemsave Pharmacy
+    - Greenleaf Pharmacy
+    - Healthsave Pharmacy
+    - Jadin Chemist Group
+    - Livelife Pharmacy
+    - Pharmacist Advice Pharmacy
+    - Pharmacy 4 Less
+    - Pharmacy & Co
+    - Soul Pattinson Chemist
+    - Star Discount Chemist
+    - UFS Dispensaries
+    - United Chemist
+    - Pharmacy 777
+    - Pharmacy Select
+    - Quality Pharmacy
+    - Vitality Pharmacy
+    - Wholelife Pharmacy & Healthfoods
   - **New Zealand**:
-    - Antidote Pharmacy
-    - Bargain Chemist
     - Chemist Warehouse NZ
-    - Complete Care NZ
-    - Unichem
-    - Woolworths Pharmacy
+    - Antidote Pharmacy NZ
+    - Unichem NZ
+    - Bargain Chemist NZ
+    - Woolworths Pharmacy NZ
+    - Life Pharmacy NZ
+  
 - **Asynchronous data fetching**: Efficiently retrieves data using modern async/await patterns
 - **Structured storage**: Saves all fetched data as CSV files in the output directory
 - **Fetch history tracking**: Logs all data retrieval operations with timestamps and success status
@@ -160,7 +185,7 @@ The current implementation consists of several key components:
 1. **SessionManager**: Wraps curl_cffi's AsyncSession to provide browser impersonation and concurrent requests
 
    ```python
-   async with AsyncSession(impersonate="chrome131") as session:
+   async with AsyncSession(impersonate="edge101") as session:
        return await session.get(url, headers=combined_headers)
    ```
 

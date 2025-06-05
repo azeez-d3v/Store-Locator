@@ -133,6 +133,11 @@ with tab_fetch:
         "star_discount": "Star Discount Chemist",
         "ufs_dispensaries": "UFS Dispensaries",
         "united_chemist": "United Chemist",
+        "pharmacy777": "Pharmacy 777",
+        "pharmacy_select": "Pharmacy Select",
+        "quality_pharmacy": "Quality Pharmacy",
+        "vitality_pharmacy": "Vitality Pharmacy",
+        "wholelife_pharmacy": "Wholelife Pharmacy & Healthfoods",
     }
 
     nz_pharmacy_brands = {
@@ -140,7 +145,8 @@ with tab_fetch:
         "antidote_nz": "Antidote Pharmacy NZ",
         "unichem_nz": "Unichem NZ",
         "bargain_chemist_nz": "Bargain Chemist NZ",
-        "woolworths_nz": "Woolworths Pharmacy NZ"
+        "woolworths_nz": "Woolworths Pharmacy NZ",
+        "life_pharmacy_nz": "Life Pharmacy NZ"
     }
 
     # Combine all brands for backward compatibility
@@ -615,7 +621,7 @@ with tab_analyze:
                                                             showlegend=False
                                                         )
                                                         
-                                                        st.plotly_chart(fig, use_container_width=True)
+                                                        st.plotly_chart(fig, use_container_width=True, key="au_trading_hours_chart")
                                                 else:
                                                     st.info("No structured trading hours data available for this pharmacy.")
                                             else:
@@ -660,7 +666,7 @@ with tab_analyze:
                                     title=f"Pharmacy Locations - {selected_au_file}"
                                 )
                                 fig_map.update_layout(height=600)
-                                st.plotly_chart(fig_map, use_container_width=True)
+                                st.plotly_chart(fig_map, use_container_width=True, key="au_geo_map")
                             else:
                                 st.warning("No valid geographic data available for mapping")
                         else:
@@ -691,7 +697,7 @@ with tab_analyze:
                             texttemplate="%{text:.1f}%", 
                             textposition='outside'
                         )
-                        st.plotly_chart(fig_completeness, use_container_width=True)
+                        st.plotly_chart(fig_completeness, use_container_width=True, key="au_completeness_chart")
             else:
                 st.warning("No Australian pharmacy data files found. Please fetch data first.")
         
@@ -955,7 +961,7 @@ with tab_analyze:
                                                             showlegend=False
                                                         )
                                                         
-                                                        st.plotly_chart(fig, use_container_width=True)
+                                                        st.plotly_chart(fig, use_container_width=True, key="nz_trading_hours_chart")
                                                 else:
                                                     st.info("No structured trading hours data available for this pharmacy.")
                                             else:
@@ -1001,7 +1007,7 @@ with tab_analyze:
                                     title=f"Pharmacy Locations - {selected_nz_file}"
                                 )
                                 fig_map.update_layout(height=600)
-                                st.plotly_chart(fig_map, use_container_width=True)
+                                st.plotly_chart(fig_map, use_container_width=True, key="nz_geo_map")
                             else:
                                 st.warning("No valid geographic data available for mapping")
                         else:
@@ -1032,7 +1038,7 @@ with tab_analyze:
                             texttemplate="%{text:.1f}%", 
                             textposition='outside'
                         )
-                        st.plotly_chart(fig_completeness, use_container_width=True)
+                        st.plotly_chart(fig_completeness, use_container_width=True, key="nz_completeness_chart")
             else:
                 st.warning("No New Zealand pharmacy data files found. Please fetch data first.")
         
@@ -1106,7 +1112,7 @@ with tab_analyze:
                 )
                 fig_comp.update_layout(height=400)
                 fig_comp.update_traces(texttemplate='%{y:.1f}%', textposition='outside')
-                st.plotly_chart(fig_comp, use_container_width=True)
+                st.plotly_chart(fig_comp, use_container_width=True, key="comparison_chart")
                 
                 # Show data table
                 st.dataframe(comp_df, use_container_width=True)
