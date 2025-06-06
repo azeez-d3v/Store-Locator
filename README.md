@@ -1,3 +1,5 @@
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/azeez-d3v/Store-Locator)
+
 # 🏥 Pharmacy Store Locator Analytics Dashboard
 
 A comprehensive tool for fetching, analyzing, and visualizing pharmacy location data across multiple pharmacy banners in Australia and New Zealand.
